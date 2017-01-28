@@ -734,6 +734,10 @@ namespace loco
       glfwTerminate();
     }
 
+    /**
+     * set distance from eye to center (zooming)
+     * @param distance
+     */
     void setDistance(const float distance)
     {
       _distance = distance;
@@ -741,48 +745,59 @@ namespace loco
     }
 
     /**
+     * displace once
+     * @return whether to continue
+     */
+    bool runOnce()
+    {
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      onRotationAndZooming();
+      glm::mat4 proj = _mat_proj * _mat_view; // without its own tf
+
+      // render mesh
+      if(_id_program_colored_mesh)
+      {
+        renderColoredMesh(proj);
+      }
+      if(_id_program_unicolor_mesh)
+      {
+        renderUnicolorMesh(proj);
+      }
+      if(_id_program_colored_cloud_point)
+      {
+        renderColoredCloudPoint(proj);
+      }
+      if(_id_program_unicolor_cloud_point)
+      {
+        renderUnicolorCloudPoint(proj);
+      }
+      if(_id_program_unicolor_cloud_sphere)
+      {
+        renderUnicolorCloudSphere(proj);
+      }
+      if(_id_program_colored_cloud_sphere)
+      {
+        renderColoredCloudSphere(proj);
+      }
+      if(!_coordinate_sign_list.empty())
+      {
+        renderCoordinateSign(proj);
+      }
+
+      glfwSwapBuffers(_window);
+      glfwPollEvents();
+
+      return glfwGetKey(_window, GLFW_KEY_ESCAPE) != GLFW_PRESS
+             && glfwWindowShouldClose(_window) == 0;
+    }
+
+    /**
      * render in loop
      */
     void run()
     {
-      while(glfwGetKey(_window, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(_window) == 0)
+      while(runOnce())
       {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        onRotationAndZooming();
-        glm::mat4 proj = _mat_proj * _mat_view; // without its own tf
-
-        // render mesh
-        if(_id_program_colored_mesh)
-        {
-          renderColoredMesh(proj);
-        }
-        if(_id_program_unicolor_mesh)
-        {
-          renderUnicolorMesh(proj);
-        }
-        if(_id_program_colored_cloud_point)
-        {
-          renderColoredCloudPoint(proj);
-        }
-        if(_id_program_unicolor_cloud_point)
-        {
-          renderUnicolorCloudPoint(proj);
-        }
-        if(_id_program_unicolor_cloud_sphere)
-        {
-          renderUnicolorCloudSphere(proj);
-        }
-        if(_id_program_colored_cloud_sphere)
-        {
-          renderColoredCloudSphere(proj);
-        }
-        if(!_coordinate_sign_list.empty())
-        {
-          renderCoordinateSign(proj);
-        }
-
-        glfwSwapBuffers(_window);
-        glfwPollEvents();
       }
     }
 
