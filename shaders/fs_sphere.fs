@@ -18,6 +18,7 @@ vec4 light_phong(PixelNormal pixel);
 
 in CenteredPixel fs_in_centered_pixel;
 
+uniform mat4 proj;
 uniform float radius;
 uniform vec3 pos_eye;
 
@@ -36,7 +37,10 @@ void main()
     real_pos.pos = dir * 0.5f * (-b - sqrt(under_sqrt)) + pos_eye;
     real_pos.nor = normalize(real_pos.pos - fs_in_centered_pixel.center);
     real_pos.color = fs_in_centered_pixel.color;
+
+    vec4 pos_screen = proj * vec4(real_pos.pos, 1.0f);
     gl_FragColor = light_phong(real_pos);
+    gl_FragDepth = pos_screen.z / pos_screen.w;
   }
   else
   {
