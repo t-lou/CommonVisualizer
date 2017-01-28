@@ -32,7 +32,7 @@ int main()
 
 //    visualizer.addMesh(std::vector<float>(vertices, vertices + 3 * 1335),
 //        std::vector<int>(indices, indices + 3 * 2452), loco::color::BLUE);
-    visualizer.run();
+    visualizer.play();
   }
   return 0;
 }

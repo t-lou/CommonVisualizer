@@ -712,6 +712,12 @@ namespace loco
 
     ~CommonVisualizer()
     {
+      reset();
+      glfwTerminate();
+    }
+
+    void resetMesh()
+    {
       for(MeshBuffer &buffer : _mesh_list)
       {
         if(buffer._buffer_color)
@@ -721,6 +727,11 @@ namespace loco
         glDeleteBuffers(1, (GLuint *) &(buffer._buffer_vertex));
         glDeleteVertexArrays(1, &buffer._id_array);
       }
+      _mesh_list.clear();
+    }
+
+    void resetPointCloud()
+    {
       for(PointCloudBuffer &buffer : _cloud_list)
       {
         if(buffer._buffer_color)
@@ -730,8 +741,28 @@ namespace loco
         glDeleteBuffers(1, (GLuint *) &(buffer._buffer_pos));
         glDeleteVertexArrays(1, &buffer._id_array);
       }
-      _mesh_list.clear();
-      glfwTerminate();
+      _cloud_list.clear();
+    }
+
+    void resetCoordinateSign()
+    {
+      for(PointCloudBuffer &buffer : _coordinate_sign_list)
+      {
+        if(buffer._buffer_color)
+        {
+          glDeleteBuffers(1, (GLuint *) &(buffer._buffer_color));
+        }
+        glDeleteBuffers(1, (GLuint *) &(buffer._buffer_pos));
+        glDeleteVertexArrays(1, &buffer._id_array);
+      }
+      _coordinate_sign_list.clear();
+    }
+
+    void reset()
+    {
+      resetMesh();
+      resetPointCloud();
+      resetCoordinateSign();
     }
 
     /**
@@ -748,8 +779,10 @@ namespace loco
      * displace once
      * @return whether to continue
      */
-    bool runOnce()
+    bool playOnce()
     {
+      glfwSetTime(0.0);
+
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       onRotationAndZooming();
       glm::mat4 proj = _mat_proj * _mat_view; // without its own tf
@@ -787,6 +820,9 @@ namespace loco
       glfwSwapBuffers(_window);
       glfwPollEvents();
 
+      double end_time = glfwGetTime();
+      std::cout << "fps: " << 1.0 / end_time << std::endl;
+
       return glfwGetKey(_window, GLFW_KEY_ESCAPE) != GLFW_PRESS
              && glfwWindowShouldClose(_window) == 0;
     }
@@ -794,9 +830,9 @@ namespace loco
     /**
      * render in loop
      */
-    void run()
+    void play()
     {
-      while(runOnce())
+      while(playOnce())
       {
       }
     }
