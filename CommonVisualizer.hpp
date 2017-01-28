@@ -104,6 +104,7 @@ namespace loco
     bool _re_init;
     std::list<MeshBuffer> _mesh_list;
     std::list<PointCloudBuffer> _cloud_list;
+    std::list<PointCloudBuffer> _coordinate_sign_list;
     float _distance, _theta, _phi;
     glm::vec4 _pos_viewer;
     glm::vec4 _up_viewer;
@@ -281,6 +282,8 @@ namespace loco
     {
       glm::mat4 tf = glm::mat4_cast(glm::quat(transform._rotation._w, transform._rotation._x,
                                               transform._rotation._y, transform._rotation._z));
+//      glm::mat4 tf = glm::mat4_cast(glm::quat(transform._rotation._x, transform._rotation._y,
+//                                              transform._rotation._z, transform._rotation._w));
       tf[3] = glm::vec4(transform._translation._x, transform._translation._y, transform._translation._z, 1.0f);
       return tf;
     }
@@ -569,6 +572,30 @@ namespace loco
       }
     }
 
+    void renderCoordinateSign(const glm::mat4 &proj)
+    {
+      GLuint id_proj = glGetUniformLocation(_id_program_colored_cloud_point, "proj");
+      glUseProgram(_id_program_colored_cloud_point);
+      glUniformMatrix4fv(id_proj, 1, GL_FALSE, &proj[0][0]);
+      for(const PointCloudBuffer &sign : _coordinate_sign_list)
+      {
+        glBindVertexArray(sign._id_array);
+
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, sign._buffer_pos);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+
+        glEnableVertexAttribArray(1);
+        glBindBuffer(GL_ARRAY_BUFFER, sign._buffer_color);
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, NULL);
+
+        glDrawArrays(GL_LINES, 0, sign._size);
+
+        glDisableVertexAttribArray(1);
+        glDisableVertexAttribArray(0);
+      }
+    }
+
     static std::vector<float> genFakeNormal(const std::vector<float> &vertices)
     {
       std::vector<float> normals;
@@ -735,6 +762,10 @@ namespace loco
         {
           renderColoredCloudSphere(proj);
         }
+        if(!_coordinate_sign_list.empty())
+        {
+          renderCoordinateSign(proj);
+        }
 
         glfwSwapBuffers(_window);
         glfwPollEvents();
@@ -878,6 +909,46 @@ namespace loco
       else if(radius > 0.0f && _id_program_unicolor_cloud_sphere == 0)
       {
         loadUnicolorCloudSphereShader();
+      }
+    }
+
+    void addCoordinateSign(const Transform &transform)
+    {
+      glm::mat4 mat_tf = CommonVisualizer::transformToMat4(transform);
+      std::vector<float> points;
+      std::vector<float> colors;
+      points.reserve(6 * 3);
+      colors.reserve(6 * 4);
+
+      // add points
+      glm::vec4 start = mat_tf * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+      for(int id_dim = 0; id_dim < 3; ++id_dim)
+      {
+        float color[] = {0.0f, 0.0f, 0.0f, 1.0f};
+        glm::vec4 end(0.0f, 0.0f, 0.0f, 1.0f);
+        end[id_dim] = 1.0f;
+        end = mat_tf * end;
+        color[id_dim] = 1.0f;
+        points.push_back(start.x);
+        points.push_back(start.y);
+        points.push_back(start.z);
+        points.push_back(end.x);
+        points.push_back(end.y);
+        points.push_back(end.z);
+        for(int i = 0; i < 8; ++i)
+        {
+          colors.push_back(color[i % 4]);
+        }
+      }
+      _coordinate_sign_list.push_back(PointCloudBuffer());
+      glGenVertexArrays(1, &_coordinate_sign_list.back()._id_array);
+      CommonVisualizer::genBufferVectorFloat(points, _coordinate_sign_list.back()._buffer_pos);
+      CommonVisualizer::genBufferVectorFloat(colors, _coordinate_sign_list.back()._buffer_color);
+      _coordinate_sign_list.back()._size = 6;
+
+      if(_id_program_colored_cloud_point == 0)
+      {
+        loadColoredCloudPointShader();
       }
     }
 
