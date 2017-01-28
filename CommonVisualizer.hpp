@@ -61,6 +61,7 @@ namespace loco
     Vec _color;
     GLuint _id_array;
     int _size;
+    glm::mat4 _transform_local;
   };
 
   struct PointCloudBuffer
@@ -71,6 +72,7 @@ namespace loco
     GLuint _id_array;
     int _size;
     float _radius;
+    glm::mat4 _transform_local;
   };
 
   /**
@@ -246,6 +248,9 @@ namespace loco
      */
     void updateViewingMatrix()
     {
+      updatePosViewer();
+      updateCenterViewer();
+      updateUpViewer();
       _mat_view = glm::lookAt(glm::vec3(_pos_viewer.x, _pos_viewer.y, _pos_viewer.z),
                               glm::vec3(_center_viewer.x, _center_viewer.y, _center_viewer.z),
                               glm::vec3(_up_viewer.x, _up_viewer.y, _up_viewer.z));
@@ -327,8 +332,6 @@ namespace loco
         {
           _theta = M_PI;
         }
-        updatePosViewer();
-        updateUpViewer();
         updateViewingMatrix();
         is_left_pressed = false;
       }
@@ -343,7 +346,6 @@ namespace loco
         glfwGetCursorPos(_window, &xpos, &ypos);
         double dy = ypos - ypos_prev;
         _distance *= (float)pow(1.1, dy / 50.0);
-        updatePosViewer();
         updateViewingMatrix();
         is_middle_pressed = false;
       }
@@ -388,12 +390,14 @@ namespace loco
       GLuint id_proj = glGetUniformLocation(_id_program_unicolor_mesh, "proj");
       GLuint id_color = glGetUniformLocation(_id_program_unicolor_mesh, "color");
       glUseProgram(_id_program_unicolor_mesh);
-      glUniformMatrix4fv(id_proj, 1, GL_FALSE, &proj[0][0]);
       preparePhongParameter(_id_program_unicolor_mesh);
       for(const MeshBuffer &mesh : _mesh_list)
       {
         if(!mesh._buffer_color)
         {
+          glm::mat4 total_proj = proj * mesh._transform_local;
+          glUniformMatrix4fv(id_proj, 1, GL_FALSE, &total_proj[0][0]);
+
           glUniform4fv(id_color, 1, mesh._color._data);
           glBindVertexArray(mesh._id_array);
 
@@ -421,12 +425,13 @@ namespace loco
     {
       GLuint id_proj = glGetUniformLocation(_id_program_colored_mesh, "proj");
       glUseProgram(_id_program_colored_mesh);
-      glUniformMatrix4fv(id_proj, 1, GL_FALSE, &proj[0][0]);
       preparePhongParameter(_id_program_colored_mesh);
       for(const MeshBuffer &mesh : _mesh_list)
       {
         if(mesh._buffer_color)
         {
+          glm::mat4 total_proj = proj * mesh._transform_local;
+          glUniformMatrix4fv(id_proj, 1, GL_FALSE, &total_proj[0][0]);
           glBindVertexArray(mesh._id_array);
 
           glEnableVertexAttribArray(0);
@@ -455,12 +460,13 @@ namespace loco
       GLuint id_proj = glGetUniformLocation(_id_program_colored_cloud_point, "proj");
       GLuint id_size = glGetUniformLocation(_id_program_unicolor_cloud_point, "point_size");
       glUseProgram(_id_program_colored_cloud_point);
-      glUniformMatrix4fv(id_proj, 1, GL_FALSE, &proj[0][0]);
       for(const PointCloudBuffer &cloud : _cloud_list)
       {
         if(cloud._radius <= 0.0f && cloud._buffer_color)
         {
           float point_size = cloud._radius < -1.0f ? -cloud._radius : 2.0f;
+          glm::mat4 total_proj = proj * cloud._transform_local;
+          glUniformMatrix4fv(id_proj, 1, GL_FALSE, &total_proj[0][0]);
           glUniform1f(id_size, point_size);
           glBindVertexArray(cloud._id_array);
 
@@ -486,12 +492,13 @@ namespace loco
       GLuint id_color = glGetUniformLocation(_id_program_unicolor_cloud_point, "color");
       GLuint id_size = glGetUniformLocation(_id_program_unicolor_cloud_point, "point_size");
       glUseProgram(_id_program_unicolor_cloud_point);
-      glUniformMatrix4fv(id_proj, 1, GL_FALSE, &proj[0][0]);
       for(const PointCloudBuffer &cloud : _cloud_list)
       {
         if(cloud._radius <= 0.0f && !cloud._buffer_color)
         {
           float point_size = cloud._radius < -1.0f ? -cloud._radius : 2.0f;
+          glm::mat4 total_proj = proj * cloud._transform_local;
+          glUniformMatrix4fv(id_proj, 1, GL_FALSE, &total_proj[0][0]);
           glUniform1f(id_size, point_size);
           glUniform4fv(id_color, 1, cloud._color._data);
           glBindVertexArray(cloud._id_array);
@@ -514,12 +521,14 @@ namespace loco
       GLuint id_up = glGetUniformLocation(_id_program_colored_cloud_sphere, "dir_up");
       GLuint id_eye = glGetUniformLocation(_id_program_colored_cloud_sphere, "pos_eye");
       glUseProgram(_id_program_colored_cloud_sphere);
-      glUniformMatrix4fv(id_proj, 1, GL_FALSE, &proj[0][0]);
       preparePhongParameter(_id_program_colored_cloud_sphere);
       for(const PointCloudBuffer &cloud : _cloud_list)
       {
         if(cloud._radius > 0.0f && cloud._buffer_color)
         {
+          glm::mat4 total_proj = proj * cloud._transform_local;
+          glUniformMatrix4fv(id_proj, 1, GL_FALSE, &total_proj[0][0]);
+
           glUniform1f(id_size, cloud._radius);
           glUniform3fv(id_up, 1, &_up_viewer[0]);
           glUniform3fv(id_eye, 1, &_pos_viewer[0]);
@@ -549,12 +558,14 @@ namespace loco
       GLuint id_up = glGetUniformLocation(_id_program_unicolor_cloud_sphere, "dir_up");
       GLuint id_eye = glGetUniformLocation(_id_program_unicolor_cloud_sphere, "pos_eye");
       glUseProgram(_id_program_unicolor_cloud_sphere);
-      glUniformMatrix4fv(id_proj, 1, GL_FALSE, &proj[0][0]);
       preparePhongParameter(_id_program_unicolor_cloud_sphere);
       for(const PointCloudBuffer &cloud : _cloud_list)
       {
         if(cloud._radius > 0.0f && !cloud._buffer_color)
         {
+          glm::mat4 total_proj = proj * cloud._transform_local;
+          glUniformMatrix4fv(id_proj, 1, GL_FALSE, &total_proj[0][0]);
+
           glUniform1f(id_size, cloud._radius);
           glUniform4fv(id_color, 1, cloud._color._data);
           glUniform3fv(id_up, 1, &_up_viewer[0]);
@@ -636,7 +647,7 @@ namespace loco
         _width(width),
         _re_init(0),
         _window(NULL),
-        _distance(5.0f),
+        _distance(3.0f),
         _theta(M_PI / 2.0),
         _phi(0.0f),
         _mat_proj(glm::perspective(glm::radians(45.0f), (float) _width / (float) _height, 0.1f, 5000.0f)),
@@ -696,9 +707,6 @@ namespace loco
 //                                         std::placeholders::_1, std::placeholders::_2);
 //      glutReshapeFunc(wrapper_resize_window);
 
-      updatePosViewer();
-      updateUpViewer();
-      updateCenterViewer();
       updateViewingMatrix();
     }
 
@@ -724,6 +732,12 @@ namespace loco
       }
       _mesh_list.clear();
       glfwTerminate();
+    }
+
+    void setDistance(const float distance)
+    {
+      _distance = distance;
+      updateViewingMatrix();
     }
 
     /**
@@ -825,6 +839,7 @@ namespace loco
       CommonVisualizer::genBufferVectorFloat(normals, _mesh_list.back()._buffer_normal);
       // size
       _mesh_list.back()._size = (int) vertices.size() / 3;
+      _mesh_list.back()._transform_local = glm::mat4(1.0f);
     }
 
     void addMesh(const std::vector<float> &vertices, const std::vector<int> &index, const Vec &color)
@@ -868,6 +883,7 @@ namespace loco
       CommonVisualizer::genBufferVectorFloat(colors, _mesh_list.back()._buffer_color);
       // size
       _mesh_list.back()._size = (int) vertices.size() / 3;
+      _mesh_list.back()._transform_local = glm::mat4(1.0f);
     }
 
     void addPointCloud(const std::vector<float> &points, const std::vector<float> &colors,
@@ -881,6 +897,7 @@ namespace loco
       CommonVisualizer::genBufferVectorFloat(colors, _cloud_list.back()._buffer_color);
       _cloud_list.back()._radius = radius;
       _cloud_list.back()._size = points.size() / 3;
+      _cloud_list.back()._transform_local = glm::mat4(1.0f);
       if(radius <= 0.0f && _id_program_colored_cloud_point == 0)
       {
         loadColoredCloudPointShader();
@@ -902,6 +919,7 @@ namespace loco
       _cloud_list.back()._color = color;
       _cloud_list.back()._radius = radius;
       _cloud_list.back()._size = points.size() / 3;
+      _cloud_list.back()._transform_local = glm::mat4(1.0f);
       if(radius <= 0.0f && _id_program_unicolor_cloud_point == 0)
       {
         loadUnicolorCloudPointShader();
@@ -945,6 +963,7 @@ namespace loco
       CommonVisualizer::genBufferVectorFloat(points, _coordinate_sign_list.back()._buffer_pos);
       CommonVisualizer::genBufferVectorFloat(colors, _coordinate_sign_list.back()._buffer_color);
       _coordinate_sign_list.back()._size = 6;
+      _coordinate_sign_list.back()._transform_local = glm::mat4(1.0f);
 
       if(_id_program_colored_cloud_point == 0)
       {
