@@ -12,44 +12,14 @@
 #include <string>
 #include <functional>
 
-#include "include_gl.h"
+#include "include/include_gl.h"
+#include "include/Vec.h"
+#include "include/Container.hpp"
+#include "include/MeshColored.hpp"
+#include "include/MeshUnicolor.hpp"
 
 namespace loco
 {
-  /**
-   * length 4 vector (can be used as vec3)
-   */
-  union Vec
-  {
-    float _data[4];
-    struct
-    {
-      float _x;
-      float _y;
-      float _z;
-      float _w;
-    };
-    struct
-    {
-      float _r;
-      float _g;
-      float _b;
-      float _a;
-    };
-  };
-
-  struct Transform
-  {
-    Vec _translation;
-    Vec _rotation;
-  };
-
-  struct LightSource
-  {
-    Vec _pos;
-    Vec _color;
-  };
-
   /**
    * data for colored and unicolor mesh
    */
@@ -122,6 +92,8 @@ namespace loco
     GLuint _id_program_unicolor_cloud_point;
     GLuint _id_program_colored_cloud_sphere;
     GLuint _id_program_unicolor_cloud_sphere;
+
+    Container _world;
 
     /**
      * print error by compilation
@@ -322,8 +294,8 @@ namespace loco
         {
           dx = 0.0;
         }
-        _theta += dy * M_PI * 0.25 / (double)_height;
-        _phi -= dx * M_PI * 0.25 / (double)_width;
+        _theta -= dy * M_PI * 0.25 / (double)_height;
+        _phi += dx * M_PI * 0.25 / (double)_width;
         if(_theta < 0.0)
         {
           _theta = 0.0;
@@ -817,6 +789,8 @@ namespace loco
         renderCoordinateSign(proj);
       }
 
+      _world.display(proj);
+
       glfwSwapBuffers(_window);
       glfwPollEvents();
 
@@ -873,24 +847,11 @@ namespace loco
      */
     void addMesh(const std::vector<float> &vertices, const Vec &color)
     {
-      assert(vertices.size() % 9 == 0);
       if(_id_program_unicolor_mesh == 0)
       {
         loadUnicolorMeshShader();
       }
-      std::vector<float> normals = CommonVisualizer::genFakeNormal(vertices);
-      _mesh_list.push_back(MeshBuffer());
-//      _mesh_list.back()._is_colored = false;
-      _mesh_list.back()._color = color;
-      // vertex array
-      glGenVertexArrays(1, &_mesh_list.back()._id_array);
-      // vertex buffer
-      CommonVisualizer::genBufferVectorFloat(vertices, _mesh_list.back()._buffer_vertex);
-      // normal buffer
-      CommonVisualizer::genBufferVectorFloat(normals, _mesh_list.back()._buffer_normal);
-      // size
-      _mesh_list.back()._size = (int) vertices.size() / 3;
-      _mesh_list.back()._transform_local = glm::mat4(1.0f);
+      _world.addObject(new MeshUnicolor(vertices, color, _id_program_unicolor_mesh));
     }
 
     void addMesh(const std::vector<float> &vertices, const std::vector<int> &index, const Vec &color)
@@ -906,7 +867,7 @@ namespace loco
         triangle_vertices.at(id * 3 + 1) = vertices.at(i * 3 + 1);
         triangle_vertices.at(id * 3 + 2) = vertices.at(i * 3 + 2);
       }
-      addMesh(triangle_vertices, color);
+      _world.addObject(new MeshUnicolor(triangle_vertices, color, _id_program_unicolor_mesh));
     }
 
     /**
@@ -916,25 +877,11 @@ namespace loco
      */
     void addMesh(const std::vector<float> &vertices, const std::vector<float> &colors)
     {
-      assert(vertices.size() * 12 == colors.size() * 9);
       if(_id_program_colored_mesh == 0)
       {
         loadColoredMeshShader();
       }
-      std::vector<float> normals = CommonVisualizer::genFakeNormal(vertices);
-      _mesh_list.push_back(MeshBuffer());
-//      _mesh_list.back()._is_colored = true;
-      // vertex array
-      glGenVertexArrays(1, &_mesh_list.back()._id_array);
-      // vertex buffer
-      CommonVisualizer::genBufferVectorFloat(vertices, _mesh_list.back()._buffer_vertex);
-      // normal buffer
-      CommonVisualizer::genBufferVectorFloat(normals, _mesh_list.back()._buffer_normal);
-      // color buffer
-      CommonVisualizer::genBufferVectorFloat(colors, _mesh_list.back()._buffer_color);
-      // size
-      _mesh_list.back()._size = (int) vertices.size() / 3;
-      _mesh_list.back()._transform_local = glm::mat4(1.0f);
+      _world.addObject(new MeshColored(vertices, colors, _id_program_colored_mesh));
     }
 
     void addPointCloud(const std::vector<float> &points, const std::vector<float> &colors,
