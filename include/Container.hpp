@@ -25,10 +25,6 @@ namespace loco
 
     void reset()
     {
-      for(size_t id = 0; id < _belongings.size(); ++id)
-      {
-        _belongings.at(id).reset();
-      }
       _belongings.clear();
     }
 
@@ -40,10 +36,22 @@ namespace loco
 
     void display(const glm::mat4 &proj)
     {
-      for(size_t id = 0; id < _belongings.size(); ++id)
+      for(const std::unique_ptr<Object> &obj : _belongings)
       {
-        _belongings.at(id)->display(proj);
+        obj->display(proj);
       }
+    }
+
+    void setTransform(const int id, const Transform &transform)
+    {
+      assert(id < _belongings.size());
+      _belongings.at(id)->setTransform(transform);
+    }
+
+    void applyTransform(const int id, const Transform &transform)
+    {
+      assert(id < _belongings.size());
+      _belongings.at(id)->applyTransform(transform);
     }
   };
 }

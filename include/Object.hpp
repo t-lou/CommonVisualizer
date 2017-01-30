@@ -78,6 +78,11 @@ namespace loco
       _transform = Object::transformToMat4(transform);
     }
 
+    void applyTransform(const Transform &transform)
+    {
+      _transform *= Object::transformToMat4(transform);
+    }
+
     virtual void display(const glm::mat4 &proj) = 0;
 
   };
