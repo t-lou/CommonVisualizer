@@ -20,7 +20,6 @@ namespace loco
     GLuint _id_array;
     GLuint _buffer_position;
     int _size;
-//    std::vector< std::unique_ptr<Object> > _belongings;
 
     static void genBufferVectorFloat(const std::vector<float>& data, GLuint &id_buffer)
     {
@@ -64,6 +63,19 @@ namespace loco
 
     ~Object()
     {
+    }
+
+    static glm::mat4 transformToMat4(const Transform &transform)
+    {
+      glm::mat4 tf = glm::mat4_cast(glm::quat(transform._rotation._w, transform._rotation._x,
+                                              transform._rotation._y, transform._rotation._z));
+      tf[3] = glm::vec4(transform._translation._x, transform._translation._y, transform._translation._z, 1.0f);
+      return tf;
+    }
+
+    void setTransform(const Transform &transform)
+    {
+      _transform = Object::transformToMat4(transform);
     }
 
     virtual void display(const glm::mat4 &proj) = 0;

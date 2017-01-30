@@ -23,6 +23,11 @@ namespace loco
     {
     }
 
+    void reset()
+    {
+      _belongings.clear();
+    }
+
     template<class T>
     void addObject(const T *object)
     {

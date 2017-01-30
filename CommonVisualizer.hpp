@@ -17,34 +17,14 @@
 #include "include/Container.hpp"
 #include "include/MeshColored.hpp"
 #include "include/MeshUnicolor.hpp"
+#include "include/CloudSphereColored.hpp"
+#include "include/CloudPointColored.hpp"
+#include "include/CloudSphereUnicolor.hpp"
+#include "include/CloudPointUnicolor.hpp"
+#include "include/CoordinateUnits.hpp"
 
 namespace loco
 {
-  /**
-   * data for colored and unicolor mesh
-   */
-  struct MeshBuffer
-  {
-    GLuint _buffer_vertex;
-    GLuint _buffer_color;
-    GLuint _buffer_normal;
-    Vec _color;
-    GLuint _id_array;
-    int _size;
-    glm::mat4 _transform_local;
-  };
-
-  struct PointCloudBuffer
-  {
-    GLuint _buffer_pos;
-    GLuint _buffer_color;
-    Vec _color;
-    GLuint _id_array;
-    int _size;
-    float _radius;
-    glm::mat4 _transform_local;
-  };
-
   /**
    * constants for some useful colors
    */
@@ -74,9 +54,6 @@ namespace loco
     int _height, _width;
     GLFWwindow *_window;
     bool _re_init;
-    std::list<MeshBuffer> _mesh_list;
-    std::list<PointCloudBuffer> _cloud_list;
-    std::list<PointCloudBuffer> _coordinate_sign_list;
     float _distance, _theta, _phi;
     glm::vec4 _pos_viewer;
     glm::vec4 _up_viewer;
@@ -251,21 +228,6 @@ namespace loco
     }
 
     /**
-     * get transform matrix from translation and rotation quaternion
-     * @param transform
-     * @return
-     */
-    static glm::mat4 transformToMat4(const Transform &transform)
-    {
-      glm::mat4 tf = glm::mat4_cast(glm::quat(transform._rotation._w, transform._rotation._x,
-                                              transform._rotation._y, transform._rotation._z));
-//      glm::mat4 tf = glm::mat4_cast(glm::quat(transform._rotation._x, transform._rotation._y,
-//                                              transform._rotation._z, transform._rotation._w));
-      tf[3] = glm::vec4(transform._translation._x, transform._translation._y, transform._translation._z, 1.0f);
-      return tf;
-    }
-
-    /**
      * rotate and zoom(not implemented) according to mouse input
      */
     void onRotationAndZooming()
@@ -337,15 +299,23 @@ namespace loco
 //                                   0.1f, 500.0f);
 //    }
 
+    void updateViewerPose(const GLuint &id_program)
+    {
+      GLuint id_up = glGetUniformLocation(id_program, "dir_up");
+      GLuint id_eye = glGetUniformLocation(id_program, "pos_eye");
+      glUniform3fv(id_up, 1, &_up_viewer[0]);
+      glUniform3fv(id_eye, 1, &_pos_viewer[0]);
+    }
+
     /**
      * prepare parameters for phong lighting to program
      * @param id_program
      */
-    void preparePhongParameter(const GLuint &id_program)
+    void updatePhongParameter(const GLuint &id_program)
     {
       GLuint id_pos_source = glGetUniformLocation(id_program, "pos_light");
       GLuint id_color_source = glGetUniformLocation(id_program, "color_light");
-      GLuint id_pos_viewer = glGetUniformLocation(id_program, "pos_viewer");
+      GLuint id_pos_viewer = glGetUniformLocation(id_program, "pos_eye");
       GLuint id_param_phong = glGetUniformLocation(id_program, "phong");
       glUniform3fv(id_pos_source, 1, _light_source._pos._data);
       glUniform4fv(id_color_source, 1, _light_source._color._data);
@@ -353,263 +323,26 @@ namespace loco
       glUniform4fv(id_param_phong, 1, _param_phong._data);
     }
 
-    /**
-     * render mesh with uniform color from _mesh_list
-     * @param proj
-     */
-    void renderUnicolorMesh(const glm::mat4 &proj)
+    void updatePhongParameter()
     {
-      GLuint id_proj = glGetUniformLocation(_id_program_unicolor_mesh, "proj");
-      GLuint id_color = glGetUniformLocation(_id_program_unicolor_mesh, "color");
-      glUseProgram(_id_program_unicolor_mesh);
-      preparePhongParameter(_id_program_unicolor_mesh);
-      for(const MeshBuffer &mesh : _mesh_list)
+      if(_id_program_colored_mesh)
       {
-        if(!mesh._buffer_color)
-        {
-          glm::mat4 total_proj = proj * mesh._transform_local;
-          glUniformMatrix4fv(id_proj, 1, GL_FALSE, &total_proj[0][0]);
-
-          glUniform4fv(id_color, 1, mesh._color._data);
-          glBindVertexArray(mesh._id_array);
-
-          glEnableVertexAttribArray(0);
-          glBindBuffer(GL_ARRAY_BUFFER, mesh._buffer_vertex);
-          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-
-          glEnableVertexAttribArray(1);
-          glBindBuffer(GL_ARRAY_BUFFER, mesh._buffer_normal);
-          glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-
-          glDrawArrays(GL_TRIANGLES, 0, mesh._size);
-
-          glEnableVertexAttribArray(1);
-          glDisableVertexAttribArray(0);
-        }
+        updatePhongParameter(_id_program_colored_mesh);
       }
-    }
-
-    /**
-     * render mesh with color in _mesh_list
-     * @param proj
-     */
-    void renderColoredMesh(const glm::mat4 &proj)
-    {
-      GLuint id_proj = glGetUniformLocation(_id_program_colored_mesh, "proj");
-      glUseProgram(_id_program_colored_mesh);
-      preparePhongParameter(_id_program_colored_mesh);
-      for(const MeshBuffer &mesh : _mesh_list)
+      if(_id_program_unicolor_mesh)
       {
-        if(mesh._buffer_color)
-        {
-          glm::mat4 total_proj = proj * mesh._transform_local;
-          glUniformMatrix4fv(id_proj, 1, GL_FALSE, &total_proj[0][0]);
-          glBindVertexArray(mesh._id_array);
-
-          glEnableVertexAttribArray(0);
-          glBindBuffer(GL_ARRAY_BUFFER, mesh._buffer_vertex);
-          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-
-          glEnableVertexAttribArray(1);
-          glBindBuffer(GL_ARRAY_BUFFER, mesh._buffer_color);
-          glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, NULL);
-
-          glEnableVertexAttribArray(2);
-          glBindBuffer(GL_ARRAY_BUFFER, mesh._buffer_normal);
-          glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-
-          glDrawArrays(GL_TRIANGLES, 0, mesh._size);
-
-          glDisableVertexAttribArray(2);
-          glDisableVertexAttribArray(1);
-          glDisableVertexAttribArray(0);
-        }
+        updatePhongParameter(_id_program_unicolor_mesh);
       }
-    }
-
-    void renderColoredCloudPoint(const glm::mat4 &proj)
-    {
-      GLuint id_proj = glGetUniformLocation(_id_program_colored_cloud_point, "proj");
-      GLuint id_size = glGetUniformLocation(_id_program_unicolor_cloud_point, "point_size");
-      glUseProgram(_id_program_colored_cloud_point);
-      for(const PointCloudBuffer &cloud : _cloud_list)
+      if(_id_program_unicolor_cloud_sphere)
       {
-        if(cloud._radius <= 0.0f && cloud._buffer_color)
-        {
-          float point_size = cloud._radius < -1.0f ? -cloud._radius : 2.0f;
-          glm::mat4 total_proj = proj * cloud._transform_local;
-          glUniformMatrix4fv(id_proj, 1, GL_FALSE, &total_proj[0][0]);
-          glUniform1f(id_size, point_size);
-          glBindVertexArray(cloud._id_array);
-
-          glEnableVertexAttribArray(0);
-          glBindBuffer(GL_ARRAY_BUFFER, cloud._buffer_pos);
-          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-
-          glEnableVertexAttribArray(1);
-          glBindBuffer(GL_ARRAY_BUFFER, cloud._buffer_color);
-          glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, NULL);
-
-          glDrawArrays(GL_POINTS, 0, cloud._size);
-
-          glDisableVertexAttribArray(1);
-          glDisableVertexAttribArray(0);
-        }
+        updateViewerPose(_id_program_unicolor_cloud_sphere);
+        updatePhongParameter(_id_program_unicolor_cloud_sphere);
       }
-    }
-
-    void renderUnicolorCloudPoint(const glm::mat4 &proj)
-    {
-      GLuint id_proj = glGetUniformLocation(_id_program_unicolor_cloud_point, "proj");
-      GLuint id_color = glGetUniformLocation(_id_program_unicolor_cloud_point, "color");
-      GLuint id_size = glGetUniformLocation(_id_program_unicolor_cloud_point, "point_size");
-      glUseProgram(_id_program_unicolor_cloud_point);
-      for(const PointCloudBuffer &cloud : _cloud_list)
+      if(_id_program_colored_cloud_sphere)
       {
-        if(cloud._radius <= 0.0f && !cloud._buffer_color)
-        {
-          float point_size = cloud._radius < -1.0f ? -cloud._radius : 2.0f;
-          glm::mat4 total_proj = proj * cloud._transform_local;
-          glUniformMatrix4fv(id_proj, 1, GL_FALSE, &total_proj[0][0]);
-          glUniform1f(id_size, point_size);
-          glUniform4fv(id_color, 1, cloud._color._data);
-          glBindVertexArray(cloud._id_array);
-
-          glEnableVertexAttribArray(0);
-          glBindBuffer(GL_ARRAY_BUFFER, cloud._buffer_pos);
-          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-
-          glDrawArrays(GL_POINTS, 0, cloud._size);
-
-          glDisableVertexAttribArray(0);
-        }
+        updateViewerPose(_id_program_colored_cloud_sphere);
+        updatePhongParameter(_id_program_colored_cloud_sphere);
       }
-    }
-
-    void renderColoredCloudSphere(const glm::mat4 &proj)
-    {
-      GLuint id_proj = glGetUniformLocation(_id_program_colored_cloud_sphere, "proj");
-      GLuint id_size = glGetUniformLocation(_id_program_colored_cloud_sphere, "radius");
-      GLuint id_up = glGetUniformLocation(_id_program_colored_cloud_sphere, "dir_up");
-      GLuint id_eye = glGetUniformLocation(_id_program_colored_cloud_sphere, "pos_eye");
-      glUseProgram(_id_program_colored_cloud_sphere);
-      preparePhongParameter(_id_program_colored_cloud_sphere);
-      for(const PointCloudBuffer &cloud : _cloud_list)
-      {
-        if(cloud._radius > 0.0f && cloud._buffer_color)
-        {
-          glm::mat4 total_proj = proj * cloud._transform_local;
-          glUniformMatrix4fv(id_proj, 1, GL_FALSE, &total_proj[0][0]);
-
-          glUniform1f(id_size, cloud._radius);
-          glUniform3fv(id_up, 1, &_up_viewer[0]);
-          glUniform3fv(id_eye, 1, &_pos_viewer[0]);
-          glBindVertexArray(cloud._id_array);
-
-          glEnableVertexAttribArray(0);
-          glBindBuffer(GL_ARRAY_BUFFER, cloud._buffer_pos);
-          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-
-          glEnableVertexAttribArray(1);
-          glBindBuffer(GL_ARRAY_BUFFER, cloud._buffer_color);
-          glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, NULL);
-
-          glDrawArrays(GL_POINTS, 0, cloud._size);
-
-          glDisableVertexAttribArray(1);
-          glDisableVertexAttribArray(0);
-        }
-      }
-    }
-
-    void renderUnicolorCloudSphere(const glm::mat4 &proj)
-    {
-      GLuint id_proj = glGetUniformLocation(_id_program_unicolor_cloud_sphere, "proj");
-      GLuint id_color = glGetUniformLocation(_id_program_unicolor_cloud_sphere, "color");
-      GLuint id_size = glGetUniformLocation(_id_program_unicolor_cloud_sphere, "radius");
-      GLuint id_up = glGetUniformLocation(_id_program_unicolor_cloud_sphere, "dir_up");
-      GLuint id_eye = glGetUniformLocation(_id_program_unicolor_cloud_sphere, "pos_eye");
-      glUseProgram(_id_program_unicolor_cloud_sphere);
-      preparePhongParameter(_id_program_unicolor_cloud_sphere);
-      for(const PointCloudBuffer &cloud : _cloud_list)
-      {
-        if(cloud._radius > 0.0f && !cloud._buffer_color)
-        {
-          glm::mat4 total_proj = proj * cloud._transform_local;
-          glUniformMatrix4fv(id_proj, 1, GL_FALSE, &total_proj[0][0]);
-
-          glUniform1f(id_size, cloud._radius);
-          glUniform4fv(id_color, 1, cloud._color._data);
-          glUniform3fv(id_up, 1, &_up_viewer[0]);
-          glUniform3fv(id_eye, 1, &_pos_viewer[0]);
-          glBindVertexArray(cloud._id_array);
-
-          glEnableVertexAttribArray(0);
-          glBindBuffer(GL_ARRAY_BUFFER, cloud._buffer_pos);
-          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-
-          glDrawArrays(GL_POINTS, 0, cloud._size);
-
-          glDisableVertexAttribArray(0);
-        }
-      }
-    }
-
-    void renderCoordinateSign(const glm::mat4 &proj)
-    {
-      GLuint id_proj = glGetUniformLocation(_id_program_colored_cloud_point, "proj");
-      glUseProgram(_id_program_colored_cloud_point);
-      glUniformMatrix4fv(id_proj, 1, GL_FALSE, &proj[0][0]);
-      for(const PointCloudBuffer &sign : _coordinate_sign_list)
-      {
-        glBindVertexArray(sign._id_array);
-
-        glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, sign._buffer_pos);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-
-        glEnableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, sign._buffer_color);
-        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, NULL);
-
-        glDrawArrays(GL_LINES, 0, sign._size);
-
-        glDisableVertexAttribArray(1);
-        glDisableVertexAttribArray(0);
-      }
-    }
-
-    static std::vector<float> genFakeNormal(const std::vector<float> &vertices)
-    {
-      std::vector<float> normals;
-      normals.resize(vertices.size());
-      for(size_t id = 0; id < vertices.size(); id += 9)
-      {
-        // use the cross product of two edges for normal
-        // vec0 <- vector from second to first
-        glm::vec3 vec0(vertices.at(id + 3) - vertices.at(id + 0),
-                       vertices.at(id + 4) - vertices.at(id + 1),
-                       vertices.at(id + 5) - vertices.at(id + 2));
-        // vec1 <- vector from second to third
-        glm::vec3 vec1(vertices.at(id + 3) - vertices.at(id + 6),
-                       vertices.at(id + 4) - vertices.at(id + 7),
-                       vertices.at(id + 5) - vertices.at(id + 8));
-        glm::vec3 nor = glm::normalize(-glm::cross(vec0, vec1));
-        for(int i = 0; i < 3; ++i)
-        {
-          normals.at(id + i * 3 + 0) = nor[0];
-          normals.at(id + i * 3 + 1) = nor[1];
-          normals.at(id + i * 3 + 2) = nor[2];
-        }
-      }
-      return normals;
-    }
-
-    static void genBufferVectorFloat(const std::vector<float>& data, GLuint &id_buffer)
-    {
-      glGenBuffers(1, &id_buffer);
-      glBindBuffer(GL_ARRAY_BUFFER, id_buffer);
-      glBufferData(GL_ARRAY_BUFFER, 4 * data.size(), &data.front(), GL_STATIC_DRAW);
     }
 
   public:
@@ -623,7 +356,7 @@ namespace loco
         _theta(M_PI / 2.0),
         _phi(0.0f),
         _mat_proj(glm::perspective(glm::radians(45.0f), (float) _width / (float) _height, 0.1f, 5000.0f)),
-        _mat_external(CommonVisualizer::transformToMat4(Transform{Vec{}, Vec{0.0f, 0.0f, 0.0f, 1.0f}})),
+        _mat_external(Object::transformToMat4(Transform{Vec{}, Vec{0.0f, 0.0f, 0.0f, 1.0f}})),
         _id_program_colored_mesh(0),
         _id_program_unicolor_mesh(0),
         _id_program_colored_cloud_point(0),
@@ -684,57 +417,36 @@ namespace loco
 
     ~CommonVisualizer()
     {
-      reset();
+      if(_id_program_unicolor_mesh)
+      {
+        glDeleteProgram(_id_program_unicolor_mesh);
+      }
+      if(_id_program_colored_mesh)
+      {
+        glDeleteProgram(_id_program_colored_mesh);
+      }
+      if(_id_program_colored_cloud_point)
+      {
+        glDeleteProgram(_id_program_colored_cloud_point);
+      }
+      if(_id_program_unicolor_cloud_point)
+      {
+        glDeleteProgram(_id_program_unicolor_cloud_point);
+      }
+      if(_id_program_colored_cloud_sphere)
+      {
+        glDeleteProgram(_id_program_colored_cloud_sphere);
+      }
+      if(_id_program_unicolor_cloud_sphere)
+      {
+        glDeleteProgram(_id_program_unicolor_cloud_sphere);
+      }
       glfwTerminate();
     }
 
-    void resetMesh()
+    void resetScene()
     {
-      for(MeshBuffer &buffer : _mesh_list)
-      {
-        if(buffer._buffer_color)
-        {
-          glDeleteBuffers(1, (GLuint *) &(buffer._buffer_color));
-        }
-        glDeleteBuffers(1, (GLuint *) &(buffer._buffer_vertex));
-        glDeleteVertexArrays(1, &buffer._id_array);
-      }
-      _mesh_list.clear();
-    }
-
-    void resetPointCloud()
-    {
-      for(PointCloudBuffer &buffer : _cloud_list)
-      {
-        if(buffer._buffer_color)
-        {
-          glDeleteBuffers(1, (GLuint *) &(buffer._buffer_color));
-        }
-        glDeleteBuffers(1, (GLuint *) &(buffer._buffer_pos));
-        glDeleteVertexArrays(1, &buffer._id_array);
-      }
-      _cloud_list.clear();
-    }
-
-    void resetCoordinateSign()
-    {
-      for(PointCloudBuffer &buffer : _coordinate_sign_list)
-      {
-        if(buffer._buffer_color)
-        {
-          glDeleteBuffers(1, (GLuint *) &(buffer._buffer_color));
-        }
-        glDeleteBuffers(1, (GLuint *) &(buffer._buffer_pos));
-        glDeleteVertexArrays(1, &buffer._id_array);
-      }
-      _coordinate_sign_list.clear();
-    }
-
-    void reset()
-    {
-      resetMesh();
-      resetPointCloud();
-      resetCoordinateSign();
+      _world.reset();
     }
 
     /**
@@ -759,36 +471,7 @@ namespace loco
       onRotationAndZooming();
       glm::mat4 proj = _mat_proj * _mat_view; // without its own tf
 
-      // render mesh
-      if(_id_program_colored_mesh)
-      {
-        renderColoredMesh(proj);
-      }
-      if(_id_program_unicolor_mesh)
-      {
-        renderUnicolorMesh(proj);
-      }
-      if(_id_program_colored_cloud_point)
-      {
-        renderColoredCloudPoint(proj);
-      }
-      if(_id_program_unicolor_cloud_point)
-      {
-        renderUnicolorCloudPoint(proj);
-      }
-      if(_id_program_unicolor_cloud_sphere)
-      {
-        renderUnicolorCloudSphere(proj);
-      }
-      if(_id_program_colored_cloud_sphere)
-      {
-        renderColoredCloudSphere(proj);
-      }
-      if(!_coordinate_sign_list.empty())
-      {
-        renderCoordinateSign(proj);
-      }
-
+      updatePhongParameter();
       _world.display(proj);
 
       glfwSwapBuffers(_window);
@@ -833,7 +516,7 @@ namespace loco
 
     void setTransform(const Transform &transform)
     {
-      _mat_external = CommonVisualizer::transformToMat4(transform);
+      _mat_external = Object::transformToMat4(transform);
       updatePosViewer();
       updateUpViewer();
       updateCenterViewer();
@@ -887,86 +570,56 @@ namespace loco
     void addPointCloud(const std::vector<float> &points, const std::vector<float> &colors,
                        const float radius = -1.0f)
     {
-      assert(points.size() * 4 == colors.size() * 3);
-      _cloud_list.push_back(PointCloudBuffer());
-      // vertex array
-      glGenVertexArrays(1, &_cloud_list.back()._id_array);
-      CommonVisualizer::genBufferVectorFloat(points, _cloud_list.back()._buffer_pos);
-      CommonVisualizer::genBufferVectorFloat(colors, _cloud_list.back()._buffer_color);
-      _cloud_list.back()._radius = radius;
-      _cloud_list.back()._size = points.size() / 3;
-      _cloud_list.back()._transform_local = glm::mat4(1.0f);
-      if(radius <= 0.0f && _id_program_colored_cloud_point == 0)
+      if(radius <= 0.0f)
       {
-        loadColoredCloudPointShader();
+        if(_id_program_colored_cloud_point == 0)
+        {
+          loadColoredCloudPointShader();
+        }
+        _world.addObject(new CloudPointColored(points, colors, -radius,
+                                               _id_program_colored_cloud_point));
       }
-      else if(radius > 0.0f && _id_program_colored_cloud_sphere == 0)
+      else
       {
-        loadColoredCloudSphereShader();
+        if(_id_program_colored_cloud_sphere == 0)
+        {
+          loadColoredCloudSphereShader();
+        }
+        _world.addObject(new CloudSphereColored(points, colors, radius,
+                                                _id_program_colored_cloud_sphere));
       }
     }
 
     void addPointCloud(const std::vector<float> &points, const Vec &color,
                        const float radius = -1.0f)
     {
-      assert(points.size() % 3 == 0);
-      _cloud_list.push_back(PointCloudBuffer());
-      // vertex array
-      glGenVertexArrays(1, &_cloud_list.back()._id_array);
-      CommonVisualizer::genBufferVectorFloat(points, _cloud_list.back()._buffer_pos);
-      _cloud_list.back()._color = color;
-      _cloud_list.back()._radius = radius;
-      _cloud_list.back()._size = points.size() / 3;
-      _cloud_list.back()._transform_local = glm::mat4(1.0f);
-      if(radius <= 0.0f && _id_program_unicolor_cloud_point == 0)
+      if(radius <= 0.0f)
       {
-        loadUnicolorCloudPointShader();
+        if(_id_program_unicolor_cloud_point == 0)
+        {
+          loadUnicolorCloudPointShader();
+        }
+        _world.addObject(new CloudPointUnicolor(points, color, -radius,
+                                                _id_program_unicolor_cloud_point));
       }
-      else if(radius > 0.0f && _id_program_unicolor_cloud_sphere == 0)
+      else
       {
-        loadUnicolorCloudSphereShader();
+        if(_id_program_unicolor_cloud_sphere == 0)
+        {
+          loadUnicolorCloudSphereShader();
+        }
+        _world.addObject(new CloudSphereUnicolor(points, color, radius,
+                                                 _id_program_unicolor_cloud_sphere));
       }
     }
 
     void addCoordinateSign(const Transform &transform)
     {
-      glm::mat4 mat_tf = CommonVisualizer::transformToMat4(transform);
-      std::vector<float> points;
-      std::vector<float> colors;
-      points.reserve(6 * 3);
-      colors.reserve(6 * 4);
-
-      // add points
-      glm::vec4 start = mat_tf * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-      for(int id_dim = 0; id_dim < 3; ++id_dim)
-      {
-        float color[] = {0.0f, 0.0f, 0.0f, 1.0f};
-        glm::vec4 end(0.0f, 0.0f, 0.0f, 1.0f);
-        end[id_dim] = 1.0f;
-        end = mat_tf * end;
-        color[id_dim] = 1.0f;
-        points.push_back(start.x);
-        points.push_back(start.y);
-        points.push_back(start.z);
-        points.push_back(end.x);
-        points.push_back(end.y);
-        points.push_back(end.z);
-        for(int i = 0; i < 8; ++i)
-        {
-          colors.push_back(color[i % 4]);
-        }
-      }
-      _coordinate_sign_list.push_back(PointCloudBuffer());
-      glGenVertexArrays(1, &_coordinate_sign_list.back()._id_array);
-      CommonVisualizer::genBufferVectorFloat(points, _coordinate_sign_list.back()._buffer_pos);
-      CommonVisualizer::genBufferVectorFloat(colors, _coordinate_sign_list.back()._buffer_color);
-      _coordinate_sign_list.back()._size = 6;
-      _coordinate_sign_list.back()._transform_local = glm::mat4(1.0f);
-
       if(_id_program_colored_cloud_point == 0)
       {
         loadColoredCloudPointShader();
       }
+      _world.addObject(new CoordinateUnits(_id_program_colored_cloud_point));
     }
 
     void loadColoredMeshShader()

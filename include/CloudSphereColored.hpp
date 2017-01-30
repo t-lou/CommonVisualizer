@@ -1,42 +1,37 @@
 //
-// Created by tlou on 29.01.17.
+// Created by tlou on 30.01.17.
 //
 
-#ifndef COMMONVISUALIZER_MESHCOLORED_HPP
-#define COMMONVISUALIZER_MESHCOLORED_HPP
+#ifndef COMMONVISUALIZER_CLOUDSPHERECOLORED_HPP
+#define COMMONVISUALIZER_CLOUDSPHERECOLORED_HPP
 
 #include "Object.hpp"
 
 namespace loco
 {
-  class MeshColored : public Object
+  class CloudSphereColored : public Object
   {
   protected:
-    GLuint _buffer_normal;
+    float _radius;
     GLuint _buffer_color;
 
   public:
-    MeshColored(const std::vector<float> &vertices, const std::vector<float> &colors,
-                const GLuint id_program):
-        Object(id_program)
+    CloudSphereColored(const std::vector<float> &positions, const std::vector<float> &colors,
+                       const float radius, const GLuint id_program) :
+        Object(id_program),
+        _radius(radius)
     {
-      assert(vertices.size() * 12 == colors.size() * 9);
-      std::vector<float> normals = genFakeNormal(vertices);
+      assert(positions.size() * 4 == colors.size() * 3);
       // vertex array
       glGenVertexArrays(1, &_id_array);
-      // vertex buffer
-      genBufferVectorFloat(vertices, _buffer_position);
-      // normal buffer
-      genBufferVectorFloat(normals, _buffer_normal);
-      // color buffer
+      genBufferVectorFloat(positions, _buffer_position);
       genBufferVectorFloat(colors, _buffer_color);
-      _size = vertices.size() / 3;
+      _size = positions.size() / 3;
     }
 
-    ~MeshColored()
+    ~CloudSphereColored()
     {
       glDeleteBuffers(1, (GLuint *) &_buffer_color);
-      glDeleteBuffers(1, (GLuint *) &_buffer_normal);
       glDeleteBuffers(1, (GLuint *) &_buffer_position);
       glDeleteVertexArrays(1, &_id_array);
     }
@@ -44,10 +39,13 @@ namespace loco
     void display(const glm::mat4 &proj)
     {
       GLuint id_proj = glGetUniformLocation(_id_program, "proj");
+      GLuint id_size = glGetUniformLocation(_id_program, "radius");
       glUseProgram(_id_program);
 
       glm::mat4 total_proj = proj * _transform;
       glUniformMatrix4fv(id_proj, 1, GL_FALSE, &total_proj[0][0]);
+
+      glUniform1f(id_size, _radius);
       glBindVertexArray(_id_array);
 
       glEnableVertexAttribArray(0);
@@ -58,17 +56,12 @@ namespace loco
       glBindBuffer(GL_ARRAY_BUFFER, _buffer_color);
       glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, NULL);
 
-      glEnableVertexAttribArray(2);
-      glBindBuffer(GL_ARRAY_BUFFER, _buffer_normal);
-      glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+      glDrawArrays(GL_POINTS, 0, _size);
 
-      glDrawArrays(GL_TRIANGLES, 0, _size);
-
-      glDisableVertexAttribArray(2);
       glDisableVertexAttribArray(1);
       glDisableVertexAttribArray(0);
     }
   };
 }
 
-#endif //COMMONVISUALIZER_MESHCOLORED_HPP
+#endif //COMMONVISUALIZER_CLOUDSPHERECOLORED_HPP
