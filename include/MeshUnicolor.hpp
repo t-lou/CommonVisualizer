@@ -15,6 +15,23 @@ namespace loco
     GLuint _buffer_normal;
     Vec _color;
 
+    std::vector<float> unfoldVertice(const std::vector<float> &vertices, const std::vector<int> &index)
+    {
+      assert(vertices.size() % 3 == 0);
+      assert(index.size() % 3 == 0);
+
+      std::vector<float> all_vertices;
+      all_vertices.reserve(index.size() * 3);
+
+      for(int id : index)
+      {
+        all_vertices.insert(all_vertices.end(),
+                            vertices.begin() + id * 3,
+                            vertices.begin() + id * 3 + 3);
+      }
+      return all_vertices;
+    }
+
   public:
     MeshUnicolor(const std::vector<float> &vertices, const Vec &color,
                  const GLuint id_program):
@@ -30,6 +47,12 @@ namespace loco
       // normal buffer
       genBufferVectorFloat(normals, _buffer_normal);
       _size = vertices.size() / 3;
+    }
+
+    MeshUnicolor(const std::vector<float> &vertices, const std::vector<int> &index,
+                 const Vec &color, const GLuint id_program) :
+        MeshUnicolor(unfoldVertice(vertices, index), color, id_program)
+    {
     }
 
     ~MeshUnicolor()
@@ -60,7 +83,7 @@ namespace loco
 
       glDrawArrays(GL_TRIANGLES, 0, _size);
 
-      glEnableVertexAttribArray(1);
+      glDisableVertexAttribArray(1);
       glDisableVertexAttribArray(0);
     }
   };

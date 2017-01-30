@@ -548,18 +548,11 @@ namespace loco
 
     void addMesh(const std::vector<float> &vertices, const std::vector<int> &index, const Vec &color)
     {
-      assert(vertices.size() % 9 == 0);
-      assert(index.size() % 3 == 0);
-      std::vector<float> triangle_vertices(index.size() * 3, 0.0f);
-      for(size_t id = 0; id < index.size(); ++id)
+      if(_id_program_unicolor_mesh == 0)
       {
-        const int i = index.at(id);
-        assert(i * 3 < vertices.size());
-        triangle_vertices.at(id * 3) = vertices.at(i * 3);
-        triangle_vertices.at(id * 3 + 1) = vertices.at(i * 3 + 1);
-        triangle_vertices.at(id * 3 + 2) = vertices.at(i * 3 + 2);
+        loadUnicolorMeshShader();
       }
-      _world.addObject(new MeshUnicolor(triangle_vertices, color, _id_program_unicolor_mesh));
+      _world.addObject(new MeshUnicolor(vertices, index, color, _id_program_unicolor_mesh));
     }
 
     /**
