@@ -67,8 +67,10 @@ namespace loco
 
     static glm::mat4 transformToMat4(const Transform &transform)
     {
-      glm::mat4 tf = glm::mat4_cast(glm::quat(transform._rotation._w, transform._rotation._x,
-                                              transform._rotation._y, transform._rotation._z));
+      glm::vec4 quat(transform._rotation._x, transform._rotation._y,
+                     transform._rotation._z, transform._rotation._w);
+      quat /= glm::length(quat);
+      glm::mat4 tf = glm::mat4_cast(glm::quat(quat.w, quat.x, quat.y, quat.z));
       tf[3] = glm::vec4(transform._translation._x, transform._translation._y, transform._translation._z, 1.0f);
       return tf;
     }
