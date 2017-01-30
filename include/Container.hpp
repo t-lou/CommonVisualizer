@@ -25,6 +25,10 @@ namespace loco
 
     void reset()
     {
+      for(size_t id = 0; id < _belongings.size(); ++id)
+      {
+        _belongings.at(id).reset();
+      }
       _belongings.clear();
     }
 

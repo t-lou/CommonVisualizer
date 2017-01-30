@@ -61,9 +61,7 @@ namespace loco
     {
     }
 
-    ~Object()
-    {
-    }
+    virtual ~Object() {};
 
     static glm::mat4 transformToMat4(const Transform &transform)
     {
