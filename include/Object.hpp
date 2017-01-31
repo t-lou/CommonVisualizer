@@ -21,14 +21,14 @@ namespace loco
     GLuint _buffer_position;
     int _size;
 
-    static void genBufferVectorFloat(const std::vector<float>& data, GLuint &id_buffer)
+    virtual void genBufferVectorFloat(const std::vector<float>& data, GLuint &id_buffer)
     {
       glGenBuffers(1, &id_buffer);
       glBindBuffer(GL_ARRAY_BUFFER, id_buffer);
       glBufferData(GL_ARRAY_BUFFER, 4 * data.size(), &data.front(), GL_STATIC_DRAW);
     }
 
-    static std::vector<float> genFakeNormal(const std::vector<float> &vertices)
+    virtual std::vector<float> genFakeNormal(const std::vector<float> &vertices)
     {
       std::vector<float> normals;
       normals.resize(vertices.size());
@@ -84,6 +84,30 @@ namespace loco
     }
 
     virtual void display(const glm::mat4 &proj) = 0;
+
+
+
+    virtual void print(const glm::vec4 &vec)
+    {
+      for(int j = 0; j < 4; ++j)
+      {
+        std::cout << vec[j] << " ";
+      }
+      std::cout << std::endl;
+    }
+
+    virtual void print(const glm::mat4 &mat)
+    {
+      for(int i = 0; i < 4; ++i)
+      {
+        for(int j = 0; j < 4; ++j)
+        {
+          std::cout << mat[i][j] << " ";
+        }
+        std::cout << std::endl;
+      }
+      std::cout << std::endl;
+    }
 
   };
 }

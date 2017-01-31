@@ -12,11 +12,13 @@ struct PixelNormal
   vec3 pos;
   vec3 nor;
   vec4 color;
+  float depth;
 };
 
 vec4 light_phong(PixelNormal pixel);
 
 in CenteredPixel fs_in_centered_pixel;
+out vec4 color_out;
 
 uniform mat4 proj;
 uniform float radius;
@@ -39,8 +41,8 @@ void main()
     real_pos.color = fs_in_centered_pixel.color;
 
     vec4 pos_screen = proj * vec4(real_pos.pos, 1.0f);
-    gl_FragColor = light_phong(real_pos);
     gl_FragDepth = pos_screen.z / pos_screen.w;
+    color_out = light_phong(real_pos);
   }
   else
   {

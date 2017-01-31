@@ -5,6 +5,7 @@ struct PixelNormal
   vec3 pos;
   vec3 nor;
   vec4 color;
+  float depth;
 };
 
 uniform vec3 pos_light;

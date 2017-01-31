@@ -5,6 +5,7 @@ struct PixelNormal
   vec3 pos;
   vec3 nor;
   vec4 color;
+  float depth;
 };
 
 layout(location = 0) in vec3 pos;
@@ -22,5 +23,6 @@ void main()
   posnorcolor_in_fs.color = color;
   posnorcolor_in_fs.pos = pos;
   posnorcolor_in_fs.nor = nor;
+  posnorcolor_in_fs.depth = gl_Position.z;
 }
 )"

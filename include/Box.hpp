@@ -12,6 +12,12 @@ namespace loco
   class Box : public MeshUnicolor
   {
   protected:
+    /**
+     * create a vector of point positions of corners for drawing. it is shit but it works
+     * @param transform
+     * @param scale
+     * @return
+     */
     std::vector<float> getVertex(const Transform &transform, const Vec &scale)
     {
       glm::mat4 tf_mat = Object::transformToMat4(transform);
