@@ -287,6 +287,7 @@ namespace loco
     {
       GLuint id_up = glGetUniformLocation(id_program, "dir_up");
       GLuint id_eye = glGetUniformLocation(id_program, "pos_eye");
+      glUseProgram(id_program);
       glUniform3fv(id_up, 1, &_up_viewer[0]);
       glUniform3fv(id_eye, 1, &_pos_viewer[0]);
     }
@@ -301,6 +302,7 @@ namespace loco
       GLuint id_color_source = glGetUniformLocation(id_program, "color_light");
       GLuint id_pos_viewer = glGetUniformLocation(id_program, "pos_eye");
       GLuint id_param_phong = glGetUniformLocation(id_program, "phong");
+      glUseProgram(id_program);
       glUniform3fv(id_pos_source, 1, _light_source._pos._data);
       glUniform4fv(id_color_source, 1, _light_source._color._data);
       glUniform3fv(id_pos_viewer, 1, &_pos_viewer[0]);
