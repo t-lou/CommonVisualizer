@@ -14,7 +14,6 @@ struct PixelNormal
   vec4 color;
   float depth;
 };
-
 vec4 light_phong(PixelNormal pixel);
 
 in CenteredPixel fs_in_centered_pixel;

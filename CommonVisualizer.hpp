@@ -23,6 +23,7 @@
 #include "include/CloudPointUnicolor.hpp"
 #include "include/CoordinateUnits.hpp"
 #include "include/Box.hpp"
+#include "include/CylinderSide.hpp"
 
 namespace loco
 {
@@ -70,6 +71,7 @@ namespace loco
     GLuint _id_program_unicolor_cloud_point;
     GLuint _id_program_colored_cloud_sphere;
     GLuint _id_program_unicolor_cloud_sphere;
+    GLuint _id_program_cylinder_side;
 
     Container _world;
 
@@ -332,6 +334,11 @@ namespace loco
         updateViewerPose(_id_program_colored_cloud_sphere);
         updatePhongParameter(_id_program_colored_cloud_sphere);
       }
+      if(_id_program_cylinder_side)
+      {
+        updateViewerPose(_id_program_cylinder_side);
+        updatePhongParameter(_id_program_cylinder_side);
+      }
     }
 
   public:
@@ -352,6 +359,7 @@ namespace loco
         _id_program_unicolor_cloud_point(0),
         _id_program_colored_cloud_sphere(0),
         _id_program_unicolor_cloud_sphere(0),
+        _id_program_cylinder_side(0),
         _param_phong(Vec{0.3f, 0.3f, 0.4f, 2.0f})
     {
       // glfw init
@@ -621,6 +629,16 @@ namespace loco
       _world.addObject(new CoordinateUnits(_id_program_colored_cloud_point));
     }
 
+    void addCylinder(const std::vector<float> &positions, const std::vector<float> &radius,
+                     const std::vector<Vec> &colors)
+    {
+      if(_id_program_cylinder_side == 0)
+      {
+        loadCylinderSideShader();
+      }
+      _world.addObject(new CylinderSide(positions, radius, colors, _id_program_cylinder_side));
+    }
+
     /**
      * add box with transform, scaling and one color
      * @param transform
@@ -735,6 +753,26 @@ namespace loco
       const char *texts[] = {gs, vs, fs, fs_phong};
       GLenum types[] = {GL_GEOMETRY_SHADER, GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_FRAGMENT_SHADER};
       _id_program_unicolor_cloud_sphere = CommonVisualizer::createProgram(
+          std::vector<GLenum>(types, types + 4), std::vector<const char *>(texts, texts + 4));
+    }
+
+    void loadCylinderSideShader()
+    {
+      const char *vs =
+#include "./shaders/vs_cylinder_side.vs"
+      ;
+      const char *fs =
+#include "./shaders/fs_cylinder_side.fs"
+      ;
+      const char *fs_phong =
+#include "./shaders/fs_sub_phong.fs"
+      ;
+      const char *gs =
+#include "./shaders/gs_cylinder_side.gs"
+      ;
+      const char *texts[] = {vs, fs, fs_phong, gs};
+      GLenum types[] = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_FRAGMENT_SHADER, GL_GEOMETRY_SHADER};
+      _id_program_cylinder_side = CommonVisualizer::createProgram(
           std::vector<GLenum>(types, types + 4), std::vector<const char *>(texts, texts + 4));
     }
   };
