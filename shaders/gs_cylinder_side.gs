@@ -40,10 +40,14 @@ void main()
   vec3 edge1_to = normalize(pos3 - pos1);
 
   // extend by radius_
-  pos0 -= edge0_to * radius_;
-  pos1 -= edge1_to * radius_;
-  pos2 += edge0_to * radius_;
-  pos3 += edge1_to * radius_;
+  float s0 = abs(dot(normalize(dir_along), dir0_look));
+  float s1 = abs(dot(normalize(dir_along), dir1_look));
+  s0 = sqrt(1.0f - s0 * s0);
+  s1 = sqrt(1.0f - s1 * s1);
+  pos0 -= edge0_to * radius_ / s0;
+  pos1 -= edge1_to * radius_ / s0;
+  pos2 += edge0_to * radius_ / s1;
+  pos3 += edge1_to * radius_ / s1;
 
   // common
   fs_in_centered_end.length = length(dir_along);

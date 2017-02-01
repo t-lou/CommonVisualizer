@@ -46,10 +46,10 @@ int main()
 
     float ends[] = {1.0f, 0.0f, 0.3f, 1.0f, 0.0f, -0.3f,
                     -1.0f, 0.0f, 0.3f, -1.0f, 0.0f, -0.3f};
-//    visualizer.addCapsule(std::vector<float>(ends, ends + 12), std::vector<float>(2, 0.1f),
-//                          std::vector<loco::Vec>(2, loco::color::WHITE));
-    visualizer.addCylinder(std::vector<float>(ends, ends + 12), std::vector<float>(2, 0.1f),
-                           std::vector<loco::Vec>(2, loco::color::WHITE));
+    visualizer.addCapsule(std::vector<float>(ends, ends + 12), std::vector<float>(2, 0.1f),
+                          std::vector<loco::Vec>(2, loco::color::WHITE));
+//    visualizer.addCylinder(std::vector<float>(ends, ends + 12), std::vector<float>(2, 0.1f),
+//                           std::vector<loco::Vec>(2, loco::color::WHITE));
     visualizer.play();
   }
   return 0;
