@@ -24,6 +24,7 @@
 #include "include/CoordinateUnits.hpp"
 #include "include/Box.hpp"
 #include "include/CylinderSide.hpp"
+#include "include/Capsule.hpp"
 
 namespace loco
 {
@@ -661,6 +662,21 @@ namespace loco
         loadCylinderSideShader();
       }
       _world.addObject(new CylinderSide(positions, radius, colors, _id_program_cylinder_side));
+    }
+
+    void addCapsule(const std::vector<float> &positions, const std::vector<float> &radius,
+                    const std::vector<Vec> &colors)
+    {
+      if(_id_program_cylinder_side == 0)
+      {
+        loadCylinderSideShader();
+      }
+      if(_id_program_unicolor_cloud_sphere == 0)
+      {
+        loadUnicolorCloudSphereShader();
+      }
+      _world.addObject(new Capsule(positions, radius, colors,
+                                   _id_program_cylinder_side, _id_program_unicolor_cloud_sphere));
     }
 
     /**

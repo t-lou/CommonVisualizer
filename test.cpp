@@ -44,9 +44,10 @@ int main()
 //    visualizer.addMesh(std::vector<float>(vertices, vertices + 3 * 1335),
 //        std::vector<int>(indices, indices + 3 * 2452), loco::color::BLUE);
 
-    float ends[] = {1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, };
-    visualizer.addCylinder(std::vector<float>(ends, ends + 6), std::vector<float>(1, 0.1f),
-                           std::vector<loco::Vec>(1, loco::color::WHITE));
+    float ends[] = {1.0f, 0.0f, 0.3f, 1.0f, 0.0f, -0.3f,
+                    -1.0f, 0.0f, 0.3f, -1.0f, 0.0f, -0.3f};
+    visualizer.addCapsule(std::vector<float>(ends, ends + 12), std::vector<float>(2, 0.1f),
+                          std::vector<loco::Vec>(2, loco::color::WHITE));
     visualizer.play();
   }
   return 0;
