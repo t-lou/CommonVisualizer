@@ -460,6 +460,26 @@ namespace loco
     }
 
     /**
+     * set theta of viewer, which is the angle of viewing direction to -Z
+     * @param theta
+     */
+    void setTheta(const float theta)
+    {
+      _theta = theta;
+      updateViewingMatrix();
+    }
+
+    /**
+     * set phi of view, which is rotation around Z-axis
+     * @param phi
+     */
+    void setPhi(const float phi)
+    {
+      _phi = phi;
+      updateViewingMatrix();
+    }
+
+    /**
      * displace once
      * @return whether to continue
      */
