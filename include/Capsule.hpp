@@ -16,8 +16,8 @@ namespace loco
   protected:
 
   public:
-    Capsule(const std::vector<float> &positions, const std::vector<float> &radius,
-            const std::vector<Vec> &colors, const GLuint id_program_side, const GLuint id_program_end) :
+    Capsule(const std::vector<float> &positions, const std::vector<float> &radius, const std::vector<Vec> &colors,
+            const GLuint id_program_side, const GLuint id_program_end) :
         Container()
     {
       assert(positions.size() % 6 == 0);
@@ -28,11 +28,12 @@ namespace loco
 
       for(size_t id = 0; id < colors.size(); ++id)
       {
+        const size_t id6 = id * 6;
         addObject(new CloudSphereUnicolor(
-            std::vector<float>(positions.begin() + 6 * id, positions.begin() + 6 * id + 6),
+            std::vector<float>(positions.begin() + id6, positions.begin() + id6 + 6),
             colors.at(id), radius.at(id), id_program_end));
         addObject(new CylinderSide(
-            std::vector<float>(positions.begin() + 6 * id, positions.begin() + 6 * id + 6),
+            std::vector<float>(positions.begin() + id6, positions.begin() + id6 + 6),
             std::vector<float>(1, radius.at(id)),
             std::vector<Vec>(1, colors.at(id)), id_program_side));
       }

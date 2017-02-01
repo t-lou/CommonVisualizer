@@ -54,10 +54,18 @@ void main()
     {
       PixelNormal to_light;
       to_light.pos = pos_eye + dir_view * t;
-      float t0 = dot(fs_in_centered_end.dir, to_light.pos - fs_in_centered_end.origin);
-      to_light.nor = normalize(to_light.pos - (fs_in_centered_end.origin + fs_in_centered_end.dir * t0));
-      to_light.color = fs_in_centered_end.color;
-      color_out = light_phong(to_light);
+
+      if(color_light[3] > 0.0f)
+      {
+        float t0 = dot(fs_in_centered_end.dir, to_light.pos - fs_in_centered_end.origin);
+        to_light.nor = normalize(to_light.pos - (fs_in_centered_end.origin + fs_in_centered_end.dir * t0));
+        to_light.color = fs_in_centered_end.color;
+        color_out = light_phong(to_light);
+      }
+      else
+      {
+        color_out = fs_in_centered_end.color;
+      }
 
       vec4 pos_screen = proj * vec4(to_light.pos, 1.0f);
       gl_FragDepth = pos_screen.z / pos_screen.w;

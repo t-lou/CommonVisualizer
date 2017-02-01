@@ -23,8 +23,8 @@
 #include "include/CloudPointUnicolor.hpp"
 #include "include/CoordinateUnits.hpp"
 #include "include/Box.hpp"
-#include "include/CylinderSide.hpp"
 #include "include/Capsule.hpp"
+#include "include/Cylinder.hpp"
 
 namespace loco
 {
@@ -43,6 +43,22 @@ namespace loco
     const Vec MAGENTA{1.0f, 0.0f, 1.0f, 1.0f};
     const Vec CYAN{0.0f, 1.0f, 1.0f, 1.0f};
   }
+
+  union GlProgram
+  {
+    GLuint _ids[20];
+    struct
+    {
+      GLuint _id_program_colored_mesh;
+      GLuint _id_program_unicolor_mesh;
+      GLuint _id_program_colored_cloud_point;
+      GLuint _id_program_unicolor_cloud_point;
+      GLuint _id_program_colored_cloud_sphere;
+      GLuint _id_program_unicolor_cloud_sphere;
+      GLuint _id_program_cylinder_side;
+      GLuint _id_program_oriented_circle;
+    };
+  };
 
 //  // callback for resizing window, may remove because maybe already included
 //  std::function<void(int, int)> callback_resize_window;
@@ -66,14 +82,7 @@ namespace loco
     glm::mat4 _mat_proj;
     glm::mat4 _mat_view;
     glm::mat4 _mat_external;
-    GLuint _id_program_colored_mesh;
-    GLuint _id_program_unicolor_mesh;
-    GLuint _id_program_colored_cloud_point;
-    GLuint _id_program_unicolor_cloud_point;
-    GLuint _id_program_colored_cloud_sphere;
-    GLuint _id_program_unicolor_cloud_sphere;
-    GLuint _id_program_cylinder_side;
-
+    GlProgram _id_prog;
     Container _world;
 
     /**
@@ -317,28 +326,28 @@ namespace loco
      */
     void updatePhongParameter()
     {
-      if(_id_program_colored_mesh)
+      for(int i = 0; i < 20; ++i)
       {
-        updatePhongParameter(_id_program_colored_mesh);
+        if(_id_prog._ids[i])
+        {
+          updatePhongParameter(_id_prog._ids[i]);
+        }
       }
-      if(_id_program_unicolor_mesh)
+      if(_id_prog._id_program_unicolor_cloud_sphere)
       {
-        updatePhongParameter(_id_program_unicolor_mesh);
+        updateViewerPose(_id_prog._id_program_unicolor_cloud_sphere);
       }
-      if(_id_program_unicolor_cloud_sphere)
+      if(_id_prog._id_program_colored_cloud_sphere)
       {
-        updateViewerPose(_id_program_unicolor_cloud_sphere);
-        updatePhongParameter(_id_program_unicolor_cloud_sphere);
+        updateViewerPose(_id_prog._id_program_colored_cloud_sphere);
       }
-      if(_id_program_colored_cloud_sphere)
+      if(_id_prog._id_program_cylinder_side)
       {
-        updateViewerPose(_id_program_colored_cloud_sphere);
-        updatePhongParameter(_id_program_colored_cloud_sphere);
+        updateViewerPose(_id_prog._id_program_cylinder_side);
       }
-      if(_id_program_cylinder_side)
+      if(_id_prog._id_program_oriented_circle)
       {
-        updateViewerPose(_id_program_cylinder_side);
-        updatePhongParameter(_id_program_cylinder_side);
+        updateViewerPose(_id_prog._id_program_oriented_circle);
       }
     }
 
@@ -354,13 +363,6 @@ namespace loco
         _phi(0.0f),
         _mat_proj(glm::perspective(glm::radians(45.0f), (float) _width / (float) _height, 0.1f, 5000.0f)),
         _mat_external(Object::transformToMat4(Transform{Vec{}, Vec{0.0f, 0.0f, 0.0f, 1.0f}})),
-        _id_program_colored_mesh(0),
-        _id_program_unicolor_mesh(0),
-        _id_program_colored_cloud_point(0),
-        _id_program_unicolor_cloud_point(0),
-        _id_program_colored_cloud_sphere(0),
-        _id_program_unicolor_cloud_sphere(0),
-        _id_program_cylinder_side(0),
         _param_phong(Vec{0.3f, 0.3f, 0.4f, 2.0f})
     {
       // glfw init
@@ -410,38 +412,22 @@ namespace loco
 //                                         std::placeholders::_1, std::placeholders::_2);
 //      glutReshapeFunc(wrapper_resize_window);
 
+      for(int i = 0; i < 20; ++i)
+      {
+        _id_prog._ids[i] = 0;
+      }
+
       updateViewingMatrix();
     }
 
     ~CommonVisualizer()
     {
-      if(_id_program_unicolor_mesh)
+      for(int i = 0; i < 20; ++i)
       {
-        glDeleteProgram(_id_program_unicolor_mesh);
-      }
-      if(_id_program_colored_mesh)
-      {
-        glDeleteProgram(_id_program_colored_mesh);
-      }
-      if(_id_program_colored_cloud_point)
-      {
-        glDeleteProgram(_id_program_colored_cloud_point);
-      }
-      if(_id_program_unicolor_cloud_point)
-      {
-        glDeleteProgram(_id_program_unicolor_cloud_point);
-      }
-      if(_id_program_colored_cloud_sphere)
-      {
-        glDeleteProgram(_id_program_colored_cloud_sphere);
-      }
-      if(_id_program_unicolor_cloud_sphere)
-      {
-        glDeleteProgram(_id_program_unicolor_cloud_sphere);
-      }
-      if(_id_program_cylinder_side)
-      {
-        glDeleteProgram(_id_program_cylinder_side);
+        if(_id_prog._ids[i])
+        {
+          glDeleteProgram(_id_prog._ids[i]);
+        }
       }
       glfwTerminate();
     }
@@ -552,6 +538,11 @@ namespace loco
       updateViewingMatrix();
     }
 
+    void setTransform(const int id, const Transform &transform)
+    {
+      _world.setTransform(id, transform);
+    }
+
     /**
      * add mesh with uniform color
      * @param vertices list of vertex, every 9 floats is a trangle
@@ -559,20 +550,20 @@ namespace loco
      */
     void addMesh(const std::vector<float> &vertices, const Vec &color)
     {
-      if(_id_program_unicolor_mesh == 0)
+      if(_id_prog._id_program_unicolor_mesh == 0)
       {
         loadUnicolorMeshShader();
       }
-      _world.addObject(new MeshUnicolor(vertices, color, _id_program_unicolor_mesh));
+      _world.addObject(new MeshUnicolor(vertices, color, _id_prog._id_program_unicolor_mesh));
     }
 
     void addMesh(const std::vector<float> &vertices, const std::vector<int> &index, const Vec &color)
     {
-      if(_id_program_unicolor_mesh == 0)
+      if(_id_prog._id_program_unicolor_mesh == 0)
       {
         loadUnicolorMeshShader();
       }
-      _world.addObject(new MeshUnicolor(vertices, index, color, _id_program_unicolor_mesh));
+      _world.addObject(new MeshUnicolor(vertices, index, color, _id_prog._id_program_unicolor_mesh));
     }
 
     /**
@@ -582,11 +573,11 @@ namespace loco
      */
     void addMesh(const std::vector<float> &vertices, const std::vector<float> &colors)
     {
-      if(_id_program_colored_mesh == 0)
+      if(_id_prog._id_program_colored_mesh == 0)
       {
         loadColoredMeshShader();
       }
-      _world.addObject(new MeshColored(vertices, colors, _id_program_colored_mesh));
+      _world.addObject(new MeshColored(vertices, colors, _id_prog._id_program_colored_mesh));
     }
 
     /**
@@ -600,21 +591,21 @@ namespace loco
     {
       if(radius <= 0.0f)
       {
-        if(_id_program_colored_cloud_point == 0)
+        if(_id_prog._id_program_colored_cloud_point == 0)
         {
           loadColoredCloudPointShader();
         }
         _world.addObject(new CloudPointColored(points, colors, -radius,
-                                               _id_program_colored_cloud_point));
+                                               _id_prog._id_program_colored_cloud_point));
       }
       else
       {
-        if(_id_program_colored_cloud_sphere == 0)
+        if(_id_prog._id_program_colored_cloud_sphere == 0)
         {
           loadColoredCloudSphereShader();
         }
         _world.addObject(new CloudSphereColored(points, colors, radius,
-                                                _id_program_colored_cloud_sphere));
+                                                _id_prog._id_program_colored_cloud_sphere));
       }
     }
 
@@ -623,21 +614,21 @@ namespace loco
     {
       if(radius <= 0.0f)
       {
-        if(_id_program_unicolor_cloud_point == 0)
+        if(_id_prog._id_program_unicolor_cloud_point == 0)
         {
           loadUnicolorCloudPointShader();
         }
         _world.addObject(new CloudPointUnicolor(points, color, -radius,
-                                                _id_program_unicolor_cloud_point));
+                                                _id_prog._id_program_unicolor_cloud_point));
       }
       else
       {
-        if(_id_program_unicolor_cloud_sphere == 0)
+        if(_id_prog._id_program_unicolor_cloud_sphere == 0)
         {
           loadUnicolorCloudSphereShader();
         }
         _world.addObject(new CloudSphereUnicolor(points, color, radius,
-                                                 _id_program_unicolor_cloud_sphere));
+                                                 _id_prog._id_program_unicolor_cloud_sphere));
       }
     }
 
@@ -647,36 +638,43 @@ namespace loco
      */
     void addCoordinateSign(const Transform &transform)
     {
-      if(_id_program_colored_cloud_point == 0)
+      if(_id_prog._id_program_colored_cloud_point == 0)
       {
         loadColoredCloudPointShader();
       }
-      _world.addObject(new CoordinateUnits(_id_program_colored_cloud_point));
+      _world.addObject(new CoordinateUnits(_id_prog._id_program_colored_cloud_point));
     }
 
     void addCylinder(const std::vector<float> &positions, const std::vector<float> &radius,
                      const std::vector<Vec> &colors)
     {
-      if(_id_program_cylinder_side == 0)
+      if(_id_prog._id_program_cylinder_side == 0)
       {
         loadCylinderSideShader();
       }
-      _world.addObject(new CylinderSide(positions, radius, colors, _id_program_cylinder_side));
+      if(_id_prog._id_program_oriented_circle == 0)
+      {
+        loadOrientedCircleShader();
+      }
+      _world.addObject(new Cylinder(positions, radius, colors,
+                                    _id_prog._id_program_cylinder_side,
+                                    _id_prog._id_program_oriented_circle));
     }
 
     void addCapsule(const std::vector<float> &positions, const std::vector<float> &radius,
                     const std::vector<Vec> &colors)
     {
-      if(_id_program_cylinder_side == 0)
+      if(_id_prog._id_program_cylinder_side == 0)
       {
         loadCylinderSideShader();
       }
-      if(_id_program_unicolor_cloud_sphere == 0)
+      if(_id_prog._id_program_unicolor_cloud_sphere == 0)
       {
         loadUnicolorCloudSphereShader();
       }
       _world.addObject(new Capsule(positions, radius, colors,
-                                   _id_program_cylinder_side, _id_program_unicolor_cloud_sphere));
+                                   _id_prog._id_program_cylinder_side,
+                                   _id_prog._id_program_unicolor_cloud_sphere));
     }
 
     /**
@@ -687,11 +685,11 @@ namespace loco
      */
     void addBox(const Transform &transform, const Vec &scale, const Vec &color)
     {
-      if(_id_program_unicolor_mesh == 0)
+      if(_id_prog._id_program_unicolor_mesh == 0)
       {
         loadUnicolorMeshShader();
       }
-      _world.addObject(new Box(transform, scale, color, _id_program_unicolor_mesh));
+      _world.addObject(new Box(transform, scale, color, _id_prog._id_program_unicolor_mesh));
     }
 
     void loadColoredMeshShader()
@@ -707,7 +705,7 @@ namespace loco
       ;
       const char *texts[] = {vs, fs_phong, fs};
       GLenum types[] = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_FRAGMENT_SHADER};
-      _id_program_colored_mesh = CommonVisualizer::createProgram(
+      _id_prog._id_program_colored_mesh = CommonVisualizer::createProgram(
           std::vector<GLenum>(types, types + 3), std::vector<const char *>(texts, texts + 3));
     }
 
@@ -724,7 +722,7 @@ namespace loco
       ;
       const char *texts[] = {vs, fs_phong, fs};
       GLenum types[] = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_FRAGMENT_SHADER};
-      _id_program_unicolor_mesh = CommonVisualizer::createProgram(
+      _id_prog._id_program_unicolor_mesh = CommonVisualizer::createProgram(
           std::vector<GLenum>(types, types + 3), std::vector<const char *>(texts, texts + 3));
     }
 
@@ -738,7 +736,7 @@ namespace loco
       ;
       const char *texts[] = {vs, fs};
       GLenum types[] = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
-      _id_program_colored_cloud_point = CommonVisualizer::createProgram(
+      _id_prog._id_program_colored_cloud_point = CommonVisualizer::createProgram(
           std::vector<GLenum>(types, types + 2), std::vector<const char *>(texts, texts + 2));
     }
 
@@ -752,7 +750,7 @@ namespace loco
       ;
       const char *texts[] = {vs, fs};
       GLenum types[] = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
-      _id_program_unicolor_cloud_point = CommonVisualizer::createProgram(
+      _id_prog._id_program_unicolor_cloud_point = CommonVisualizer::createProgram(
           std::vector<GLenum>(types, types + 2), std::vector<const char *>(texts, texts + 2));
     }
 
@@ -772,7 +770,7 @@ namespace loco
       ;
       const char *texts[] = {gs, vs, fs, fs_phong};
       GLenum types[] = {GL_GEOMETRY_SHADER, GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_FRAGMENT_SHADER};
-      _id_program_colored_cloud_sphere = CommonVisualizer::createProgram(
+      _id_prog._id_program_colored_cloud_sphere = CommonVisualizer::createProgram(
           std::vector<GLenum>(types, types + 4), std::vector<const char *>(texts, texts + 4));
     }
 
@@ -792,7 +790,7 @@ namespace loco
       ;
       const char *texts[] = {gs, vs, fs, fs_phong};
       GLenum types[] = {GL_GEOMETRY_SHADER, GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_FRAGMENT_SHADER};
-      _id_program_unicolor_cloud_sphere = CommonVisualizer::createProgram(
+      _id_prog._id_program_unicolor_cloud_sphere = CommonVisualizer::createProgram(
           std::vector<GLenum>(types, types + 4), std::vector<const char *>(texts, texts + 4));
     }
 
@@ -812,7 +810,27 @@ namespace loco
       ;
       const char *texts[] = {vs, fs, fs_phong, gs};
       GLenum types[] = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_FRAGMENT_SHADER, GL_GEOMETRY_SHADER};
-      _id_program_cylinder_side = CommonVisualizer::createProgram(
+      _id_prog._id_program_cylinder_side = CommonVisualizer::createProgram(
+          std::vector<GLenum>(types, types + 4), std::vector<const char *>(texts, texts + 4));
+    }
+
+    void loadOrientedCircleShader()
+    {
+      const char *vs =
+#include "./shaders/vs_oriented_circle.vs"
+      ;
+      const char *fs =
+#include "./shaders/fs_oriented_circle.fs"
+      ;
+      const char *fs_phong =
+#include "./shaders/fs_sub_phong.fs"
+      ;
+      const char *gs =
+#include "./shaders/gs_oriented_circle.gs"
+      ;
+      const char *texts[] = {vs, fs, fs_phong, gs};
+      GLenum types[] = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_FRAGMENT_SHADER, GL_GEOMETRY_SHADER};
+      _id_prog._id_program_oriented_circle = CommonVisualizer::createProgram(
           std::vector<GLenum>(types, types + 4), std::vector<const char *>(texts, texts + 4));
     }
   };
