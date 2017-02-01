@@ -438,6 +438,10 @@ namespace loco
       {
         glDeleteProgram(_id_program_unicolor_cloud_sphere);
       }
+      if(_id_program_cylinder_side)
+      {
+        glDeleteProgram(_id_program_cylinder_side);
+      }
       glfwTerminate();
     }
 

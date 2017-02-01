@@ -255,9 +255,9 @@ int main(int argc, char **argv)
 {
 //    btAlignedObjectArray<btCollisionShape*> shape_list;
   vis.reset(new loco::CommonVisualizer(600, 800, "crate", loco::color::BLACK));
-  vis->setDistance(2.0f);
+  vis->setDistance(1.0f);
   vis->setLightSource(loco::Vec{0.0f, 0.0f, 1.0f}, loco::color::WHITE);
-  vis->setTheta(M_PI / 6.0);
+  vis->setTheta(M_PI / 18.0);
   if(vis->isInited())
     {
       btDiscreteDynamicsWorld world = init_world();

@@ -3,10 +3,11 @@ R"(#version 330 core
 struct CenteredEnd
 {
   vec3 pos;
-  vec3 center;
+  vec3 origin;
   vec4 color;
   float radius;
-  float ratio;
+  float length;
+  vec3 dir;
 };
 
 layout(location = 0) in vec3 pos;
@@ -20,11 +21,7 @@ uniform mat4 proj;
 void main()
 {
   vs_out_centered_end.pos = pos;
-  vs_out_centered_end.center = pos;
   vs_out_centered_end.color = color;
   vs_out_centered_end.radius = radius;
-
-  //gl_Position = proj * vec4(pos, 1.0f);
-  //gl_Position /= gl_Position.w;
 }
 )"
