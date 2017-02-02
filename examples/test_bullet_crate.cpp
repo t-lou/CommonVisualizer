@@ -13,6 +13,7 @@
 #include <memory>
 #include <cmath>
 #include <cstdlib>
+#include <ctime>
 #include <unistd.h>
 
 #include <btBulletDynamicsCommon.h>
@@ -20,6 +21,7 @@
 #include <BulletCollision/Gimpact/btGImpactShape.h>
 
 #include "CommonVisualizer.hpp"
+#include "../CommonVisualizer.hpp"
 
 // how to compile (assuming bullet and all gl libraries installed)
 // root directory of CommonVisualizer is /home/tlou/workspace/CommonVisualizer/ on my laptop
@@ -75,17 +77,47 @@ void add_box(const btVector3 &scaling,
       mass, new btDefaultMotionState(start_tf), this_, inertia)));
 }
 
-void
-add_box_vis(const btVector3 &size, const btVector3 &translation, const btQuaternion &rotation, const loco::Vec &color)
+//void add_box_vis(const btVector3 &size, const btVector3 &translation,
+//                 const btQuaternion &rotation, const loco::Vec &color)
+//{
+//  // btVector3 size = box.getHalfExtentsWithMargin();
+//  // btVector3 translation = box.getWorldTransform().getOrigin();
+//  // btQuaternion rotation = box.getWorldTransform().getRotation();
+//  vis->addBox(
+//      loco::Transform{loco::Vec{float(translation.getX()), float(translation.getY()), float(translation.getZ())},
+//                      loco::Vec{float(rotation.getX()), float(rotation.getY()), float(rotation.getZ()),
+//                                float(rotation.getW())}},
+//      loco::Vec{float(size.getX()), float(size.getY()), float(size.getZ())}, color);
+//}
+
+void add_scene(const btDynamicsWorld &world)
 {
-  // btVector3 size = box.getHalfExtentsWithMargin();
-  // btVector3 translation = box.getWorldTransform().getOrigin();
-  // btQuaternion rotation = box.getWorldTransform().getRotation();
-  vis->addBox(
-      loco::Transform{loco::Vec{float(translation.getX()), float(translation.getY()), float(translation.getZ())},
-                      loco::Vec{float(rotation.getX()), float(rotation.getY()), float(rotation.getZ()),
-                                float(rotation.getW())}},
-      loco::Vec{float(size.getX()), float(size.getY()), float(size.getZ())}, color);
+  for(int ido = 0; ido < world.getNumCollisionObjects(); ++ido)
+  {
+    btRigidBody *body = btRigidBody::upcast(world.getCollisionObjectArray()[ido]);
+    if(strcmp(body->getCollisionShape()->getName(), "Box") == 0)
+    {
+      btVector3 translation = body->getWorldTransform().getOrigin();
+      btQuaternion rotation = body->getWorldTransform().getRotation();
+      btVector3 size = ((btBoxShape*)body->getCollisionShape())->getHalfExtentsWithMargin();
+
+      loco::Vec color = ido < 61 ? loco::color::BLUE : loco::color::WHITE;
+//      vis->addBox(
+//          loco::Transform{loco::Vec{float(origin.getX()), float(origin.getY()), float(origin.getZ())},
+//                          loco::Vec{float(rotation.getX()), float(rotation.getY()),
+//                                    float(rotation.getZ()), float(rotation.getW())}},
+//                          loco::Vec{float(size.getX()), float(size.getY()), float(size.getZ())}, color);
+      vis->addBox(
+          loco::Transform{loco::Vec{},
+                          loco::Vec{0,0,0,1}},
+          loco::Vec{float(size.getX()), float(size.getY()), float(size.getZ())}, color);
+
+      vis->setTransform(ido, loco::Transform{
+          loco::Vec{float(translation.getX()), float(translation.getY()), float(translation.getZ())},
+          loco::Vec{float(rotation.getX()), float(rotation.getY()), float(rotation.getZ()), float(rotation.getW())}});
+
+    }
+  }
 }
 
 void run(const float interval,
@@ -94,7 +126,6 @@ void run(const float interval,
 {
   for(int iter = 0; iter < iteration; ++iter)
   {
-    vis->resetScene();
     world.stepSimulation(interval);
     for(int ido = 0; ido < world.getNumCollisionObjects(); ++ido)
     {
@@ -109,9 +140,12 @@ void run(const float interval,
       {
         tf = obj->getWorldTransform();
       }
-      loco::Vec color = ido < 61 ? loco::color::BLUE : loco::color::WHITE;
-      add_box_vis(((btBoxShape *) body->getCollisionShape())->getHalfExtentsWithMargin(),
-                  tf.getOrigin(), tf.getRotation(), color);
+
+      btVector3 translation = tf.getOrigin();
+      btQuaternion rotation = tf.getRotation();
+      vis->setTransform(ido, loco::Transform{
+          loco::Vec{float(translation.getX()), float(translation.getY()), float(translation.getZ())},
+          loco::Vec{float(rotation.getX()), float(rotation.getY()), float(rotation.getZ()), float(rotation.getW())}});
     }
     vis->playOnce();
     usleep(interval * 1e6f);
@@ -230,29 +264,24 @@ void set_crate(btDiscreteDynamicsWorld &world)
     }
 }
 
-void add_boxes(btDiscreteDynamicsWorld &world)
+void add_boxes(btDiscreteDynamicsWorld &world, const int num = 6)
 {
-  add_box(btVector3(0.025, 0.03, 0.065) * scaling,
-          btVector3(0.0, 0.003, 0.3) * scaling,
-          btQuaternion(SIMD_PI / 2.0, SIMD_PI / 4.0, 0), btScalar(1.0f), world);
-  add_box(btVector3(0.025, 0.03, 0.065) * scaling,
-          btVector3(0.0, 0.0015, 0.1) * scaling,
-          btQuaternion(0, 0, SIMD_PI / 1.2), btScalar(1.0), world);
-  add_box(btVector3(0.025, 0.03, 0.065) * scaling,
-          btVector3(0.0, 0.0015, 0.6) * scaling,
-          btQuaternion(0, 0, SIMD_PI / 1.2), btScalar(1.0), world);
-  add_box(btVector3(0.025, 0.03, 0.065) * scaling,
-          btVector3(0.0, 0.0015, 0.7) * scaling,
-          btQuaternion(0, 0, SIMD_PI / 1.2), btScalar(1.0), world);
-  add_box(btVector3(0.025, 0.03, 0.065) * scaling,
-          btVector3(0.0, 0.0015, 0.8) * scaling,
-          btQuaternion(0, 0, SIMD_PI / 1.2), btScalar(1.0), world);
-  add_box(btVector3(0.025, 0.03, 0.065) * scaling,
-          btVector3(0.0, 0.0015, 0.9) * scaling,
-          btQuaternion(0, 0, SIMD_PI / 1.2), btScalar(1.0), world);
-  add_box(btVector3(0.025, 0.03, 0.065) * scaling,
-          btVector3(0.0, 0.003, 0.4) * scaling,
-          btQuaternion(SIMD_PI / 2.0, SIMD_PI / 4.0, 0), btScalar(1.0f), world);
+  btVector3 center(0.0, 0.0, 0.3);
+  btVector3 step(0.0, 0.0, 0.01);
+  srand(time(NULL));
+  for(int i = 0; i < num; ++i)
+  {
+    btVector3 displace((double)(rand() % 1000 - 500) / 2000.0,
+                       (double)(rand() % 1000 - 500) / 3000.0,
+                       0.0);
+    add_box(btVector3(0.025, 0.03, 0.065) * scaling,
+            (center + displace) * scaling,
+            btQuaternion(SIMD_PI * (double)(rand() % 2000 - 1000) / 500.0,
+                         SIMD_PI * (double)(rand() % 2000 - 1000) / 500.0,
+                         SIMD_PI * (double)(rand() % 2000 - 1000) / 500.0),
+            btScalar(1.0), world);
+    center += step;
+  }
 }
 
 int main(int argc, char **argv)
@@ -268,7 +297,9 @@ int main(int argc, char **argv)
     set_crate(world);
     add_boxes(world);
 
-    run(btScalar(0.01), 200, world);
+    add_scene(world);
+
+    run(btScalar(0.001), 1000, world);
     vis->play();
   }
   else

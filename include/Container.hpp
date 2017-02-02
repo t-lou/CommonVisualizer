@@ -45,13 +45,13 @@ namespace loco
 
     void setTransform(const int id, const Transform &transform)
     {
-      assert(id < _belongings.size());
+      assert(id >= 0 && id < _belongings.size());
       _belongings.at(id)->setTransform(transform);
     }
 
     void applyTransform(const int id, const Transform &transform)
     {
-      assert(id < _belongings.size());
+      assert(id >= 0 && id < _belongings.size());
       _belongings.at(id)->applyTransform(transform);
     }
   };
