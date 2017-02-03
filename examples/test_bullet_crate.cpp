@@ -299,7 +299,7 @@ int main(int argc, char **argv)
 
     add_scene(world);
 
-    run(btScalar(0.001), 1000, world);
+    run(btScalar(0.01), 100, world);
     vis->play();
   }
   else

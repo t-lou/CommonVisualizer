@@ -81,7 +81,7 @@ namespace loco
     Vec _param_phong;
     glm::mat4 _mat_proj;
     glm::mat4 _mat_view;
-    glm::mat4 _mat_external;
+    glm::mat4 _transform_camera;
     GlProgram _id_prog;
     Container _world;
 
@@ -179,10 +179,11 @@ namespace loco
      */
     void updatePosViewer()
     {
-      _pos_viewer = _mat_external * glm::vec4(_distance * (float) sin(_theta) * (float) sin(_phi),
-                                              _distance * (float) sin(_theta) * (float) cos(_phi),
-                                              _distance * (float) cos(_theta),
-                                              1.0f);
+      _pos_viewer = _transform_camera * glm::vec4(
+          _distance * (float) sin(_theta) * (float) sin(_phi),
+          _distance * (float) sin(_theta) * (float) cos(_phi),
+          _distance * (float) cos(_theta),
+          1.0f);
     }
 
     /**
@@ -192,10 +193,11 @@ namespace loco
     {
       double theta_ = (double) _theta - M_PI / 2.0;
       double phi_ = -(double) _phi;
-      _up_viewer = _mat_external * glm::vec4((float) sin(theta_) * (float) sin(phi_),
-                                             (float) sin(theta_) * (float) cos(phi_),
-                                             (float) cos(theta_),
-                                             0.0f);
+      _up_viewer = _transform_camera * glm::vec4(
+          (float) sin(theta_) * (float) sin(phi_),
+          (float) sin(theta_) * (float) cos(phi_),
+          (float) cos(theta_),
+          0.0f);
     }
 
     /**
@@ -203,7 +205,7 @@ namespace loco
      */
     void updateCenterViewer()
     {
-      _center_viewer = _mat_external * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+      _center_viewer = _transform_camera * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
     }
 
     /**
@@ -362,7 +364,7 @@ namespace loco
         _theta(M_PI / 2.0),
         _phi(0.0f),
         _mat_proj(glm::perspective(glm::radians(45.0f), (float) _width / (float) _height, 0.1f, 5000.0f)),
-        _mat_external(Object::transformToMat4(Transform{Vec{}, Vec{0.0f, 0.0f, 0.0f, 1.0f}})),
+        _transform_camera(Object::transformToMat4(Transform{Vec{}, Vec{0.0f, 0.0f, 0.0f, 1.0f}})),
         _param_phong(Vec{0.3f, 0.3f, 0.4f, 2.0f})
     {
       // glfw init
@@ -529,9 +531,9 @@ namespace loco
      * move camera with translation and rotation
      * @param transform
      */
-    void setTransform(const Transform &transform)
+    void setTransformCamera(const Transform &transform)
     {
-      _mat_external = Object::transformToMat4(transform);
+      _transform_camera = Object::transformToMat4(transform);
       updatePosViewer();
       updateUpViewer();
       updateCenterViewer();

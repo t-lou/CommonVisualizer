@@ -11,13 +11,13 @@ layout(location = 0) in vec3 pos;
 
 out CenteredPixel vs_out_centered_pixel;
 
+uniform mat4 transform;
 uniform vec4 color;
 
 void main()
 {
-  vs_out_centered_pixel.center = pos;
-  vs_out_centered_pixel.pos.xyz = pos;
-  vs_out_centered_pixel.pos.w = 1.0f;
+  vs_out_centered_pixel.pos = transform * vec4(pos, 1.0f);
+  vs_out_centered_pixel.center = vs_out_centered_pixel.pos.xyz;
   vs_out_centered_pixel.color = color;
 }
 )"

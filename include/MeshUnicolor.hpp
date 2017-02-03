@@ -64,12 +64,14 @@ namespace loco
 
     void display(const glm::mat4 &proj)
     {
+      GLuint id_transform = glGetUniformLocation(_id_program, "transform");
       GLuint id_proj = glGetUniformLocation(_id_program, "proj");
       GLuint id_color = glGetUniformLocation(_id_program, "color");
       glUseProgram(_id_program);
 
-      glm::mat4 total_proj = proj * _transform;
-      glUniformMatrix4fv(id_proj, 1, GL_FALSE, &total_proj[0][0]);
+//      glm::mat4 total_proj = proj * _transform;
+      glUniformMatrix4fv(id_proj, 1, GL_FALSE, &proj[0][0]);
+      glUniformMatrix4fv(id_transform, 1, GL_FALSE, &_transform[0][0]);
       glUniform4fv(id_color, 1, _color._data);
       glBindVertexArray(_id_array);
 

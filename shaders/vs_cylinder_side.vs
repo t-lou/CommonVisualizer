@@ -16,11 +16,12 @@ layout(location = 2) in float radius;
 
 out CenteredEnd vs_out_centered_end;
 
+uniform mat4 transform;
 uniform mat4 proj;
 
 void main()
 {
-  vs_out_centered_end.pos = pos;
+  vs_out_centered_end.pos = (transform * vec4(pos, 1.0f)).xyz;
   vs_out_centered_end.color = color;
   vs_out_centered_end.radius = radius;
 }
