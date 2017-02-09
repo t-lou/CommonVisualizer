@@ -21,8 +21,8 @@ uniform mat4 transform;
 void main()
 {
   vs_out_centered_pixel.pos = (transform * vec4(pos, 1.0f)).xyz;
-  vs_out_centered_pixel.center = vs_out_centered_pixel.pos;
   vs_out_centered_pixel.normal = (transform * vec4(nor, 1.0f)).xyz;
+  vs_out_centered_pixel.center = vs_out_centered_pixel.pos;
   vs_out_centered_pixel.color = color;
   vs_out_centered_pixel.radius = radius;
 }

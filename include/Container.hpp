@@ -9,6 +9,11 @@
 
 namespace loco
 {
+  /**
+   * a class which doesn't contain its own shape, but contains other objects.
+   * used for combining simple object to more complex objects.
+   * for example a Cylinder consists of one CylinderSide and two OrientedCircle
+   */
   class Container : public Object
   {
   protected:
@@ -32,6 +37,11 @@ namespace loco
     void addObject(const T *object)
     {
       _belongings.push_back(std::unique_ptr<Object>((Object*)object));
+    }
+
+    void reserve(const size_t size_space)
+    {
+      _belongings.reserve(size_space);
     }
 
     void display(const glm::mat4 &proj)

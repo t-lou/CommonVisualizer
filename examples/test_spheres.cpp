@@ -32,7 +32,7 @@ int main()
       colors.push_back(static_cast<float>(rand()) / (static_cast<float>(RAND_MAX)));
       // colors.push_back(1.0f);
     }
-    vis.setDistance(3000.0f);
+    vis.setDistance(1500.0f);
     vis.setLightSource(loco::Vec{0.0f, 0.0f, 1000.0f}, loco::color::WHITE);
 
     while(true)

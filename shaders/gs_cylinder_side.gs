@@ -59,18 +59,22 @@ void main()
   // individual
   fs_in_centered_end.pos = pos0;
   gl_Position = proj * vec4(pos0, 1.0f);
+  gl_Position /= gl_Position.w;
   EmitVertex();
 
   fs_in_centered_end.pos = pos1;
   gl_Position = proj * vec4(pos1, 1.0f);
+  gl_Position /= gl_Position.w;
   EmitVertex();
 
   fs_in_centered_end.pos = pos2;
   gl_Position = proj * vec4(pos2, 1.0f);
+  gl_Position /= gl_Position.w;
   EmitVertex();
 
   fs_in_centered_end.pos = pos3;
   gl_Position = proj * vec4(pos3, 1.0f);
+  gl_Position /= gl_Position.w;
   EmitVertex();
 
   EndPrimitive();

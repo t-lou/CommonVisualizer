@@ -478,7 +478,7 @@ namespace loco
      */
     bool playOnce()
     {
-//      glfwSetTime(0.0);
+      glfwSetTime(0.0);
 
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       onRotationAndZooming();
@@ -490,8 +490,8 @@ namespace loco
       glfwSwapBuffers(_window);
       glfwPollEvents();
 
-//      double end_time = glfwGetTime();
-//      std::cout << "fps: " << 1.0 / end_time << std::endl;
+      double end_time = glfwGetTime();
+      std::cout << "fps: " << 1.0 / end_time << std::endl;
 
       return glfwGetKey(_window, GLFW_KEY_ESCAPE) != GLFW_PRESS
              && glfwWindowShouldClose(_window) == 0;

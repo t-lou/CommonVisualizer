@@ -30,11 +30,9 @@ namespace loco
       for(size_t id = 0; id < colors.size(); ++id)
       {
         const size_t id6 = id * 6;
-        glm::vec3 to = glm::normalize(glm::vec3(positions.at(id6 + 3) - positions.at(id6),
-                                                positions.at(id6 + 4) - positions.at(id6 + 1),
-                                                positions.at(id6 + 5) - positions.at(id6 + 2)));
-        std::vector<float> normal_end;
-        normal_end.resize(6);
+        glm::vec3 to = glm::normalize(glm::vec3(positions.at(id6 + 3), positions.at(id6 + 4), positions.at(id6 + 5))
+                                      - glm::vec3(positions.at(id6), positions.at(id6 + 1), positions.at(id6 + 2)));
+        std::vector<float> normal_end(6, 0.0f);
 
         for(int i = 0; i < 3; ++i)
         {

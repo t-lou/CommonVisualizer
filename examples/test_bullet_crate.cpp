@@ -101,7 +101,7 @@ void add_scene(const btDynamicsWorld &world)
       btQuaternion rotation = body->getWorldTransform().getRotation();
       btVector3 size = ((btBoxShape*)body->getCollisionShape())->getHalfExtentsWithMargin();
 
-      loco::Vec color = ido < 61 ? loco::color::BLUE : loco::color::WHITE;
+      loco::Vec color = ido < 61 ? loco::color::BLUE : loco::color::GREY;
 //      vis->addBox(
 //          loco::Transform{loco::Vec{float(origin.getX()), float(origin.getY()), float(origin.getZ())},
 //                          loco::Vec{float(rotation.getX()), float(rotation.getY()),
@@ -112,9 +112,9 @@ void add_scene(const btDynamicsWorld &world)
                           loco::Vec{0,0,0,1}},
           loco::Vec{float(size.getX()), float(size.getY()), float(size.getZ())}, color);
 
-      vis->setTransform(ido, loco::Transform{
-          loco::Vec{float(translation.getX()), float(translation.getY()), float(translation.getZ())},
-          loco::Vec{float(rotation.getX()), float(rotation.getY()), float(rotation.getZ()), float(rotation.getW())}});
+      // vis->setTransform(ido, loco::Transform{
+      //     loco::Vec{float(translation.getX()), float(translation.getY()), float(translation.getZ())},
+      //     loco::Vec{float(rotation.getX()), float(rotation.getY()), float(rotation.getZ()), float(rotation.getW())}});
 
     }
   }
@@ -132,15 +132,16 @@ void run(const float interval,
       btCollisionObject *obj = world.getCollisionObjectArray()[ido];
       btRigidBody *body = btRigidBody::upcast(obj);
       btTransform tf;
-      if(body && body->getMotionState())
-      {
-        body->getMotionState()->getWorldTransform(tf);
-      }
-      else
-      {
-        tf = obj->getWorldTransform();
-      }
+      // if(body && body->getMotionState())
+      // {
+      //   body->getMotionState()->getWorldTransform(tf);
+      // }
+      // else
+      // {
+      //   tf = obj->getWorldTransform();
+      // }
 
+      body->getMotionState()->getWorldTransform(tf);
       btVector3 translation = tf.getOrigin();
       btQuaternion rotation = tf.getRotation();
       vis->setTransform(ido, loco::Transform{
@@ -295,7 +296,7 @@ int main(int argc, char **argv)
   {
     btDiscreteDynamicsWorld world = init_world();
     set_crate(world);
-    add_boxes(world);
+    add_boxes(world, 20);
 
     add_scene(world);
 

@@ -49,11 +49,11 @@ void main()
   if(under_sqrt >= 0.0f)
   {
     float t = (-b - sqrt(under_sqrt)) / (2.0f * a);
-    float t0 = dot(fs_in_centered_end.dir, pos_eye + t * dir_view - fs_in_centered_end.origin);
+    float t0 = dot(fs_in_centered_end.dir, pos_eye - fs_in_centered_end.origin + t * dir_view);
     if(t0 > 0.0f && t0 < fs_in_centered_end.length)
     {
       PixelNormal to_light;
-      to_light.pos = pos_eye + dir_view * t;
+      to_light.pos = dir_view * t + pos_eye;
 
       if(color_light[3] > 0.0f)
       {

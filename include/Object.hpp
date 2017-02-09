@@ -73,12 +73,12 @@ namespace loco
       return tf;
     }
 
-    void setTransform(const Transform &transform)
+    virtual void setTransform(const Transform &transform)
     {
       _transform = Object::transformToMat4(transform);
     }
 
-    void applyTransform(const Transform &transform)
+    virtual void applyTransform(const Transform &transform)
     {
       _transform *= Object::transformToMat4(transform);
     }
