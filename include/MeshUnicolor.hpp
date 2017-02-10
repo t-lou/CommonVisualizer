@@ -15,31 +15,14 @@ namespace loco
     GLuint _buffer_normal;
     Vec _color;
 
-    std::vector<float> unfoldVertice(const std::vector<float> &vertices, const std::vector<int> &index)
-    {
-      assert(vertices.size() % 3 == 0);
-      assert(index.size() % 3 == 0);
-
-      std::vector<float> all_vertices;
-      all_vertices.reserve(index.size() * 3);
-
-      for(int id : index)
-      {
-        all_vertices.insert(all_vertices.end(),
-                            vertices.begin() + id * 3,
-                            vertices.begin() + id * 3 + 3);
-      }
-      return all_vertices;
-    }
-
   public:
-    MeshUnicolor(const std::vector<float> &vertices, const Vec &color,
-                 const GLuint id_program):
+    MeshUnicolor(const std::vector<float> &vertices, const std::vector<float> &normals,
+                 const Vec &color, const GLuint id_program):
         Object(id_program),
         _color(color)
     {
       assert(vertices.size() % 9 == 0);
-      std::vector<float> normals = genFakeNormal(vertices);
+      assert(normals.size() == vertices.size());
       // vertex array
       glGenVertexArrays(1, &_id_array);
       // vertex buffer
@@ -49,9 +32,21 @@ namespace loco
       _size = vertices.size() / 3;
     }
 
+    MeshUnicolor(const std::vector<float> &vertices, const Vec &color,
+                 const GLuint id_program):
+        MeshUnicolor(vertices, genFakeNormal(vertices), color, id_program)
+    {
+    }
+
+    MeshUnicolor(const std::vector<float> &vertices, const std::vector<float> &normals,
+                 const std::vector<int> &index, const Vec &color, const GLuint id_program) :
+        MeshUnicolor(unfoldList(vertices, index, 3), unfoldList(normals, index, 3), color, id_program)
+    {
+    }
+
     MeshUnicolor(const std::vector<float> &vertices, const std::vector<int> &index,
                  const Vec &color, const GLuint id_program) :
-        MeshUnicolor(unfoldVertice(vertices, index), color, id_program)
+        MeshUnicolor(unfoldList(vertices, index, 3), color, id_program)
     {
     }
 

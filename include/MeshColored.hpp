@@ -16,12 +16,12 @@ namespace loco
     GLuint _buffer_color;
 
   public:
-    MeshColored(const std::vector<float> &vertices, const std::vector<float> &colors,
-                const GLuint id_program):
+    MeshColored(const std::vector<float> &vertices, const std::vector<float> &normals,
+                const std::vector<float> &colors, const GLuint id_program):
         Object(id_program)
     {
       assert(vertices.size() * 12 == colors.size() * 9);
-      std::vector<float> normals = genFakeNormal(vertices);
+      assert(vertices.size() == normals.size());
       // vertex array
       glGenVertexArrays(1, &_id_array);
       // vertex buffer
@@ -31,6 +31,26 @@ namespace loco
       // color buffer
       genBufferVectorFloat(colors, _buffer_color);
       _size = vertices.size() / 3;
+    }
+
+    MeshColored(const std::vector<float> &vertices,
+                const std::vector<float> &colors, const GLuint id_program) :
+        MeshColored(vertices, genFakeNormal(vertices), colors, id_program)
+    {
+    }
+
+    MeshColored(const std::vector<float> &vertices, const std::vector<float> &colors,
+                const std::vector<int> &index,const GLuint id_program) :
+        MeshColored(unfoldList(vertices, index, 3), genFakeNormal(unfoldList(vertices, index, 3)),
+                    unfoldList(colors, index, 4), id_program)
+    {
+    }
+
+    MeshColored(const std::vector<float> &vertices, const std::vector<float> &normals,
+                const std::vector<float> &colors, const std::vector<int> &index,const GLuint id_program) :
+        MeshColored(unfoldList(vertices, index, 3), unfoldList(normals, index, 3),
+                    unfoldList(colors, index, 4), id_program)
+    {
     }
 
     ~MeshColored()

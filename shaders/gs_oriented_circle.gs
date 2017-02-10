@@ -39,7 +39,7 @@ void main()
         + (dir_up_ * mul_up[i] + dir_left * mul_left[i]) * fs_in_centered_pixel.radius;
     // fs_in_centered_pixel.pos = middle + (dir_up_ * mul_up[i] + dir_left * mul_left[i]) * radius;
     gl_Position = proj * vec4(fs_in_centered_pixel.pos, 1.0f);
-    gl_Position /= gl_Position.w;
+    // gl_Position /= gl_Position.w;
     EmitVertex();
   }
 

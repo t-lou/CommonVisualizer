@@ -28,7 +28,7 @@ int main()
     int indices[] = {};
 //    visualizer.addMesh(std::vector<float>(mesh, mesh + 9), loco::color::WHITE);
 //    visualizer.addMesh(std::vector<float>(mesh + 9, mesh + 18), loco::color::WHITE);
-//    visualizer.addMesh(std::vector<float>(mesh, mesh + 18), std::vector<float>(color, color + 24));
+    visualizer.addMesh(std::vector<float>(mesh, mesh + 18), std::vector<float>(color, color + 24));
 //
     visualizer.addBox(loco::Transform{loco::Vec{0.0f, 0.0f, 0.0f}, loco::Vec{0.0f, 0.0f, 0.0f, 1.0f}},
                       loco::Vec{0.1f, 0.1f, 0.1f}, loco::color::WHITE);
@@ -47,10 +47,12 @@ int main()
 
     float ends[] = {1.0f, 0.0f, 0.3f, 1.0f, 0.0f, -0.3f,
                     -1.0f, 0.0f, 0.3f, -1.0f, 0.0f, -0.3f};
-    visualizer.addCapsule(std::vector<float>(ends, ends + 12), std::vector<float>(2, 0.1f),
+    float ends_short[] = {1.0f, 0.0f, 0.1f, 1.0f, 0.0f, -0.1f,
+                          -1.0f, 0.0f, 0.1f, -1.0f, 0.0f, -0.1f};
+    visualizer.addCapsule(std::vector<float>(ends, ends + 12), std::vector<float>(2, 0.2f),
                           std::vector<loco::Vec>(2, loco::color::WHITE));
-//    visualizer.addCylinder(std::vector<float>(ends, ends + 12), std::vector<float>(2, 0.1f),
-//                           std::vector<loco::Vec>(2, loco::color::WHITE));
+    visualizer.addCylinder(std::vector<float>(ends_short, ends_short + 12), std::vector<float>(2, 0.4f),
+                           std::vector<loco::Vec>(2, loco::color::GREY));
     visualizer.play();
   }
   return 0;
