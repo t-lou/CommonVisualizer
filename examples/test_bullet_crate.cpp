@@ -11,7 +11,7 @@
 #include <iostream>
 #include <vector>
 #include <memory>
-#include <cmath>
+#include <cmath>1
 #include <cstdlib>
 #include <ctime>
 #include <unistd.h>
@@ -20,15 +20,16 @@
 #include <BulletCollision/NarrowPhaseCollision/btRaycastCallback.h>
 #include <BulletCollision/Gimpact/btGImpactShape.h>
 
-#include "CommonVisualizer.hpp"
-#include "../CommonVisualizer.hpp"
+//#include "CommonVisualizer.hpp"
+#include "BulletVisualizer.hpp"
 
 // how to compile (assuming bullet and all gl libraries installed)
 // root directory of CommonVisualizer is /home/tlou/workspace/CommonVisualizer/ on my laptop
 // clang++ test_bullet_crate.cpp -o test_bullet_crate -I/usr/include/bullet/ -I/home/tlou/workspace/CommonVisualizer/ -lBulletDynamics -lBulletCollision -lLinearMath -lGL -lGLEW -lGLU -lglut -lglfw --std=c++11
 
 const double scaling = 1.0;
-std::unique_ptr<loco::CommonVisualizer> vis;
+//std::unique_ptr<loco::CommonVisualizer> vis;
+std::unique_ptr<loco::BulletVisualizer> vis;
 
 btDiscreteDynamicsWorld init_world()
 {
@@ -77,47 +78,13 @@ void add_box(const btVector3 &scaling,
       mass, new btDefaultMotionState(start_tf), this_, inertia)));
 }
 
-//void add_box_vis(const btVector3 &size, const btVector3 &translation,
-//                 const btQuaternion &rotation, const loco::Vec &color)
-//{
-//  // btVector3 size = box.getHalfExtentsWithMargin();
-//  // btVector3 translation = box.getWorldTransform().getOrigin();
-//  // btQuaternion rotation = box.getWorldTransform().getRotation();
-//  vis->addBox(
-//      loco::Transform{loco::Vec{float(translation.getX()), float(translation.getY()), float(translation.getZ())},
-//                      loco::Vec{float(rotation.getX()), float(rotation.getY()), float(rotation.getZ()),
-//                                float(rotation.getW())}},
-//      loco::Vec{float(size.getX()), float(size.getY()), float(size.getZ())}, color);
-//}
-
 void add_scene(const btDynamicsWorld &world)
 {
-  for(int ido = 0; ido < world.getNumCollisionObjects(); ++ido)
-  {
-    btRigidBody *body = btRigidBody::upcast(world.getCollisionObjectArray()[ido]);
-    if(strcmp(body->getCollisionShape()->getName(), "Box") == 0)
-    {
-      btVector3 translation = body->getWorldTransform().getOrigin();
-      btQuaternion rotation = body->getWorldTransform().getRotation();
-      btVector3 size = ((btBoxShape*)body->getCollisionShape())->getHalfExtentsWithMargin();
-
-      loco::Vec color = ido < 61 ? loco::color::BLUE : loco::color::GREY;
-//      vis->addBox(
-//          loco::Transform{loco::Vec{float(origin.getX()), float(origin.getY()), float(origin.getZ())},
-//                          loco::Vec{float(rotation.getX()), float(rotation.getY()),
-//                                    float(rotation.getZ()), float(rotation.getW())}},
-//                          loco::Vec{float(size.getX()), float(size.getY()), float(size.getZ())}, color);
-      vis->addBox(
-          loco::Transform{loco::Vec{},
-                          loco::Vec{0,0,0,1}},
-          loco::Vec{float(size.getX()), float(size.getY()), float(size.getZ())}, color);
-
-      // vis->setTransform(ido, loco::Transform{
-      //     loco::Vec{float(translation.getX()), float(translation.getY()), float(translation.getZ())},
-      //     loco::Vec{float(rotation.getX()), float(rotation.getY()), float(rotation.getZ()), float(rotation.getW())}});
-
-    }
-  }
+  std::vector<loco::Vec> colors;
+  colors.reserve(world.getNumCollisionObjects());
+  colors.resize(61, loco::color::BLUE); // crate
+  colors.resize(world.getNumCollisionObjects(), loco::color::WHITE); // boxes
+  vis->addDiscreteDynamicsWorld(world, colors);
 }
 
 void run(const float interval,
@@ -127,27 +94,7 @@ void run(const float interval,
   for(int iter = 0; iter < iteration; ++iter)
   {
     world.stepSimulation(interval);
-    for(int ido = 0; ido < world.getNumCollisionObjects(); ++ido)
-    {
-      btCollisionObject *obj = world.getCollisionObjectArray()[ido];
-      btRigidBody *body = btRigidBody::upcast(obj);
-      btTransform tf;
-      // if(body && body->getMotionState())
-      // {
-      //   body->getMotionState()->getWorldTransform(tf);
-      // }
-      // else
-      // {
-      //   tf = obj->getWorldTransform();
-      // }
-
-      body->getMotionState()->getWorldTransform(tf);
-      btVector3 translation = tf.getOrigin();
-      btQuaternion rotation = tf.getRotation();
-      vis->setTransform(ido, loco::Transform{
-          loco::Vec{float(translation.getX()), float(translation.getY()), float(translation.getZ())},
-          loco::Vec{float(rotation.getX()), float(rotation.getY()), float(rotation.getZ()), float(rotation.getW())}});
-    }
+    vis->updateTransformDiscreteDynamicsWorld(world);
     vis->playOnce();
     usleep(interval * 1e6f);
   }
@@ -288,7 +235,8 @@ void add_boxes(btDiscreteDynamicsWorld &world, const int num = 6)
 int main(int argc, char **argv)
 {
 //    btAlignedObjectArray<btCollisionShape*> shape_list;
-  vis.reset(new loco::CommonVisualizer(600, 800, "crate", loco::color::BLACK));
+//  vis.reset(new loco::CommonVisualizer(600, 800, "crate", loco::color::BLACK));
+  vis.reset(new loco::BulletVisualizer(600, 800, "crate", loco::color::BLACK));
   vis->setDistance(1.0f);
   vis->setLightSource(loco::Vec{0.0f, 0.0f, 1.0f}, loco::color::WHITE);
   vis->setTheta(M_PI / 18.0);
