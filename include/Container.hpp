@@ -46,7 +46,6 @@ namespace loco
 
     void display(const glm::mat4 &proj)
     {
-      glm::mat4 total_proj = proj * _transform;
       for(const std::unique_ptr<Object> &obj : _belongings)
       {
         obj->display(proj);
