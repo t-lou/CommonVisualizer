@@ -1,4 +1,8 @@
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include <unistd.h>
+#include <Eigen/Geometry>
 #include "CommonVisualizer.hpp"
 
 int main()
@@ -53,7 +57,37 @@ int main()
                           std::vector<loco::Vec>(2, loco::color::WHITE));
     visualizer.addCylinder(std::vector<float>(ends_short, ends_short + 12), std::vector<float>(2, 0.4f),
                            std::vector<loco::Vec>(2, loco::color::GREY));
-    visualizer.play();
+//    visualizer.play();
+    int remaining = 0;
+    loco::Vec rot{0.0f, 0.0f, 0.0f, 1.0f};
+    Eigen::Matrix3f rot_current;
+    Eigen::Matrix3f rot_delta;
+    rot_current.setIdentity();
+    rot_delta.setIdentity();
+    while(visualizer.playOnce())
+    {
+      if(remaining <= 0)
+      {
+        remaining = rand() % 100 + 100;
+        rot_delta = Eigen::AngleAxisf(((float)(rand() % 1000)) / 2e5f, Eigen::Vector3f(1,0,0)).matrix()
+                    * Eigen::AngleAxisf(((float)(rand() % 1000)) / 2e5f, Eigen::Vector3f(0,1,0)).matrix()
+                    * Eigen::AngleAxisf(((float)(rand() % 1000)) / 2e5f, Eigen::Vector3f(0,0,1)).matrix();
+      }
+      rot_current *= rot_delta;
+      Eigen::Quaternionf rot_qua(rot_current);
+      rot._x = rot_qua.x();
+      rot._y = rot_qua.y();
+      rot._z = rot_qua.z();
+      rot._w = rot_qua.w();
+      --remaining;
+
+      for(int i = 0; i < 8; ++i)
+      {
+        visualizer.setTransform(i, loco::Transform{loco::Vec{0.0f, 0.0f, 0.0f},
+                                                   rot});
+      }
+      usleep(0.02);
+    }
   }
   return 0;
 }

@@ -49,7 +49,7 @@ namespace loco
       glm::mat4 total_proj = proj * _transform;
       for(const std::unique_ptr<Object> &obj : _belongings)
       {
-        obj->display(total_proj);
+        obj->display(proj);
       }
     }
 
@@ -63,6 +63,22 @@ namespace loco
     {
       assert(id >= 0 && id < _belongings.size());
       _belongings.at(id)->applyTransform(transform);
+    }
+
+    void setTransform(const Transform &transform) override
+    {
+      for(std::unique_ptr<Object> &obj : _belongings)
+      {
+        obj->setTransform(transform);
+      }
+    }
+
+    void applyTransform(const Transform &transform) override
+    {
+      for(std::unique_ptr<Object> &obj : _belongings)
+      {
+        obj->applyTransform(transform);
+      }
     }
   };
 }
