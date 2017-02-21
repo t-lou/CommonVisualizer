@@ -11,7 +11,7 @@
 #include <iostream>
 #include <vector>
 #include <memory>
-#include <cmath>1
+#include <cmath>
 #include <cstdlib>
 #include <ctime>
 #include <unistd.h>
@@ -95,7 +95,10 @@ void run(const float interval,
   {
     world.stepSimulation(interval);
     vis->updateTransformDiscreteDynamicsWorld(world);
-    vis->playOnce();
+    if(!vis->playOnce())
+    {
+      break;
+    }
     usleep(interval * 1e6f);
   }
 }
