@@ -62,6 +62,11 @@ int main()
     visualizer.addCone(std::vector<float>(ends_another, ends_another + 6), std::vector<float>(1, 0.2f),
                        std::vector<loco::Vec>(1, loco::color::WHITE));
 
+    float ends_another_back[] = {0.0f, -1.0f, -0.5f, 0.0f, -1.0f, 0.5f};
+    visualizer.addArrow(std::vector<float>(ends_another_back, ends_another_back + 6),
+                        std::vector<float>(1, 0.3), std::vector<float>(1, 0.1),
+                        std::vector<float>(1, 0.05), std::vector<loco::Vec>(1, loco::color::WHITE));
+
 //    visualizer.play();
     int remaining = 0;
     loco::Vec rot{0.0f, 0.0f, 0.0f, 1.0f};
@@ -86,10 +91,11 @@ int main()
       rot._w = rot_qua.w();
       --remaining;
 
-      for(int i = 0; i < 9; ++i)
-      {
-        visualizer.setTransform(i, loco::Transform{loco::Vec{0.0f, 0.0f, 0.0f}, rot});
-      }
+//      for(int i = 0; i < 10; ++i)
+//      {
+//        visualizer.setTransform(i, loco::Transform{loco::Vec{0.0f, 0.0f, 0.0f}, rot});
+//      }
+      visualizer.setTransform(loco::Transform{loco::Vec{0.0f, 0.0f, 0.0f}, rot});
       usleep(0.02);
     }
   }

@@ -26,6 +26,7 @@
 #include "include/Capsule.hpp"
 #include "include/Cylinder.hpp"
 #include "include/Cone.hpp"
+#include "include/Arrow.hpp"
 
 namespace loco
 {
@@ -543,6 +544,11 @@ namespace loco
       updateViewingMatrix();
     }
 
+    void setTransform(const Transform &transform)
+    {
+      _world.setTransform(transform);
+    }
+
     void setTransform(const int id, const Transform &transform)
     {
       _world.setTransform(id, transform);
@@ -696,6 +702,28 @@ namespace loco
       _world.addObject(new Cone(positions, radius, colors,
                                 _id_prog._id_program_cone_side,
                                 _id_prog._id_program_oriented_circle));
+    }
+
+    void addArrow(const std::vector<float> &positions, const std::vector<float> &length_head,
+                  const std::vector<float> &radius_head, const std::vector<float> &radius_body,
+                  const std::vector<Vec> &colors)
+    {
+      if(_id_prog._id_program_cylinder_side == 0)
+      {
+        loadCylinderSideShader();
+      }
+      if(_id_prog._id_program_cone_side == 0)
+      {
+        loadConeSideShader();
+      }
+      if(_id_prog._id_program_oriented_circle == 0)
+      {
+        loadOrientedCircleShader();
+      }
+      _world.addObject(new Arrow(positions, radius_head, radius_body, length_head, colors,
+                                 _id_prog._id_program_cylinder_side,
+                                 _id_prog._id_program_cone_side,
+                                 _id_prog._id_program_oriented_circle));
     }
 
     /**
