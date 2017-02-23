@@ -7,6 +7,7 @@ struct CenteredEnd
   vec4 color;
   float radius;
   float length;
+  float length_nor; // length for computing normal direction
   vec3 dir;
 };
 

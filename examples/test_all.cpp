@@ -57,6 +57,11 @@ int main()
                           std::vector<loco::Vec>(2, loco::color::WHITE));
     visualizer.addCylinder(std::vector<float>(ends_short, ends_short + 12), std::vector<float>(2, 0.4f),
                            std::vector<loco::Vec>(2, loco::color::GREY));
+
+    float ends_another[] = {0.0f, 1.0f, -0.5f, 0.0f, 1.0f, 0.5f};
+    visualizer.addCone(std::vector<float>(ends_another, ends_another + 6), std::vector<float>(1, 0.2f),
+                       std::vector<loco::Vec>(1, loco::color::WHITE));
+
 //    visualizer.play();
     int remaining = 0;
     loco::Vec rot{0.0f, 0.0f, 0.0f, 1.0f};
@@ -81,10 +86,9 @@ int main()
       rot._w = rot_qua.w();
       --remaining;
 
-      for(int i = 0; i < 8; ++i)
+      for(int i = 0; i < 9; ++i)
       {
-        visualizer.setTransform(i, loco::Transform{loco::Vec{0.0f, 0.0f, 0.0f},
-                                                   rot});
+        visualizer.setTransform(i, loco::Transform{loco::Vec{0.0f, 0.0f, 0.0f}, rot});
       }
       usleep(0.02);
     }

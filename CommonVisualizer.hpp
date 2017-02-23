@@ -25,6 +25,7 @@
 #include "include/Box.hpp"
 #include "include/Capsule.hpp"
 #include "include/Cylinder.hpp"
+#include "include/Cone.hpp"
 
 namespace loco
 {
@@ -57,6 +58,7 @@ namespace loco
       GLuint _id_program_unicolor_cloud_sphere;
       GLuint _id_program_cylinder_side;
       GLuint _id_program_oriented_circle;
+      GLuint _id_program_cone_side;
     };
   };
 
@@ -680,6 +682,22 @@ namespace loco
                                    _id_prog._id_program_unicolor_cloud_sphere));
     }
 
+    void addCone(const std::vector<float> &positions, const std::vector<float> &radius,
+                 const std::vector<Vec> &colors)
+    {
+      if(_id_prog._id_program_cone_side == 0)
+      {
+        loadConeSideShader();
+      }
+      if(_id_prog._id_program_oriented_circle == 0)
+      {
+        loadOrientedCircleShader();
+      }
+      _world.addObject(new Cone(positions, radius, colors,
+                                _id_prog._id_program_cone_side,
+                                _id_prog._id_program_oriented_circle));
+    }
+
     /**
      * add box with transform, scaling and one color
      * @param transform
@@ -834,6 +852,26 @@ namespace loco
       const char *texts[] = {vs, fs, fs_phong, gs};
       GLenum types[] = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_FRAGMENT_SHADER, GL_GEOMETRY_SHADER};
       _id_prog._id_program_oriented_circle = CommonVisualizer::createProgram(
+          std::vector<GLenum>(types, types + 4), std::vector<const char *>(texts, texts + 4));
+    }
+
+    void loadConeSideShader()
+    {
+      const char *vs =
+#include "./shaders/vs_cylinder_side.vs"
+      ;
+      const char *fs =
+#include "./shaders/fs_cone_side.fs"
+      ;
+      const char *fs_phong =
+#include "./shaders/fs_sub_phong.fs"
+      ;
+      const char *gs =
+#include "./shaders/gs_cylinder_side.gs"
+      ;
+      const char *texts[] = {vs, fs, fs_phong, gs};
+      GLenum types[] = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_FRAGMENT_SHADER, GL_GEOMETRY_SHADER};
+      _id_prog._id_program_cone_side = CommonVisualizer::createProgram(
           std::vector<GLenum>(types, types + 4), std::vector<const char *>(texts, texts + 4));
     }
   };

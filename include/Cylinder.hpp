@@ -27,27 +27,35 @@ namespace loco
 
       _belongings.reserve(2 * colors.size());
 
+      std::vector<Vec> colors_;
+      std::vector<float> radius_;
+      std::vector<float> normals_;
+
+      colors_.reserve(colors.size() * 2);
+      radius_.reserve(radius.size() * 2);
+      normals_.reserve(positions.size());
+
       for(size_t id = 0; id < colors.size(); ++id)
       {
         const size_t id6 = id * 6;
         glm::vec3 to = glm::normalize(glm::vec3(positions.at(id6 + 3), positions.at(id6 + 4), positions.at(id6 + 5))
                                       - glm::vec3(positions.at(id6), positions.at(id6 + 1), positions.at(id6 + 2)));
-        std::vector<float> normal_end(6, 0.0f);
-
         for(int i = 0; i < 3; ++i)
         {
-          normal_end.at(i) = -to[i];
-          normal_end.at(i + 3) = to[i];
+          normals_.push_back(-to[i]);
         }
-
-        addObject(new OrientedCircle(
-            std::vector<float>(positions.begin() + id6, positions.begin() + id6 + 6), normal_end,
-            std::vector<float>(2, radius.at(id)), std::vector<Vec>(2, colors.at(id)), id_program_end));
-        addObject(new CylinderSide(
-            std::vector<float>(positions.begin() + id6, positions.begin() + id6 + 6),
-            std::vector<float>(1, radius.at(id)),
-            std::vector<Vec>(1, colors.at(id)), id_program_side));
+        for(int i = 0; i < 3; ++i)
+        {
+          normals_.push_back(to[i]);
+        }
+        colors_.push_back(colors.at(id));
+        colors_.push_back(colors.at(id));
+        radius_.push_back(radius.at(id));
+        radius_.push_back(radius.at(id));
       }
+
+      addObject(new OrientedCircle(positions, normals_, radius_, colors_, id_program_end));
+      addObject(new CylinderSide(positions, radius, colors, id_program_side));
     }
 
     ~Cylinder()

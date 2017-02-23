@@ -7,6 +7,7 @@ struct CenteredEnd
   vec4 color;
   float radius;
   float length;
+  float length_nor; // length for computing normal direction
   vec3 dir;
 };
 
@@ -55,6 +56,10 @@ void main()
   fs_in_centered_end.color = vs_out_centered_end[0].color;
   fs_in_centered_end.origin = vs_out_centered_end[0].pos;
   fs_in_centered_end.radius = radius_;
+
+  // for side of cone. for cylinder this is not used in fragment shader
+  fs_in_centered_end.length_nor = (fs_in_centered_end.length * fs_in_centered_end.length +
+      radius_ * radius_) / fs_in_centered_end.length;
 
   // individual
   fs_in_centered_end.pos = pos0;
