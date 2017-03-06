@@ -21,7 +21,7 @@ namespace loco
     GLuint _buffer_position;
     int _size;
 
-    static void genBufferVectorFloat(const std::vector<float>& data, GLuint &id_buffer)
+    static void genBufferVectorFloat(const std::vector<float> &data, GLuint &id_buffer)
     {
       glGenBuffers(1, &id_buffer);
       glBindBuffer(GL_ARRAY_BUFFER, id_buffer);
@@ -55,15 +55,14 @@ namespace loco
     }
 
     static std::vector<float> unfoldList(const std::vector<float> &data, const std::vector<int> &index,
-                                          const int length_vector)
+                                         const int length_vector)
     {
-      assert(data.size() == length_vector * index.size());
-
       std::vector<float> unfolded;
       unfolded.reserve(index.size() * length_vector);
 
       for(int id : index)
       {
+        assert(length_vector * id <= data.size());
         unfolded.insert(unfolded.end(),
                         data.begin() + length_vector * id,
                         data.begin() + length_vector * (id + 1));
@@ -72,13 +71,14 @@ namespace loco
     }
 
   public:
-    Object(const GLuint id_program):
+    Object(const GLuint id_program) :
         _id_program(id_program),
         _transform(glm::mat4(1.0f))
     {
     }
 
-    virtual ~Object() {};
+    virtual ~Object()
+    {};
 
     static glm::mat4 transformToMat4(const Transform &transform)
     {
@@ -101,8 +101,6 @@ namespace loco
     }
 
     virtual void display(const glm::mat4 &proj) = 0;
-
-
 
     virtual void print(const glm::vec4 &vec)
     {

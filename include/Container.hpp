@@ -44,7 +44,7 @@ namespace loco
       _belongings.reserve(size_space);
     }
 
-    void display(const glm::mat4 &proj)
+    void display(const glm::mat4 &proj) override
     {
       for(const std::unique_ptr<Object> &obj : _belongings)
       {

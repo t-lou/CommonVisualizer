@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.6)
 project(Examples)
 
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_BUILD_TYPE Release)
 
 find_package(Eigen3 REQUIRED)
 
@@ -27,3 +28,6 @@ add_executable(test_spheres test_spheres.cpp)
 target_link_libraries(test_spheres 
   GL GLEW GLU glut glfw
 )
+
+add_executable(ply_viewer ply_viewer.cpp)
+target_link_libraries(ply_viewer GL GLEW GLU glut glfw)

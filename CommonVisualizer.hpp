@@ -354,6 +354,10 @@ namespace loco
       {
         updateViewerPose(_id_prog._id_program_oriented_circle);
       }
+      if(_id_prog._id_program_cone_side)
+      {
+        updateViewerPose(_id_prog._id_program_cone_side);
+      }
     }
 
   public:

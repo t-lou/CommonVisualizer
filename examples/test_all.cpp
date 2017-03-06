@@ -96,7 +96,7 @@ int main()
 //        visualizer.setTransform(i, loco::Transform{loco::Vec{0.0f, 0.0f, 0.0f}, rot});
 //      }
       visualizer.setTransform(loco::Transform{loco::Vec{0.0f, 0.0f, 0.0f}, rot});
-      usleep(0.02);
+      usleep(20);
     }
   }
   return 0;
