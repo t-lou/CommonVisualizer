@@ -62,7 +62,7 @@ namespace loco
 
       for(int id : index)
       {
-        assert(length_vector * id <= data.size());
+        assert(length_vector * (id + 1) <= data.size());
         unfolded.insert(unfolded.end(),
                         data.begin() + length_vector * id,
                         data.begin() + length_vector * (id + 1));

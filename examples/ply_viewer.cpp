@@ -106,8 +106,11 @@ load_ply(const std::string &filename)
     }
   }
 
+//  std::cout << num_vertex << " " << num_triangle << "\n";
+
   vertex.reserve(num_vertex);
-  const int size_point = 4 * 4 + 3 * 1;
+  const int size_point = 7 * 4;
+  //const int size_point = 4 * 4 + 3 * 1;
   std::vector<unsigned char> buffer(num_vertex * size_point, 0);
   in.read((char *) &buffer.front(), buffer.size());
   for(size_t i_ver = 0; i_ver < num_vertex; ++i_ver)
@@ -122,13 +125,17 @@ load_ply(const std::string &filename)
   indices.reserve(num_triangle);
   buffer.resize(num_triangle * 13);
   in.read((char *) &buffer.front(), buffer.size());
-  for(size_t i_tri = 0; i_tri < num_triangle; ++i_tri)
+  for(size_t i_tri = 0, id = 0; i_tri < num_triangle; ++i_tri)
   {
-    const size_t offset = i_tri * 13 + 1;
-    for(size_t i = 0; i < 3; ++i)
+    const unsigned char num = buffer.at(id);
+    if(num >= 3)
     {
-      indices.push_back(byte_to_int(buffer, offset + i * 4, false));
+      for(size_t i = 0; i < 3; ++i)
+      {
+        indices.push_back(byte_to_int(buffer, id + i * 4 + 1, false));
+      }
     }
+    id += 4 * (size_t) num + 1;
   }
 
   in.close();
@@ -139,23 +146,34 @@ load_ply(const std::string &filename)
 loco::Vec get_minus_center(const std::vector<float> &positions)
 {
   loco::Vec center{0.0f, 0.0f, 0.0f};
+  int count = 0;
   for(size_t id = 0; id < positions.size(); id += 3)
   {
+    if(std::isnan(positions.at(id)) || std::isnan(positions.at(id + 1)) || std::isnan(positions.at(id + 2)))
+    {
+      continue;
+    }
     center._x += positions.at(id);
     center._y += positions.at(id + 1);
     center._z += positions.at(id + 2);
+    ++count;
   }
   for(int i = 0; i < 3; ++i)
   {
-    center._data[i] /= -(float) (positions.size() / 3);
+    center._data[i] /= -(float) count;
   }
   return center;
 }
 
 int main(int argc, char **argv)
 {
+  if(argc <= 1)
+  {
+    std::cout << "filename not assigned\n";
+    return 1;
+  }
   std::pair <std::vector<float>, std::vector<int>> mesh;
-  mesh = load_ply("/home/tlou/workspace/navvis_data/poisson_trim_7/56_-24.ply");
+  mesh = load_ply(std::string(argv[1]));
   loco::CommonVisualizer vis;
   vis.setDistance(10.0f);
   vis.setLightSource(loco::Vec{0.0f, 0.0f, 200.0f}, loco::color::WHITE);
