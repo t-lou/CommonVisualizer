@@ -16,6 +16,13 @@ namespace loco
     Vec _color;
 
   public:
+    /**
+     * constructor if points with same color
+     * @param positions
+     * @param color
+     * @param point_size
+     * @param id_program
+     */
     CloudPointUnicolor(const std::vector<float> &positions, const Vec &color,
                        const float point_size, const GLuint id_program) :
         Object(id_program),

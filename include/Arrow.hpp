@@ -17,6 +17,18 @@ namespace loco
   protected:
 
   public:
+    /**
+     * Constructor for arrow array of size num
+     * @param positions vector of positions of length 6*num, for each arrow:
+     *        from_x, from_y, from_z, to_x, to_y, to_z
+     * @param radius_head
+     * @param radius_body
+     * @param length_head
+     * @param colors
+     * @param id_program_cylinder
+     * @param id_program_cone
+     * @param id_program_circle
+     */
     Arrow(const std::vector<float> &positions,
           const std::vector<float> &radius_head, const std::vector<float> &radius_body,
           const std::vector<float> &length_head, const std::vector<Vec> &colors,
@@ -29,6 +41,7 @@ namespace loco
 
       _belongings.reserve(4);
 
+      // convert the positions of arrow to cone and cylinder, and compute the direction
       std::vector<float> pos_head;
       std::vector<float> pos_body;
       std::vector<float> pos_bottom;
@@ -74,6 +87,9 @@ namespace loco
       addObject(new OrientedCircle(pos_bottom, normals, radius_body, colors, id_program_circle));
     }
 
+    /**
+     *
+     */
     ~Arrow()
     {}
   };

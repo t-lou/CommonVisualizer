@@ -29,6 +29,22 @@ namespace loco
     };
   };
 
+  union Vec8
+  {
+    unsigned int _uint32;
+    int _int32;
+    float _float32;
+    unsigned char _uchar[4];
+    char _char[4];
+    struct
+    {
+      unsigned char _r;
+      unsigned char _g;
+      unsigned char _b;
+      unsigned char _a;
+    };
+  };
+
   struct Transform
   {
     Vec _translation;

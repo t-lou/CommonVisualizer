@@ -11,6 +11,7 @@
 #include <list>
 #include <string>
 #include <functional>
+#include <fstream>
 
 #include "include/include_gl.h"
 #include "include/Vec.h"
@@ -110,6 +111,27 @@ namespace loco
     }
 
     /**
+     * load all text from a document. designed to load shader, but I want the program to be independant to
+     *     source at run time
+     * @param filename
+     * @return
+     */
+    static std::string loadSource(const std::string& filename)
+    {
+      std::ifstream in;
+      in.open(filename);
+      in.seekg(0, in.end);
+
+      int length = in.tellg();
+      std::string source;
+      source.reserve(length);
+      in.seekg(0, in.beg);
+      in.read(&source.front(), length);
+      in.close();
+      return source;
+    }
+
+    /**
      * create single shader with source code shader_text and shader type(vertex, fragement...)
      * @param shader_type
      * @param shader_text
@@ -139,14 +161,14 @@ namespace loco
      * @param shader_texts
      * @return
      */
-    static GLuint createProgram(const std::vector<GLenum> &shader_types,
+    static GLuint createProgram(const std::vector <GLenum> &shader_types,
                                 const std::vector<const char *> &shader_texts)
     {
       assert(shader_types.size() == shader_texts.size());
       GLuint id_program;
       GLint re = GL_FALSE;
       int len_info;
-      std::vector<GLuint> id_shaders;
+      std::vector <GLuint> id_shaders;
       id_shaders.reserve(shader_texts.size());
 
       // create each shader
@@ -331,13 +353,14 @@ namespace loco
      */
     void updatePhongParameter()
     {
-      for(int i = 0; i < 20; ++i)
+      for(GLuint &id_prog : _id_prog._ids)
       {
-        if(_id_prog._ids[i])
+        if(id_prog)
         {
-          updatePhongParameter(_id_prog._ids[i]);
+          updatePhongParameter(id_prog);
         }
       }
+
       if(_id_prog._id_program_unicolor_cloud_sphere)
       {
         updateViewerPose(_id_prog._id_program_unicolor_cloud_sphere);
@@ -421,9 +444,9 @@ namespace loco
 //                                         std::placeholders::_1, std::placeholders::_2);
 //      glutReshapeFunc(wrapper_resize_window);
 
-      for(int i = 0; i < 20; ++i)
+      for(GLuint &id_prog : _id_prog._ids)
       {
-        _id_prog._ids[i] = 0;
+        id_prog = 0;
       }
 
       updateViewingMatrix();
@@ -432,11 +455,11 @@ namespace loco
     virtual
     ~CommonVisualizer()
     {
-      for(int i = 0; i < 20; ++i)
+      for(GLuint &id_prog : _id_prog._ids)
       {
-        if(_id_prog._ids[i])
+        if(id_prog)
         {
-          glDeleteProgram(_id_prog._ids[i]);
+          glDeleteProgram(id_prog);
         }
       }
       glfwTerminate();
@@ -572,6 +595,12 @@ namespace loco
       _world.addObject(new MeshUnicolor(vertices, color, _id_prog._id_program_unicolor_mesh));
     }
 
+    /**
+     * add mesh with vertices and indices for triangles
+     * @param vertices
+     * @param index
+     * @param color
+     */
     void addMesh(const std::vector<float> &vertices, const std::vector<int> &index, const Vec &color)
     {
       if(_id_prog._id_program_unicolor_mesh == 0)
@@ -660,8 +689,15 @@ namespace loco
       _world.addObject(new CoordinateUnits(_id_prog._id_program_colored_cloud_point));
     }
 
+    /**
+     * add cylinder to visualizer
+     * @param positions vector of positions of length 6*num, for each arrow:
+     *        from_x, from_y, from_z, to_x, to_y, to_z
+     * @param radius
+     * @param colors
+     */
     void addCylinder(const std::vector<float> &positions, const std::vector<float> &radius,
-                     const std::vector<Vec> &colors)
+                     const std::vector <Vec> &colors)
     {
       if(_id_prog._id_program_cylinder_side == 0)
       {
@@ -676,8 +712,15 @@ namespace loco
                                     _id_prog._id_program_oriented_circle));
     }
 
+    /**
+     * add capsule to visualizer
+     * @param positions vector of positions of length 6*num, for each arrow:
+     *        from_x, from_y, from_z, to_x, to_y, to_z
+     * @param radius
+     * @param colors
+     */
     void addCapsule(const std::vector<float> &positions, const std::vector<float> &radius,
-                    const std::vector<Vec> &colors)
+                    const std::vector <Vec> &colors)
     {
       if(_id_prog._id_program_cylinder_side == 0)
       {
@@ -692,8 +735,15 @@ namespace loco
                                    _id_prog._id_program_unicolor_cloud_sphere));
     }
 
+    /**
+     * add cone to visualizer
+     * @param positions vector of positions of length 6*num, for each arrow:
+     *        from_x, from_y, from_z, to_x, to_y, to_z
+     * @param radius
+     * @param colors
+     */
     void addCone(const std::vector<float> &positions, const std::vector<float> &radius,
-                 const std::vector<Vec> &colors)
+                 const std::vector <Vec> &colors)
     {
       if(_id_prog._id_program_cone_side == 0)
       {
@@ -708,9 +758,18 @@ namespace loco
                                 _id_prog._id_program_oriented_circle));
     }
 
+    /**
+     * add arrows to cisualizer
+     * @param positions vector of positions of length 6*num, for each arrow:
+     *        from_x, from_y, from_z, to_x, to_y, to_z
+     * @param length_head
+     * @param radius_head
+     * @param radius_body
+     * @param colors
+     */
     void addArrow(const std::vector<float> &positions, const std::vector<float> &length_head,
                   const std::vector<float> &radius_head, const std::vector<float> &radius_body,
-                  const std::vector<Vec> &colors)
+                  const std::vector <Vec> &colors)
     {
       if(_id_prog._id_program_cylinder_side == 0)
       {
@@ -745,162 +804,189 @@ namespace loco
       _world.addObject(new Box(transform, scale, color, _id_prog._id_program_unicolor_mesh));
     }
 
+    /**
+     * load shader for mesh rendering from source
+     */
     void loadColoredMeshShader()
     {
       const char *vs =
 #include "./shaders/vs_colored_mesh.vs"
-      ;
+        ;
       const char *fs_phong =
 #include "./shaders/fs_sub_phong.fs"
-      ;
+        ;
       const char *fs =
 #include "./shaders/fs_phong_simple.fs"
-      ;
+        ;
       const char *texts[] = {vs, fs_phong, fs};
       GLenum types[] = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_FRAGMENT_SHADER};
       _id_prog._id_program_colored_mesh = CommonVisualizer::createProgram(
           std::vector<GLenum>(types, types + 3), std::vector<const char *>(texts, texts + 3));
     }
 
+    /**
+     * load shader for mesh with color rendering from source
+     */
     void loadUnicolorMeshShader()
     {
       const char *vs =
 #include "./shaders/vs_unicolor_mesh.vs"
-      ;
+        ;
       const char *fs_phong =
 #include "./shaders/fs_sub_phong.fs"
-      ;
+        ;
       const char *fs =
 #include "./shaders/fs_phong_simple.fs"
-      ;
+        ;
       const char *texts[] = {vs, fs_phong, fs};
       GLenum types[] = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_FRAGMENT_SHADER};
       _id_prog._id_program_unicolor_mesh = CommonVisualizer::createProgram(
           std::vector<GLenum>(types, types + 3), std::vector<const char *>(texts, texts + 3));
     }
 
+    /**
+     * load shader for colored point cloud rendering from source
+     */
     void loadColoredCloudPointShader()
     {
       const char *vs =
 #include "./shaders/vs_colored_cloud_point.vs"
-      ;
+        ;
       const char *fs =
 #include "./shaders/fs_simple.fs"
-      ;
+        ;
       const char *texts[] = {vs, fs};
       GLenum types[] = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
       _id_prog._id_program_colored_cloud_point = CommonVisualizer::createProgram(
           std::vector<GLenum>(types, types + 2), std::vector<const char *>(texts, texts + 2));
     }
 
+    /**
+     * load shader for point cloud with unified color from source
+     */
     void loadUnicolorCloudPointShader()
     {
       const char *vs =
 #include "./shaders/vs_unicolor_cloud_point.vs"
-      ;
+        ;
       const char *fs =
 #include "./shaders/fs_simple.fs"
-      ;
+        ;
       const char *texts[] = {vs, fs};
       GLenum types[] = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
       _id_prog._id_program_unicolor_cloud_point = CommonVisualizer::createProgram(
           std::vector<GLenum>(types, types + 2), std::vector<const char *>(texts, texts + 2));
     }
 
+    /**
+     * load shader for spheres, which has its own color, from source
+     */
     void loadColoredCloudSphereShader()
     {
       const char *gs =
 #include "./shaders/gs_cloud_sphere.gs"
-      ;
+        ;
       const char *vs =
 #include "./shaders/vs_colored_cloud_sphere.vs"
-      ;
+        ;
       const char *fs =
 #include "./shaders/fs_sphere.fs"
-      ;
+        ;
       const char *fs_phong =
 #include "./shaders/fs_sub_phong.fs"
-      ;
+        ;
       const char *texts[] = {gs, vs, fs, fs_phong};
       GLenum types[] = {GL_GEOMETRY_SHADER, GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_FRAGMENT_SHADER};
       _id_prog._id_program_colored_cloud_sphere = CommonVisualizer::createProgram(
           std::vector<GLenum>(types, types + 4), std::vector<const char *>(texts, texts + 4));
     }
 
+    /**
+     * load shader for spheres with same color
+     */
     void loadUnicolorCloudSphereShader()
     {
       const char *gs =
 #include "./shaders/gs_cloud_sphere.gs"
-      ;
+        ;
       const char *vs =
 #include "./shaders/vs_unicolor_cloud_sphere.vs"
-      ;
+        ;
       const char *fs =
 #include "./shaders/fs_sphere.fs"
-      ;
+        ;
       const char *fs_phong =
 #include "./shaders/fs_sub_phong.fs"
-      ;
+        ;
       const char *texts[] = {gs, vs, fs, fs_phong};
       GLenum types[] = {GL_GEOMETRY_SHADER, GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_FRAGMENT_SHADER};
       _id_prog._id_program_unicolor_cloud_sphere = CommonVisualizer::createProgram(
           std::vector<GLenum>(types, types + 4), std::vector<const char *>(texts, texts + 4));
     }
 
+    /**
+     * load shader for side of cylinder
+     */
     void loadCylinderSideShader()
     {
       const char *vs =
 #include "./shaders/vs_cylinder_side.vs"
-      ;
+        ;
       const char *fs =
 #include "./shaders/fs_cylinder_side.fs"
-      ;
+        ;
       const char *fs_phong =
 #include "./shaders/fs_sub_phong.fs"
-      ;
+        ;
       const char *gs =
 #include "./shaders/gs_cylinder_side.gs"
-      ;
+        ;
       const char *texts[] = {vs, fs, fs_phong, gs};
       GLenum types[] = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_FRAGMENT_SHADER, GL_GEOMETRY_SHADER};
       _id_prog._id_program_cylinder_side = CommonVisualizer::createProgram(
           std::vector<GLenum>(types, types + 4), std::vector<const char *>(texts, texts + 4));
     }
 
+    /**
+     * load shader for circle rendering
+     */
     void loadOrientedCircleShader()
     {
       const char *vs =
 #include "./shaders/vs_oriented_circle.vs"
-      ;
+        ;
       const char *fs =
 #include "./shaders/fs_oriented_circle.fs"
-      ;
+        ;
       const char *fs_phong =
 #include "./shaders/fs_sub_phong.fs"
-      ;
+        ;
       const char *gs =
 #include "./shaders/gs_oriented_circle.gs"
-      ;
+        ;
       const char *texts[] = {vs, fs, fs_phong, gs};
       GLenum types[] = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_FRAGMENT_SHADER, GL_GEOMETRY_SHADER};
       _id_prog._id_program_oriented_circle = CommonVisualizer::createProgram(
           std::vector<GLenum>(types, types + 4), std::vector<const char *>(texts, texts + 4));
     }
 
+    /**
+     * load shader for side of cones
+     */
     void loadConeSideShader()
     {
       const char *vs =
 #include "./shaders/vs_cylinder_side.vs"
-      ;
+        ;
       const char *fs =
 #include "./shaders/fs_cone_side.fs"
-      ;
+        ;
       const char *fs_phong =
 #include "./shaders/fs_sub_phong.fs"
-      ;
+        ;
       const char *gs =
 #include "./shaders/gs_cylinder_side.gs"
-      ;
+        ;
       const char *texts[] = {vs, fs, fs_phong, gs};
       GLenum types[] = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_FRAGMENT_SHADER, GL_GEOMETRY_SHADER};
       _id_prog._id_program_cone_side = CommonVisualizer::createProgram(

@@ -12,6 +12,7 @@ namespace loco
 {
   class ConeSide : public CylinderSide
   {
+    using CylinderSide::display;
   protected:
     GLuint _buffer_is_convex;
     GLuint _buffer_end;
@@ -53,7 +54,6 @@ namespace loco
                  std::vector<bool>(radius.size(), true), colors, id_program)
     {}
 
-
     ~ConeSide()
     {
       glDeleteBuffers(1, (GLuint *) &_buffer_position);
@@ -64,6 +64,10 @@ namespace loco
       glDeleteVertexArrays(1, &_id_array);
     }
 
+    void display(const glm::mat4 &proj)
+    {
+      CylinderSide::display(proj);
+    }
   };
 }
 

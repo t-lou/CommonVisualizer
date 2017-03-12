@@ -16,6 +16,15 @@ namespace loco
   protected:
 
   public:
+    /**
+     * constructor for an array of Capsules
+     * @param positions vector of positions of length 6*num, for each arrow:
+     *        from_x, from_y, from_z, to_x, to_y, to_z
+     * @param radius
+     * @param colors
+     * @param id_program_side
+     * @param id_program_end
+     */
     Capsule(const std::vector<float> &positions, const std::vector<float> &radius, const std::vector<Vec> &colors,
             const GLuint id_program_side, const GLuint id_program_end) :
         Container()

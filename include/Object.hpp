@@ -21,6 +21,11 @@ namespace loco
     GLuint _buffer_position;
     int _size;
 
+    /**
+     * generate buffer for vector of float
+     * @param data
+     * @param id_buffer
+     */
     static void genBufferVectorFloat(const std::vector<float> &data, GLuint &id_buffer)
     {
       glGenBuffers(1, &id_buffer);
@@ -28,8 +33,15 @@ namespace loco
       glBufferData(GL_ARRAY_BUFFER, 4 * data.size(), &data.front(), GL_STATIC_DRAW);
     }
 
+    /**
+     * compute normal vectors for triangles with vertices, the computed normals are
+     *     perpendicular to triangles
+     * @param vertices (x, y, z) positions of triangles
+     * @return
+     */
     static std::vector<float> genFakeNormal(const std::vector<float> &vertices)
     {
+      assert(vertices.size() % 3 == 0);
       std::vector<float> normals;
       normals.resize(vertices.size());
       for(size_t id = 0; id < vertices.size(); id += 9)
@@ -54,6 +66,15 @@ namespace loco
       return normals;
     }
 
+    /**
+     * unfold vector according to index.
+     * @param data
+     * @param index
+     * @param length_vector length of unity data. usually 3 for position and 4 for color.
+     *        each indice in index will be replaced with
+     *        data[indice/length_vector][0] ~ data[indice/length_vector][length_vector]
+     * @return
+     */
     static std::vector<float> unfoldList(const std::vector<float> &data, const std::vector<int> &index,
                                          const int length_vector)
     {
@@ -71,6 +92,11 @@ namespace loco
     }
 
   public:
+    Object() :
+        Object(0)
+    {
+    }
+
     Object(const GLuint id_program) :
         _id_program(id_program),
         _transform(glm::mat4(1.0f))
@@ -78,8 +104,14 @@ namespace loco
     }
 
     virtual ~Object()
-    {};
+    {
+    }
 
+    /**
+     * convert transform with format Transform to glm::mat4
+     * @param transform
+     * @return
+     */
     static glm::mat4 transformToMat4(const Transform &transform)
     {
       glm::vec4 quat(transform._rotation._x, transform._rotation._y,
@@ -90,16 +122,28 @@ namespace loco
       return tf;
     }
 
+    /**
+     * set local transform
+     * @param transform
+     */
     virtual void setTransform(const Transform &transform)
     {
       _transform = Object::transformToMat4(transform);
     }
 
+    /**
+     * apply transform to local transform
+     * @param transform
+     */
     virtual void applyTransform(const Transform &transform)
     {
       _transform *= Object::transformToMat4(transform);
     }
 
+    /**
+     * display function. to override for subclass
+     * @param proj
+     */
     virtual void display(const glm::mat4 &proj) = 0;
 
     virtual void print(const glm::vec4 &vec)

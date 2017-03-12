@@ -100,6 +100,13 @@ namespace loco
     }
 
   public:
+    /**
+     * constructor for single blx
+     * @param transform
+     * @param scale
+     * @param color
+     * @param id_program
+     */
     Box(const Transform &transform, const Vec &scale, const Vec &color, const GLuint id_program) :
         MeshUnicolor(getVertex(transform, scale), color, id_program)
     {

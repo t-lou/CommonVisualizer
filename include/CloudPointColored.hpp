@@ -16,6 +16,13 @@ namespace loco
     GLuint _buffer_color;
 
   public:
+    /**
+     * constructor of array of colored points
+     * @param positions
+     * @param colors
+     * @param point_size size of points
+     * @param id_program
+     */
     CloudPointColored(const std::vector<float> &positions, const std::vector<float> &colors,
                       const float point_size, const GLuint id_program) :
         Object(id_program),
@@ -31,8 +38,8 @@ namespace loco
 
     ~CloudPointColored()
     {
-      glDeleteBuffers(1, (GLuint *) &_buffer_color);
-      glDeleteBuffers(1, (GLuint *) &_buffer_position);
+      glDeleteBuffers(1, (GLuint * ) & _buffer_color);
+      glDeleteBuffers(1, (GLuint * ) & _buffer_position);
       glDeleteVertexArrays(1, &_id_array);
     }
 

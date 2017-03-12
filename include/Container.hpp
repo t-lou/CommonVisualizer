@@ -14,7 +14,7 @@ namespace loco
    * used for combining simple object to more complex objects.
    * for example a Cylinder consists of one CylinderSide and two OrientedCircle
    */
-  class Container : public Object
+  class Container : public virtual Object
   {
   protected:
     std::vector< std::unique_ptr<Object> > _belongings;
