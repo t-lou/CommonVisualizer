@@ -67,13 +67,9 @@ int main()
                         std::vector<float>(1, 0.3), std::vector<float>(1, 0.1),
                         std::vector<float>(1, 0.05), std::vector<loco::Vec>(1, loco::color::WHITE));
 
-//    visualizer.play();
     int remaining = 0;
-    loco::Vec rot{0.0f, 0.0f, 0.0f, 1.0f};
-    Eigen::Matrix3f rot_current;
-    Eigen::Matrix3f rot_delta;
-    rot_current.setIdentity();
-    rot_delta.setIdentity();
+    Eigen::Matrix3f orientation {Eigen::Matrix3f::Identity()};
+    Eigen::Matrix3f rot_delta {Eigen::Matrix3f::Identity()};
     while(visualizer.playOnce())
     {
       if(remaining <= 0)
@@ -83,20 +79,13 @@ int main()
                     * Eigen::AngleAxisf(((float)(rand() % 1000)) / 2e5f, Eigen::Vector3f(0,1,0)).matrix()
                     * Eigen::AngleAxisf(((float)(rand() % 1000)) / 2e5f, Eigen::Vector3f(0,0,1)).matrix();
       }
-      rot_current *= rot_delta;
-      Eigen::Quaternionf rot_qua(rot_current);
-      rot._x = rot_qua.x();
-      rot._y = rot_qua.y();
-      rot._z = rot_qua.z();
-      rot._w = rot_qua.w();
-      --remaining;
+      orientation *= rot_delta;
+      const Eigen::Quaternionf rot_qua{orientation};
 
-//      for(int i = 0; i < 10; ++i)
-//      {
-//        visualizer.setTransform(i, loco::Transform{loco::Vec{0.0f, 0.0f, 0.0f}, rot});
-//      }
-      visualizer.setTransform(loco::Transform{loco::Vec{0.0f, 0.0f, 0.0f}, rot});
+      visualizer.setTransform(loco::Transform{loco::Vec{0.0f, 0.0f, 0.0f},
+                                              loco::Vec{rot_qua.x(), rot_qua.y(), rot_qua.z(), rot_qua.w()}});
       usleep(20);
+      --remaining;
     }
   }
   return 0;

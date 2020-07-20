@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.6)
 project(Examples)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_BUILD_TYPE Release)
 
 find_package(Eigen3 REQUIRED)

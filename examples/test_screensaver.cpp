@@ -5,8 +5,9 @@
 #include <cstdlib>
 #include <iostream>
 #include <vector>
-#include <sstream>
 #include <string>
+#include <algorithm>
+#include <functional>
 #include "CommonVisualizer.hpp"
 #include "include/ScreenSaver.hpp"
 
@@ -22,34 +23,28 @@ int main()
   loco::ScreenSaver screen_saver;
   if(vis.isInited())
   {
-    const int num = 500;
-    positions.reserve(num * 3);
-    colors.reserve(num * 4);
-    for(int i = 0; i < num; ++i)
+    constexpr float range{static_cast<float>(RAND_MAX)};
+    // get (R-m)*r, where R is evenly distributed in [0, 1]
+    auto gen_rand = [range](const float m, const float r) -> float
     {
-      positions.push_back((static_cast<float>(rand()) / (static_cast<float>(RAND_MAX)) - 0.5f) * 1000.0f);
-      positions.push_back((static_cast<float>(rand()) / (static_cast<float>(RAND_MAX)) - 0.5f) * 1000.0f);
-      positions.push_back((static_cast<float>(rand()) / (static_cast<float>(RAND_MAX)) - 0.5f) * 1000.0f);
-      colors.push_back(static_cast<float>(rand()) / (static_cast<float>(RAND_MAX)));
-      colors.push_back(static_cast<float>(rand()) / (static_cast<float>(RAND_MAX)));
-      colors.push_back(static_cast<float>(rand()) / (static_cast<float>(RAND_MAX)));
-      colors.push_back(static_cast<float>(rand()) / (static_cast<float>(RAND_MAX)));
-      // colors.push_back(1.0f);
-    }
+      return (static_cast<float>(rand()) / range - m) * r;
+    };
+
+    constexpr int num {500};
+    std::vector<float> positions(num * 3);
+    std::vector<float> colors(num * 4);
+    std::generate(positions.begin(), positions.end(), std::bind(gen_rand, 0.5f, 1000.0f));
+    std::generate(colors.begin(), colors.end(), std::bind(gen_rand, 0.0f, 1.0f));
+
     vis.setDistance(1500.0f);
     vis.setLightSource(loco::Vec{0.0f, 0.0f, 1000.0f}, loco::color::WHITE);
 
     for(int count = 0; count < 20; ++count)
     {
-      for(int i = 0; i < num; ++i)
-      {
-        float dx = (static_cast<float>(rand()) / (static_cast<float>(RAND_MAX)) - 0.5f) * 10.0f;
-        float dy = (static_cast<float>(rand()) / (static_cast<float>(RAND_MAX)) - 0.5f) * 10.0f;
-        float dz = (static_cast<float>(rand()) / (static_cast<float>(RAND_MAX)) - 0.5f) * 10.0f;
-        positions.at(i * 3 + 0) += dx;
-        positions.at(i * 3 + 1) += dy;
-        positions.at(i * 3 + 2) += dz;
-      }
+      // random move the balls in 3D
+      std::generate(positions.begin(), positions.end(),
+                    [position = positions.begin(), gen_rand] () mutable -> float
+                    { return *(position++) + gen_rand(0.5f, 10.0f); });
 
       vis.addPointCloud(positions, colors, 10.0f);
 
@@ -58,9 +53,7 @@ int main()
         break;
       }
 
-      std::stringstream ss;
-      ss << "/tmp/" << count << ".png";
-      screen_saver.saveImage(600, 800, ss.str());
+      screen_saver.saveImage(600, 800, std::string{"/tmp/"} + std::to_string(count) + ".png");
 
       vis.resetScene();
     }
