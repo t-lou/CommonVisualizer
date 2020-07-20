@@ -44,9 +44,6 @@ namespace loco
       }
       addObject(new OrientedCircle(pos_bottom, normals, radius, colors, id_program_bottom));
     }
-
-    ~Cone()
-    {}
   };
 }
 

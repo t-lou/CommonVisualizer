@@ -3,39 +3,33 @@
 
 #include "include_gl.h"
 
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
+#include <png++/image.hpp>
+#include <png++/writer.hpp>
 
 namespace loco
 {
   class ScreenSaver
   {
-  protected:
-
   public:
-    ScreenSaver()
-    {}
-
-    ~ScreenSaver()
-    {}
-
     static void saveImage(const int height, const int width, 
                           const std::string &filename)
     {
-      cv::Mat canvas(height, width, CV_8UC3);
+      png::image<png::rgb_pixel> image(width, height);
+
       std::vector<unsigned char> buffer(width * height * 3, 0);
       glReadPixels(0, 0, width, height, GL_BGR, GL_UNSIGNED_BYTE, &buffer.front());
+
+      int index = 0;
       for(int r = 0; r < height; ++r)
       {
         for(int c = 0; c < width; ++c)
         {
-          int index = (r * width + c) * 3;
-          canvas.at<cv::Vec3b>(height - 1 - r, c) = cv::Vec3b(buffer.at(index),
-                                                              buffer.at(index + 1),
-                                                              buffer.at(index + 2));
+          image.set_pixel(c, r, png::rgb_pixel(buffer.at(index), buffer.at(index + 1), buffer.at(index + 2)));
+          index += 3;
         }
       }
-      cv::imwrite(filename, canvas);
+
+      image.write(filename);
     }
   };
 }

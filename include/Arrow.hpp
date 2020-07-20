@@ -86,12 +86,6 @@ namespace loco
       addObject(new OrientedCircle(pos_link, normals, radius_head, colors, id_program_circle));
       addObject(new OrientedCircle(pos_bottom, normals, radius_body, colors, id_program_circle));
     }
-
-    /**
-     *
-     */
-    ~Arrow()
-    {}
   };
 }
 

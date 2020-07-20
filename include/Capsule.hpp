@@ -47,9 +47,6 @@ namespace loco
             std::vector<Vec>(1, colors.at(id)), id_program_side));
       }
     }
-
-    ~Capsule()
-    {}
   };
 }
 

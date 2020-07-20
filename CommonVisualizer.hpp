@@ -56,8 +56,7 @@ namespace loco
    */
   std::string CommonVisualizer::loadSource(const std::string &filename)
   {
-    std::ifstream in;
-    in.open(filename);
+    std::ifstream in(filename);
     in.seekg(0, in.end);
 
     int length = in.tellg();
@@ -65,7 +64,7 @@ namespace loco
     source.reserve(length);
     in.seekg(0, in.beg);
     in.read(&source.front(), length);
-    in.close();
+
     return source;
   }
 

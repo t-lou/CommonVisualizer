@@ -12,7 +12,7 @@
 
 // how to compile (assuming all gl libraries installed)
 // root directory of CommonVisualizer is /home/tlou/workspace/CommonVisualizer/ on my laptop
-// clang++ test_screensaver.cpp -I/home/tlou/workspace/CommonVisualizer/ -lGL -lGLEW -lGLU -lglut -lglfw --std=c++11 -o test_screensaver
+// clang++ test_screensaver.cpp -I/home/tlou/workspace/CommonVisualizer/ -lGL -lGLEW -lGLU -lglut -lglfw -lpng --std=c++11 -o test_screensaver
 
 int main()
 {

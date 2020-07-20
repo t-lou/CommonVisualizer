@@ -57,9 +57,6 @@ namespace loco
       addObject(new OrientedCircle(positions, normals_, radius_, colors_, id_program_end));
       addObject(new CylinderSide(positions, radius, colors, id_program_side));
     }
-
-    ~Cylinder()
-    {}
   };
 }
 

@@ -32,12 +32,11 @@ target_link_libraries(test_spheres
 add_executable(ply_viewer ply_viewer.cpp)
 target_link_libraries(ply_viewer GL GLEW GLU glut glfw)
 
-find_package(OpenCV REQUIRED)
 add_executable(test_screensaver test_screensaver.cpp)
-target_link_libraries(test_screensaver GL GLEW GLU glut glfw ${OpenCV_LIBS})
+target_link_libraries(test_screensaver GL GLEW GLU glut glfw png)
 
 add_executable(test_sep test_sep_main.cpp test_sep_part.cpp)
 target_link_libraries(test_sep
   GL GLEW GLU glut glfw
   ${EIGEN3_LIBRARIES}
-  )
+)
