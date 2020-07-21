@@ -68,13 +68,18 @@ class CommonVisualizer {
   GlProgram _id_prog;
   /// @brief the objects to view
   Container _world;
-  /// @brief mouse position when button was pressed for interaction
-  double _xpos_prev = 0.0;
-  double _ypos_prev = 0.0;
-  /// @brief whether the left button is pressed (rotation)
-  bool _is_left_pressed = false;
-  /// @brief whether the middle button is pressed (zooming)
-  bool _is_middle_pressed = false;
+
+  struct {
+    /// @brief mouse position when button was pressed for interaction
+    double _xpos_prev = 0.0;
+    double _ypos_prev = 0.0;
+    /// @brief whether the left button is pressed (rotation)
+    bool _is_left_pressed = false;
+    /// @brief whether the middle button is pressed (zooming)
+    bool _is_middle_pressed = false;
+    /// @brief whether the right button is pressed (translation)
+    bool _is_right_pressed = false;
+  } _interaction;
 
   /**
    * print error by compilation

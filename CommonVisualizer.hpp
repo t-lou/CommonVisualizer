@@ -175,20 +175,18 @@ void CommonVisualizer::updateViewingMatrix() {
  * rotate and zoom(not implemented) according to mouse input
  */
 void CommonVisualizer::onRotationAndZooming() {
-  //      const int BUTTON_ZOOM = GLFW_MOUSE_BUTTON_RIGHT; // in case middle
-  //      button doesn't work
-  const int BUTTON_ZOOM = GLFW_MOUSE_BUTTON_MIDDLE;
-  if (!_is_left_pressed &&
+  if (!_interaction._is_left_pressed &&
       glfwGetMouseButton(_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-    glfwGetCursorPos(_window, &_xpos_prev, &_ypos_prev);
-    _is_left_pressed = true;
-  } else if (_is_left_pressed &&
+    glfwGetCursorPos(_window, &_interaction._xpos_prev,
+                     &_interaction._ypos_prev);
+    _interaction._is_left_pressed = true;
+  } else if (_interaction._is_left_pressed &&
              glfwGetMouseButton(_window, GLFW_MOUSE_BUTTON_LEFT) ==
                  GLFW_RELEASE) {
     double xpos = 0.0, ypos = 0.0;
     glfwGetCursorPos(_window, &xpos, &ypos);
-    float dx = (float)(xpos - _xpos_prev);
-    float dy = (float)(ypos - _ypos_prev);
+    float dx = (float)(xpos - _interaction._xpos_prev);
+    float dy = (float)(ypos - _interaction._ypos_prev);
 
     // if the mouse in one direction is dominant, ignore the change in the other
     // direction
@@ -204,19 +202,45 @@ void CommonVisualizer::onRotationAndZooming() {
     _theta = std::min((float)M_PI, std::max(0.0f, _theta));
 
     updateViewingMatrix();
-    _is_left_pressed = false;
-  } else if (!_is_middle_pressed &&
-             glfwGetMouseButton(_window, BUTTON_ZOOM) == GLFW_PRESS) {
-    glfwGetCursorPos(_window, &_xpos_prev, &_ypos_prev);
-    _is_middle_pressed = true;
-  } else if (_is_middle_pressed &&
-             glfwGetMouseButton(_window, BUTTON_ZOOM) == GLFW_RELEASE) {
+    _interaction._is_left_pressed = false;
+  } else if (!_interaction._is_middle_pressed &&
+             glfwGetMouseButton(_window, GLFW_MOUSE_BUTTON_MIDDLE) ==
+                 GLFW_PRESS) {
+    glfwGetCursorPos(_window, &_interaction._xpos_prev,
+                     &_interaction._ypos_prev);
+    _interaction._is_middle_pressed = true;
+  } else if (_interaction._is_middle_pressed &&
+             glfwGetMouseButton(_window, GLFW_MOUSE_BUTTON_MIDDLE) ==
+                 GLFW_RELEASE) {
     double xpos = 0.0, ypos = 0.0;
     glfwGetCursorPos(_window, &xpos, &ypos);
-    const double dy = ypos - _ypos_prev;
+    const double dy = ypos - _interaction._ypos_prev;
     _distance *= (float)pow(1.1, dy / 50.0);
     updateViewingMatrix();
-    _is_middle_pressed = false;
+    _interaction._is_middle_pressed = false;
+  } else if (!_interaction._is_right_pressed &&
+             glfwGetMouseButton(_window, GLFW_MOUSE_BUTTON_RIGHT) ==
+                 GLFW_PRESS) {
+    glfwGetCursorPos(_window, &_interaction._xpos_prev,
+                     &_interaction._ypos_prev);
+    _interaction._is_right_pressed = true;
+  } else if (_interaction._is_right_pressed &&
+             glfwGetMouseButton(_window, GLFW_MOUSE_BUTTON_RIGHT) ==
+                 GLFW_RELEASE) {
+    double xpos = 0.0, ypos = 0.0;
+    glfwGetCursorPos(_window, &xpos, &ypos);
+    float dx = (float)(xpos - _interaction._xpos_prev);
+    float dy = (float)(ypos - _interaction._ypos_prev);
+
+    const glm::vec3 up_dir{_up_viewer};
+    const glm::vec3 left_dir{glm::cross(
+        up_dir,
+        glm::normalize(glm::vec3{_center_viewer} - glm::vec3{_pos_viewer}))};
+    _transform_camera[3] += glm::vec4(up_dir * dy / 1000.0f, 0.0f);
+    _transform_camera[3] += glm::vec4(left_dir * dx / 1000.0f, 0.0f);
+
+    updateViewingMatrix();
+    _interaction._is_right_pressed = false;
   }
 }
 
@@ -282,12 +306,12 @@ CommonVisualizer::CommonVisualizer(const int height, const int width,
       _re_init(0),
       _window(NULL),
       _distance(3.0f),
-      _theta(glm::radians(45.0f)),
+      _theta(glm::radians(90.0f)),
       _phi(0.0f),
       _mat_proj(glm::perspective(
           glm::radians(45.0f), (float)_width / (float)_height, 0.1f, 5000.0f)),
       _transform_camera(Object::transformToMat4(
-          Transform{Vec{}, Vec{0.0f, 0.0f, 0.0f, 1.0f}})),
+          Transform{Vec{0.0f, 0.0f, 0.0f}, Vec{0.0f, 0.0f, 0.0f, 1.0f}})),
       _param_phong(Vec{0.3f, 0.3f, 0.4f, 2.0f}) {
   // glfw init
   _re_init = (glfwInit() == GLFW_TRUE);
@@ -315,8 +339,6 @@ CommonVisualizer::CommonVisualizer(const int height, const int width,
   }
 
   glfwSetInputMode(_window, GLFW_STICKY_MOUSE_BUTTONS, GL_TRUE);
-  //      glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-  glfwSetInputMode(_window, GLFW_STICKY_KEYS, GL_TRUE);
 
   glClearColor(background._r, background._g, background._b, background._a);
   glEnable(GL_DEPTH_TEST);
@@ -430,9 +452,6 @@ void CommonVisualizer::setLightSource(const Vec &pos, const Vec &color) {
  */
 void CommonVisualizer::setTransformCamera(const Transform &transform) {
   _transform_camera = Object::transformToMat4(transform);
-  updatePosViewer();
-  updateUpViewer();
-  updateCenterViewer();
   updateViewingMatrix();
 }
 
