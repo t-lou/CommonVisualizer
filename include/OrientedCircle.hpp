@@ -23,11 +23,11 @@ namespace loco
         Object(id_program)
     {
       assert(radius.size() == colors.size());
-      assert(positions.size() == colors.size() * 3);
-      assert(normals.size() == colors.size() * 3);
+      assert(positions.size() == colors.size() * 3u);
+      assert(normals.size() == colors.size() * 3u);
 
       std::vector<float> colors_;
-      colors_.reserve(radius.size() * 4);
+      colors_.reserve(radius.size() * 4u);
       for(const Vec &color : colors)
       {
         colors_.insert(colors_.end(), color._data, color._data + 4);

@@ -12,7 +12,7 @@ namespace loco
   class CloudPointColored : public Object
   {
   protected:
-    float _point_size;
+    const float _point_size;
     GLuint _buffer_color;
 
   public:
@@ -26,14 +26,14 @@ namespace loco
     CloudPointColored(const std::vector<float> &positions, const std::vector<float> &colors,
                       const float point_size, const GLuint id_program) :
         Object(id_program),
-        _point_size(point_size > 1.0f ? point_size : 1.0f)
+        _point_size(std::max(1.0f, point_size))
     {
-      assert(positions.size() * 4 == colors.size() * 3);
+      assert(positions.size() * 4u == colors.size() * 3u);
       // vertex array
       glGenVertexArrays(1, &_id_array);
       genBufferVectorFloat(positions, _buffer_position);
       genBufferVectorFloat(colors, _buffer_color);
-      _size = positions.size() / 3;
+      _size = positions.size() / 3u;
     }
 
     ~CloudPointColored()

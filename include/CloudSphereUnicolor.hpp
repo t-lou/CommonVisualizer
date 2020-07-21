@@ -12,8 +12,8 @@ namespace loco
   class CloudSphereUnicolor : public Object
   {
   protected:
-    float _radius;
-    Vec _color;
+    const float _radius;
+    const Vec _color;
 
   public:
     CloudSphereUnicolor(const std::vector<float> &positions, const Vec &color,
@@ -22,11 +22,11 @@ namespace loco
         _radius(radius),
         _color(color)
     {
-      assert(positions.size() % 3 == 0);
+      assert(positions.size() % 3u == 0u);
       // vertex array
       glGenVertexArrays(1, &_id_array);
       genBufferVectorFloat(positions, _buffer_position);
-      _size = positions.size() / 3;
+      _size = positions.size() / 3u;
     }
 
     ~CloudSphereUnicolor()

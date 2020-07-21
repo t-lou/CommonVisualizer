@@ -17,14 +17,10 @@ namespace loco
   class Container : public virtual Object
   {
   protected:
-    std::vector< std::unique_ptr<Object> > _belongings;
+    std::vector<std::unique_ptr<Object>> _belongings;
 
   public:
     Container() : Object(0)
-    {
-    }
-
-    ~Container()
     {
     }
 

@@ -13,8 +13,6 @@ namespace loco
 {
   class Cone : public Container
   {
-  protected:
-
   public:
     Cone(const std::vector<float> &positions, const std::vector<float> &radius,
          const std::vector<Vec> &colors, const GLuint id_program_side, const GLuint id_program_bottom) :

@@ -12,7 +12,7 @@ namespace loco
   class CloudSphereColored : public Object
   {
   protected:
-    float _radius;
+    const float _radius;
     GLuint _buffer_color;
 
   public:
@@ -21,12 +21,12 @@ namespace loco
         Object(id_program),
         _radius(radius)
     {
-      assert(positions.size() * 4 == colors.size() * 3);
+      assert(positions.size() * 4u == colors.size() * 3u);
       // vertex array
       glGenVertexArrays(1, &_id_array);
       genBufferVectorFloat(positions, _buffer_position);
       genBufferVectorFloat(colors, _buffer_color);
-      _size = positions.size() / 3;
+      _size = positions.size() / 3u;
     }
 
     ~CloudSphereColored()

@@ -12,8 +12,8 @@ namespace loco
   class CloudPointUnicolor : public Object
   {
   protected:
-    float _point_size;
-    Vec _color;
+    const float _point_size;
+    const Vec _color;
 
   public:
     /**
@@ -26,14 +26,14 @@ namespace loco
     CloudPointUnicolor(const std::vector<float> &positions, const Vec &color,
                        const float point_size, const GLuint id_program) :
         Object(id_program),
-        _point_size(point_size > 1.0f ? point_size : 1.0f),
+        _point_size(std::max(1.0f, point_size)),
         _color(color)
     {
-      assert(positions.size() % 3 == 0);
+      assert(positions.size() % 3u == 0u);
       // vertex array
       glGenVertexArrays(1, &_id_array);
       genBufferVectorFloat(positions, _buffer_position);
-      _size = positions.size() / 3;
+      _size = positions.size() / 3u;
     }
 
     ~CloudPointUnicolor()

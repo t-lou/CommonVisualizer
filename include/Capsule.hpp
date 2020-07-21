@@ -13,8 +13,6 @@ namespace loco
 {
   class Capsule : public Container
   {
-  protected:
-
   public:
     /**
      * constructor for an array of Capsules

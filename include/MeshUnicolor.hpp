@@ -13,7 +13,7 @@ namespace loco
   {
   protected:
     GLuint _buffer_normal;
-    Vec _color;
+    const Vec _color;
 
   public:
     MeshUnicolor(const std::vector<float> &vertices, const std::vector<float> &normals,

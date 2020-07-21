@@ -20,8 +20,8 @@ namespace loco
     {
       std::vector<float> radius_;
       std::vector<float> colors_;
-      radius_.reserve(radius.size() * 2);
-      colors_.reserve(radius.size() * 8);
+      radius_.reserve(radius.size() * 2u);
+      colors_.reserve(radius.size() * 8u);
       for(const float &r : radius)
       {
         radius_.push_back(r);
@@ -42,8 +42,8 @@ namespace loco
                  const std::vector<Vec> &colors, const GLuint id_program) :
         Object(id_program)
     {
-      assert(positions.size() % 6 == 0);
-      assert(positions.size() / 6 == radius.size());
+      assert(positions.size() % 6u == 0u);
+      assert(positions.size() / 6u == radius.size());
       assert(radius.size() == colors.size());
       glGenVertexArrays(1, &_id_array);
       generateBuffer(positions, radius, colors);

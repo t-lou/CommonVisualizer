@@ -14,8 +14,6 @@ namespace loco
 {
   class Cylinder : public Container
   {
-  protected:
-
   public:
     Cylinder(const std::vector<float> &positions, const std::vector<float> &radius, const std::vector<Vec> &colors,
              const GLuint id_program_side, const GLuint id_program_end) :
