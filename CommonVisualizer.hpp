@@ -133,22 +133,23 @@ GLuint CommonVisualizer::createProgram(
  * update position of viewer (eye) with external transform
  */
 void CommonVisualizer::updatePosViewer() {
-  _pos_viewer = _transform_camera *
-                glm::vec4(_distance * (float)sin(_theta) * (float)sin(_phi),
-                          _distance * (float)sin(_theta) * (float)cos(_phi),
-                          _distance * (float)cos(_theta), 1.0f);
+  const float sin_theta{std::sin(_theta)};
+  _pos_viewer =
+      _transform_camera * glm::vec4(_distance * sin_theta * std::sin(_phi),
+                                    _distance * sin_theta * std::cos(_phi),
+                                    _distance * std::cos(_theta), 1.0f);
 }
 
 /**
  * update direction of up with external transform
  */
 void CommonVisualizer::updateUpViewer() {
-  double theta_ = (double)_theta - M_PI / 2.0;
-  double phi_ = -(double)_phi;
-  _up_viewer =
-      _transform_camera * glm::vec4((float)sin(theta_) * (float)sin(phi_),
-                                    (float)sin(theta_) * (float)cos(phi_),
-                                    (float)cos(theta_), 0.0f);
+  constexpr float half_pi{glm::radians(90.0f)};
+  const float theta = _theta - half_pi;
+  const float sin_theta{std::sin(theta)};
+  _up_viewer = _transform_camera * glm::vec4{sin_theta * std::sin(-_phi),
+                                             sin_theta * std::cos(-_phi),
+                                             std::cos(theta), 0.0f};
 }
 
 /**
@@ -166,10 +167,8 @@ void CommonVisualizer::updateViewingMatrix() {
   updatePosViewer();
   updateCenterViewer();
   updateUpViewer();
-  _mat_view = glm::lookAt(
-      glm::vec3(_pos_viewer.x, _pos_viewer.y, _pos_viewer.z),
-      glm::vec3(_center_viewer.x, _center_viewer.y, _center_viewer.z),
-      glm::vec3(_up_viewer.x, _up_viewer.y, _up_viewer.z));
+  _mat_view = glm::lookAt(glm::vec3{_pos_viewer}, glm::vec3{_center_viewer},
+                          glm::vec3{_up_viewer});
 }
 
 /**
@@ -193,13 +192,13 @@ void CommonVisualizer::onRotationAndZooming() {
 
     // if the mouse in one direction is dominant, ignore the change in the other
     // direction
-    if (fabs(dx) > 10.0f * fabs(dy)) {
+    if (std::abs(dx) > 10.0f * std::abs(dy)) {
       dy = 0.0f;
-    } else if (fabs(dx) * 10.0f < fabs(dy)) {
+    } else if (std::abs(dx) * 10.0f < std::abs(dy)) {
       dx = 0.0f;
     }
-    const static float theta_scaling = (float)(M_PI * 0.25 / (double)_height);
-    const static float phi_scaling = (float)(M_PI * 0.25 / (double)_width);
+    const static float theta_scaling = (float)(M_PI * 0.25) / (float)_height;
+    const static float phi_scaling = (float)(M_PI * 0.25) / (float)_width;
     _theta -= dy * theta_scaling;
     _phi += dx * phi_scaling;
     _theta = std::min((float)M_PI, std::max(0.0f, _theta));
@@ -214,7 +213,7 @@ void CommonVisualizer::onRotationAndZooming() {
              glfwGetMouseButton(_window, BUTTON_ZOOM) == GLFW_RELEASE) {
     double xpos = 0.0, ypos = 0.0;
     glfwGetCursorPos(_window, &xpos, &ypos);
-    double dy = ypos - _ypos_prev;
+    const double dy = ypos - _ypos_prev;
     _distance *= (float)pow(1.1, dy / 50.0);
     updateViewingMatrix();
     _is_middle_pressed = false;
@@ -283,7 +282,7 @@ CommonVisualizer::CommonVisualizer(const int height, const int width,
       _re_init(0),
       _window(NULL),
       _distance(3.0f),
-      _theta(M_PI / 2.0),
+      _theta(glm::radians(45.0f)),
       _phi(0.0f),
       _mat_proj(glm::perspective(
           glm::radians(45.0f), (float)_width / (float)_height, 0.1f, 5000.0f)),
@@ -327,15 +326,6 @@ CommonVisualizer::CommonVisualizer(const int height, const int width,
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  //      // resize windows callback, may be already inclueded in some lib
-  //      int whatever = 0;
-  //      glutInit(&whatever, (char**)NULL);
-  //      callback_resize_window = std::bind(&CommonVisualizer::resizeWindow,
-  //      this,
-  //                                         std::placeholders::_1,
-  //                                         std::placeholders::_2);
-  //      glutReshapeFunc(wrapper_resize_window);
-
   for (GLuint &id_prog : _id_prog._ids) {
     id_prog = 0u;
   }
@@ -348,6 +338,7 @@ CommonVisualizer::~CommonVisualizer() {
     if (id_prog) {
       glDeleteProgram(id_prog);
     }
+    id_prog = 0u;
   }
   glfwTerminate();
 }
