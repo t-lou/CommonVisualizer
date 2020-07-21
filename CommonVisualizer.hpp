@@ -98,8 +98,8 @@ namespace loco
    * @param shader_texts
    * @return
    */
-  GLuint CommonVisualizer::createProgram(const std::vector <GLenum> &shader_types,
-                                                const std::vector<const char *> &shader_texts)
+  GLuint CommonVisualizer::createProgram(const std::vector<GLenum> &shader_types,
+                                         const std::vector<const char *> &shader_texts)
   {
     assert(shader_types.size() == shader_texts.size());
     GLuint id_program;
@@ -190,54 +190,49 @@ namespace loco
   {
 //      const int BUTTON_ZOOM = GLFW_MOUSE_BUTTON_RIGHT; // in case middle button doesn't work
     const int BUTTON_ZOOM = GLFW_MOUSE_BUTTON_MIDDLE;
-    double xpos_prev = 0.0, ypos_prev = 0.0;
-    bool is_left_pressed = false;
-    bool is_middle_pressed = false;
-    if(!is_left_pressed && glfwGetMouseButton(_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+    if(!_is_left_pressed && glfwGetMouseButton(_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
     {
-      glfwGetCursorPos(_window, &xpos_prev, &ypos_prev);
-      is_left_pressed = true;
+      glfwGetCursorPos(_window, &_xpos_prev, &_ypos_prev);
+      _is_left_pressed = true;
     }
-    else if(is_left_pressed && glfwGetMouseButton(_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
+    else if(_is_left_pressed && glfwGetMouseButton(_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
     {
       double xpos = 0.0, ypos = 0.0;
       glfwGetCursorPos(_window, &xpos, &ypos);
-      double dx = xpos - xpos_prev;
-      double dy = ypos - ypos_prev;
-      if(fabs(dx) > 10.0 * fabs(dy))
+      float dx = (float)(xpos - _xpos_prev);
+      float dy = (float)(ypos - _ypos_prev);
+
+      // if the mouse in one direction is dominant, ignore the change in the other direction
+      if(fabs(dx) > 10.0f * fabs(dy))
       {
-        dy = 0.0;
+        dy = 0.0f;
       }
-      else if(fabs(dx) * 10.0 < fabs(dy))
+      else if(fabs(dx) * 10.0f < fabs(dy))
       {
-        dx = 0.0;
+        dx = 0.0f;
       }
-      _theta -= dy * M_PI * 0.25 / (double) _height;
-      _phi += dx * M_PI * 0.25 / (double) _width;
-      if(_theta < 0.0)
-      {
-        _theta = 0.0;
-      }
-      if(_theta > M_PI)
-      {
-        _theta = M_PI;
-      }
+      const static float theta_scaling = (float)(M_PI * 0.25 / (double)_height);
+      const static float phi_scaling = (float)(M_PI * 0.25 / (double)_width);
+      _theta -= dy * theta_scaling;
+      _phi += dx * phi_scaling;
+      _theta = std::min((float)M_PI, std::max(0.0f, _theta));
+
       updateViewingMatrix();
-      is_left_pressed = false;
+      _is_left_pressed = false;
     }
-    else if(!is_middle_pressed && glfwGetMouseButton(_window, BUTTON_ZOOM) == GLFW_PRESS)
+    else if(!_is_middle_pressed && glfwGetMouseButton(_window, BUTTON_ZOOM) == GLFW_PRESS)
     {
-      glfwGetCursorPos(_window, &xpos_prev, &ypos_prev);
-      is_middle_pressed = true;
+      glfwGetCursorPos(_window, &_xpos_prev, &_ypos_prev);
+      _is_middle_pressed = true;
     }
-    else if(is_middle_pressed && glfwGetMouseButton(_window, BUTTON_ZOOM) == GLFW_RELEASE)
+    else if(_is_middle_pressed && glfwGetMouseButton(_window, BUTTON_ZOOM) == GLFW_RELEASE)
     {
       double xpos = 0.0, ypos = 0.0;
       glfwGetCursorPos(_window, &xpos, &ypos);
-      double dy = ypos - ypos_prev;
+      double dy = ypos - _ypos_prev;
       _distance *= (float) pow(1.1, dy / 50.0);
       updateViewingMatrix();
-      is_middle_pressed = false;
+      _is_middle_pressed = false;
     }
   }
 
@@ -368,7 +363,7 @@ namespace loco
 
     for(GLuint &id_prog : _id_prog._ids)
     {
-      id_prog = 0;
+      id_prog = 0u;
     }
 
     updateViewingMatrix();
@@ -551,7 +546,8 @@ namespace loco
    * @param colors
    * @param radius
    */
-  void CommonVisualizer::addPointCloud(const std::vector<float> &points, const std::vector<float> &colors,
+  void CommonVisualizer::addPointCloud(const std::vector<float> &points,
+                                       const std::vector<float> &colors,
                                        const float radius)
   {
     if(radius <= 0.0f)
@@ -617,8 +613,9 @@ namespace loco
    * @param radius
    * @param colors
    */
-  void CommonVisualizer::addCylinder(const std::vector<float> &positions, const std::vector<float> &radius,
-                                     const std::vector <Vec> &colors)
+  void CommonVisualizer::addCylinder(const std::vector<float> &positions,
+                                     const std::vector<float> &radius,
+                                     const std::vector<Vec> &colors)
   {
     if(_id_prog._id_program_cylinder_side == 0)
     {
@@ -640,8 +637,9 @@ namespace loco
    * @param radius
    * @param colors
    */
-  void CommonVisualizer::addCapsule(const std::vector<float> &positions, const std::vector<float> &radius,
-                                    const std::vector <Vec> &colors)
+  void CommonVisualizer::addCapsule(const std::vector<float> &positions,
+                                    const std::vector<float> &radius,
+                                    const std::vector<Vec> &colors)
   {
     if(_id_prog._id_program_cylinder_side == 0)
     {
@@ -688,9 +686,11 @@ namespace loco
    * @param radius_body
    * @param colors
    */
-  void CommonVisualizer::addArrow(const std::vector<float> &positions, const std::vector<float> &length_head,
-                                  const std::vector<float> &radius_head, const std::vector<float> &radius_body,
-                                  const std::vector <Vec> &colors)
+  void CommonVisualizer::addArrow(const std::vector<float> &positions,
+                                  const std::vector<float> &length_head,
+                                  const std::vector<float> &radius_head,
+                                  const std::vector<float> &radius_body,
+                                  const std::vector<Vec> &colors)
   {
     if(_id_prog._id_program_cylinder_side == 0)
     {

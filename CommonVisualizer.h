@@ -15,9 +15,7 @@
 
 namespace loco
 {
-  /**
-   * constants for some useful colors
-   */
+  /// @brief constants for some useful colors
   namespace color
   {
     const Vec BLACK{0.0f, 0.0f, 0.0f, 1.0f};
@@ -31,6 +29,7 @@ namespace loco
     const Vec CYAN{0.0f, 1.0f, 1.0f, 1.0f};
   }
 
+  /// @brief registeration of opengl programs for different types
   union GlProgram
   {
     GLuint _ids[20];
@@ -50,21 +49,37 @@ namespace loco
 
   class CommonVisualizer
   {
-  protected:
-    int _height, _width;
+  private:
+    /// @brief size of window
+    const int _height, _width;
+    /// @brief handler for the window
     GLFWwindow *_window;
+    /// @brief whether initilization is successful
     bool _re_init;
+    /// @brief 3D position of viewer
     float _distance, _theta, _phi;
     glm::vec4 _pos_viewer;
     glm::vec4 _up_viewer;
     glm::vec4 _center_viewer;
     LightSource _light_source;
-    Vec _param_phong;
-    glm::mat4 _mat_proj;
+    /// @brief parameter for phong shading
+    const Vec _param_phong;
+    /// @brief projection matrix
+    const glm::mat4 _mat_proj;
+    /// @brief viewing matrix, updated from interaction
     glm::mat4 _mat_view;
     glm::mat4 _transform_camera;
+    /// @brief registration of gl programs (for different types)
     GlProgram _id_prog;
+    /// @brief the objects to view
     Container _world;
+    /// @brief mouse position when button was pressed for interaction
+    double _xpos_prev = 0.0;
+    double _ypos_prev = 0.0;
+    /// @brief whether the left button is pressed (rotation)
+    bool _is_left_pressed = false;
+    /// @brief whether the middle button is pressed (zooming)
+    bool _is_middle_pressed = false;
 
     /**
      * print error by compilation
