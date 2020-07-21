@@ -5,56 +5,48 @@
 #ifndef COMMONVISUALIZER_VEC_H
 #define COMMONVISUALIZER_VEC_H
 
-namespace loco
-{
-  /**
-   * length 4 vector (can be used as vec3)
-   */
-  union Vec
-  {
-    float _data[4];
-    struct
-    {
-      float _x;
-      float _y;
-      float _z;
-      float _w;
-    };
-    struct
-    {
-      float _r;
-      float _g;
-      float _b;
-      float _a;
-    };
+namespace loco {
+/**
+ * length 4 vector (can be used as vec3)
+ */
+union Vec {
+  float _data[4];
+  struct {
+    float _x;
+    float _y;
+    float _z;
+    float _w;
   };
+  struct {
+    float _r;
+    float _g;
+    float _b;
+    float _a;
+  };
+};
 
-  union Vec8
-  {
-    unsigned int _uint32;
-    int _int32;
-    float _float32;
-    unsigned char _uchar[4];
-    char _char[4];
-    struct
-    {
-      unsigned char _r;
-      unsigned char _g;
-      unsigned char _b;
-      unsigned char _a;
-    };
+union Vec8 {
+  unsigned int _uint32;
+  int _int32;
+  float _float32;
+  unsigned char _uchar[4];
+  char _char[4];
+  struct {
+    unsigned char _r;
+    unsigned char _g;
+    unsigned char _b;
+    unsigned char _a;
   };
+};
 
-  struct Transform
-  {
-    Vec _translation;
-    Vec _rotation;
-  };
+struct Transform {
+  Vec _translation;
+  Vec _rotation;
+};
 
-  struct LightSource
-  {
-    Vec _pos;
-    Vec _color;
-  };
-}
-#endif //COMMONVISUALIZER_VEC_H
+struct LightSource {
+  Vec _pos;
+  Vec _color;
+};
+}  // namespace loco
+#endif  // COMMONVISUALIZER_VEC_H
