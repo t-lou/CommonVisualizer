@@ -192,9 +192,9 @@ void CommonVisualizer::onRotationAndZooming() {
 
     // if the mouse in one direction is dominant, ignore the change in the other
     // direction
-    if (std::abs(dx) > 10.0f * std::abs(dy)) {
+    if (std::abs(dx) > 3.0f * std::abs(dy)) {
       dy = 0.0f;
-    } else if (std::abs(dx) * 10.0f < std::abs(dy)) {
+    } else if (std::abs(dx) * 3.0f < std::abs(dy)) {
       dx = 0.0f;
     }
     const static float theta_scaling = (float)(M_PI * 0.25) / (float)_height;
