@@ -2,7 +2,7 @@
 
 Sometimes when we want to do simulation or computation in C++, it is not easy to visualize the data, especially transforms.
 
-This project aims at providing a header-only library for data visualization with OpenGL, such as mesh, point cloud and simple shapes.
+This project aims at providing a header-only library for data visualization with OpenGL, such as mesh, point cloud and simple shapes. The hpp header can also be easily built as library (examples/test_sep_*).
 
 # Dependencies
 
