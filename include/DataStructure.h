@@ -2,8 +2,8 @@
 // Created by tlou on 29.01.17.
 //
 
-#ifndef COMMONVISUALIZER_VEC_H
-#define COMMONVISUALIZER_VEC_H
+#ifndef COMMONVISUALIZER_DATA_STRUCTURE_H
+#define COMMONVISUALIZER_DATA_STRUCTURE_H
 
 namespace loco {
 /**
@@ -49,4 +49,4 @@ struct LightSource {
   Vec _color;
 };
 }  // namespace loco
-#endif  // COMMONVISUALIZER_VEC_H
+#endif  // COMMONVISUALIZER_DATA_STRUCTURE_H

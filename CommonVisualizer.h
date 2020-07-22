@@ -10,8 +10,8 @@
 #include <vector>
 
 #include "include/Container.hpp"
-#include "include/Vec.h"
-#include "include/include_gl.h"
+#include "include/DataStructure.h"
+#include "include/Object.hpp"
 
 namespace loco {
 /// @brief constants for some useful colors

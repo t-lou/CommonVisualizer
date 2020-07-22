@@ -5,11 +5,17 @@
 #ifndef COMMONVISUALIZER_OBJECT_H
 #define COMMONVISUALIZER_OBJECT_H
 
+#include <GL/glew.h>
+#include <GL/glut.h>
+#include <GLFW/glfw3.h>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <memory>
 #include <vector>
 
-#include "Vec.h"
-#include "include_gl.h"
+#include "DataStructure.h"
 
 namespace loco {
 class Object {

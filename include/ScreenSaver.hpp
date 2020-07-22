@@ -1,10 +1,10 @@
 #ifndef COMMENVISUALIZER_SCREEN_SAVER_HPP
 #define COMMENVISUALIZER_SCREEN_SAVER_HPP
 
+#include <GL/glew.h>
+
 #include <png++/image.hpp>
 #include <png++/writer.hpp>
-
-#include "include_gl.h"
 
 namespace loco {
 class ScreenSaver {
