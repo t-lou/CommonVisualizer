@@ -7,8 +7,9 @@
 
 #include <cmath>
 #include <fstream>
-#include <functional>
 #include <iostream>
+#include <numeric>
+#include <queue>
 
 #include "CommonVisualizer.h"
 #include "include/Arrow.hpp"
@@ -414,8 +415,16 @@ bool CommonVisualizer::playOnce() {
   glfwSwapBuffers(_window);
   glfwPollEvents();
 
-  double end_time = glfwGetTime();
-  std::cout << "fps: " << 1.0 / end_time << std::endl;
+  static std::deque<double> intervals;
+  const std::size_t limit{10u};
+  intervals.push_back(glfwGetTime());
+  if (intervals.size() > limit) {
+    intervals.pop_front();
+  }
+  std::cout << "fps: "
+            << (double)intervals.size() /
+                   std::accumulate(intervals.begin(), intervals.end(), 0.0)
+            << std::endl;
 
   return glfwGetKey(_window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
          glfwWindowShouldClose(_window) == 0;

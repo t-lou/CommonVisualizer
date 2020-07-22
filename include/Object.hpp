@@ -131,23 +131,6 @@ class Object {
    * @param proj
    */
   virtual void display(const glm::mat4 &proj) = 0;
-
-  virtual void print(const glm::vec4 &vec) {
-    for (int j = 0; j < 4; ++j) {
-      std::cout << vec[j] << " ";
-    }
-    std::cout << std::endl;
-  }
-
-  virtual void print(const glm::mat4 &mat) {
-    for (int i = 0; i < 4; ++i) {
-      for (int j = 0; j < 4; ++j) {
-        std::cout << mat[i][j] << " ";
-      }
-      std::cout << std::endl;
-    }
-    std::cout << std::endl;
-  }
 };
 }  // namespace loco
 
