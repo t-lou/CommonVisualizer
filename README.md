@@ -19,6 +19,12 @@ This project aims at providing a header-only library for data visualization with
 - include CommonVisualizer.hpp
 - build with gl-libs
 
+# Interactions
+
+- **left-mouse-button** click-drag-release to rotate
+- **middle-mouse-button** click-drag-release to zoom (only up and down)
+- **right-mouse-button** click-drag-release to translate
+
 # Screenshots
 
 - supported primitives
