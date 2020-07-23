@@ -2,6 +2,7 @@
 // Created by tlou on 05.03.17.
 //
 
+#include <cstdint>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -12,10 +13,9 @@
 #include "CommonVisualizer.hpp"
 
 union Buf4Byte {
-  char _char[4];
-  unsigned char _uchar[4];
-  int _int;
-  float _float;
+  std::uint8_t as_uchar[4];
+  std::int32_t as_int;
+  float as_float;
 };
 
 float byte_to_float(const std::vector<unsigned char> &bytes, const int offset,
@@ -24,14 +24,14 @@ float byte_to_float(const std::vector<unsigned char> &bytes, const int offset,
   Buf4Byte buf;
   if (is_inv) {
     for (int i = 0; i < 4; ++i) {
-      buf._uchar[3 - i] = bytes.at(offset + i);
+      buf.as_uchar[3 - i] = bytes.at(offset + i);
     }
   } else {
     for (int i = 0; i < 4; ++i) {
-      buf._uchar[i] = bytes.at(offset + i);
+      buf.as_uchar[i] = bytes.at(offset + i);
     }
   }
-  return buf._float;
+  return buf.as_float;
 }
 
 int byte_to_int(const std::vector<unsigned char> &bytes, const int offset,
@@ -40,14 +40,14 @@ int byte_to_int(const std::vector<unsigned char> &bytes, const int offset,
   Buf4Byte buf;
   if (is_inv) {
     for (int i = 0; i < 4; ++i) {
-      buf._uchar[3 - i] = bytes.at(offset + i);
+      buf.as_uchar[3 - i] = bytes.at(offset + i);
     }
   } else {
     for (int i = 0; i < 4; ++i) {
-      buf._uchar[i] = bytes.at(offset + i);
+      buf.as_uchar[i] = bytes.at(offset + i);
     }
   }
-  return buf._int;
+  return buf.as_int;
 }
 
 std::string get_property(const std::string &line, const std::string &name) {
@@ -123,13 +123,13 @@ loco::Vec get_minus_center(const std::vector<float> &positions) {
         std::isnan(positions.at(id + 2))) {
       continue;
     }
-    center._x += positions.at(id);
-    center._y += positions.at(id + 1);
-    center._z += positions.at(id + 2);
+    center.x += positions.at(id);
+    center.y += positions.at(id + 1);
+    center.z += positions.at(id + 2);
     ++count;
   }
   for (int i = 0; i < 3; ++i) {
-    center._data[i] /= -(float)count;
+    center.data[i] /= -(float)count;
   }
   return center;
 }

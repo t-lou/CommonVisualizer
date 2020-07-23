@@ -267,10 +267,10 @@ void CommonVisualizer::updatePhongParameter(const GLuint &id_program) {
   GLuint id_pos_viewer = glGetUniformLocation(id_program, "pos_eye");
   GLuint id_param_phong = glGetUniformLocation(id_program, "phong");
   glUseProgram(id_program);
-  glUniform3fv(id_pos_source, 1, _light_source._pos._data);
-  glUniform4fv(id_color_source, 1, _light_source._color._data);
+  glUniform3fv(id_pos_source, 1, _light_source.pos.data);
+  glUniform4fv(id_color_source, 1, _light_source.color.data);
   glUniform3fv(id_pos_viewer, 1, &_pos_viewer[0]);
-  glUniform4fv(id_param_phong, 1, _param_phong._data);
+  glUniform4fv(id_param_phong, 1, _param_phong.data);
 }
 
 /**
@@ -341,7 +341,7 @@ CommonVisualizer::CommonVisualizer(const int height, const int width,
 
   glfwSetInputMode(_window, GLFW_STICKY_MOUSE_BUTTONS, GL_TRUE);
 
-  glClearColor(background._r, background._g, background._b, background._a);
+  glClearColor(background.r, background.g, background.b, background.a);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
   glEnable(GL_CULL_FACE);  // backface culling
@@ -451,8 +451,8 @@ bool CommonVisualizer::isInited() const { return _re_init && _window != NULL; }
  * @param color
  */
 void CommonVisualizer::setLightSource(const Vec &pos, const Vec &color) {
-  _light_source._pos = pos;
-  _light_source._color = color;
+  _light_source.pos = pos;
+  _light_source.color = color;
 }
 
 /**

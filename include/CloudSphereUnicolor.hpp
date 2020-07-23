@@ -40,7 +40,7 @@ class CloudSphereUnicolor : public Object {
     glUniformMatrix4fv(id_transform, 1, GL_FALSE, &_transform[0][0]);
 
     glUniform1f(id_size, _radius);
-    glUniform4fv(id_color, 1, _color._data);
+    glUniform4fv(id_color, 1, _color.data);
     glBindVertexArray(_id_array);
 
     glEnableVertexAttribArray(0);

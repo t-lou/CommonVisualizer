@@ -25,8 +25,8 @@ class CylinderSide : public Object {
       radius_.push_back(r);
     }
     for (const Vec &color : colors) {
-      colors_.insert(colors_.end(), color._data, color._data + 4);
-      colors_.insert(colors_.end(), color._data, color._data + 4);
+      colors_.insert(colors_.end(), color.data, color.data + 4);
+      colors_.insert(colors_.end(), color.data, color.data + 4);
     }
     genBufferVectorFloat(positions, _buffer_position);
     genBufferVectorFloat(radius_, _buffer_radius);

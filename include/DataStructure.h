@@ -5,48 +5,49 @@
 #ifndef COMMONVISUALIZER_DATA_STRUCTURE_H
 #define COMMONVISUALIZER_DATA_STRUCTURE_H
 
+#include <cstdint>
+
 namespace loco {
 /**
  * length 4 vector (can be used as vec3)
  */
 union Vec {
-  float _data[4];
+  float data[4];
   struct {
-    float _x;
-    float _y;
-    float _z;
-    float _w;
+    float x;
+    float y;
+    float z;
+    float w;
   };
   struct {
-    float _r;
-    float _g;
-    float _b;
-    float _a;
+    float r;
+    float g;
+    float b;
+    float a;
   };
 };
 
 union Vec8 {
-  unsigned int _uint32;
-  int _int32;
-  float _float32;
-  unsigned char _uchar[4];
-  char _char[4];
+  std::uint32_t uint32;
+  std::int32_t int32;
+  float float32;
+  std::uint8_t uchar[4];
   struct {
-    unsigned char _r;
-    unsigned char _g;
-    unsigned char _b;
-    unsigned char _a;
+    std::uint8_t r;
+    std::uint8_t g;
+    std::uint8_t b;
+    std::uint8_t a;
   };
 };
 
 struct Transform {
-  Vec _translation;
-  Vec _rotation;
+  Vec translation;
+  Vec rotation;
 };
 
 struct LightSource {
-  Vec _pos;
-  Vec _color;
+  Vec pos;
+  Vec color;
 };
 }  // namespace loco
 #endif  // COMMONVISUALIZER_DATA_STRUCTURE_H

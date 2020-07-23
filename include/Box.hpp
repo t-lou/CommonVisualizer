@@ -26,7 +26,7 @@ class Box : public MeshUnicolor {
 
     // get transformed corners
     for (int id = 0; id < 8; ++id) {
-      glm::vec4 corner(scale._x, scale._y, scale._z, 1.0f);
+      glm::vec4 corner(scale.x, scale.y, scale.z, 1.0f);
       if (id >= 4) {
         corner.z = -corner.z;
       }
