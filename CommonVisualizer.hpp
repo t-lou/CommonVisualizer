@@ -370,7 +370,26 @@ CommonVisualizer::~CommonVisualizer() {
 /**
  * clear all objects
  */
-void CommonVisualizer::resetScene() { _world.reset(); }
+void CommonVisualizer::resetScene() { _world.clear(); }
+
+/**
+ * remove part of a scene with given name
+ */
+void CommonVisualizer::resetScene(const std::string &name) {
+  if (_world.find(name) != _world.end()) {
+    _world.erase(name);
+  } else {
+    std::cout << "Cannot reset " << name << " because it exists not."
+              << std::endl;
+  }
+}
+
+/**
+ * set the name of world to change, default is ""
+ */
+void CommonVisualizer::setActiveWorld(const std::string &name) {
+  _name_world = name;
+}
 
 /**
  * set distance from eye to center (zooming)
@@ -411,7 +430,9 @@ bool CommonVisualizer::playOnce() {
   glm::mat4 proj = _mat_proj * _mat_view;  // without its own tf
 
   updatePhongParameter();
-  _world.display(proj);
+  for (auto &world : _world) {
+    world.second.display(proj);
+  }
 
   glfwSwapBuffers(_window);
   glfwPollEvents();
@@ -466,11 +487,15 @@ void CommonVisualizer::setTransformCamera(const Transform &transform) {
 }
 
 void CommonVisualizer::setTransform(const Transform &transform) {
-  _world.setTransform(transform);
+  for (auto &world : _world) {
+    world.second.setTransform(transform);
+  }
 }
 
 void CommonVisualizer::setTransform(const int id, const Transform &transform) {
-  _world.setTransform(id, transform);
+  for (auto &world : _world) {
+    world.second.setTransform(id, transform);
+  }
 }
 
 /**
@@ -483,7 +508,7 @@ void CommonVisualizer::addMesh(const std::vector<float> &vertices,
   if (_id_prog._id_program_unicolor_mesh == 0) {
     loadUnicolorMeshShader();
   }
-  _world.addObject(std::make_unique<MeshUnicolor>(
+  _world[_name_world].addObject(std::make_unique<MeshUnicolor>(
       vertices, color, _id_prog._id_program_unicolor_mesh));
 }
 
@@ -499,7 +524,7 @@ void CommonVisualizer::addMesh(const std::vector<float> &vertices,
   if (_id_prog._id_program_unicolor_mesh == 0) {
     loadUnicolorMeshShader();
   }
-  _world.addObject(std::make_unique<MeshUnicolor>(
+  _world[_name_world].addObject(std::make_unique<MeshUnicolor>(
       vertices, index, color, _id_prog._id_program_unicolor_mesh));
 }
 
@@ -513,7 +538,7 @@ void CommonVisualizer::addMesh(const std::vector<float> &vertices,
   if (_id_prog._id_program_colored_mesh == 0) {
     loadColoredMeshShader();
   }
-  _world.addObject(std::make_unique<MeshColored>(
+  _world[_name_world].addObject(std::make_unique<MeshColored>(
       vertices, colors, _id_prog._id_program_colored_mesh));
 }
 
@@ -530,13 +555,13 @@ void CommonVisualizer::addPointCloud(const std::vector<float> &points,
     if (_id_prog._id_program_colored_cloud_point == 0) {
       loadColoredCloudPointShader();
     }
-    _world.addObject(std::make_unique<CloudPointColored>(
+    _world[_name_world].addObject(std::make_unique<CloudPointColored>(
         points, colors, -radius, _id_prog._id_program_colored_cloud_point));
   } else {
     if (_id_prog._id_program_colored_cloud_sphere == 0) {
       loadColoredCloudSphereShader();
     }
-    _world.addObject(std::make_unique<CloudSphereColored>(
+    _world[_name_world].addObject(std::make_unique<CloudSphereColored>(
         points, colors, radius, _id_prog._id_program_colored_cloud_sphere));
   }
 }
@@ -547,13 +572,13 @@ void CommonVisualizer::addPointCloud(const std::vector<float> &points,
     if (_id_prog._id_program_unicolor_cloud_point == 0) {
       loadUnicolorCloudPointShader();
     }
-    _world.addObject(std::make_unique<CloudPointUnicolor>(
+    _world[_name_world].addObject(std::make_unique<CloudPointUnicolor>(
         points, color, -radius, _id_prog._id_program_unicolor_cloud_point));
   } else {
     if (_id_prog._id_program_unicolor_cloud_sphere == 0) {
       loadUnicolorCloudSphereShader();
     }
-    _world.addObject(std::make_unique<CloudSphereUnicolor>(
+    _world[_name_world].addObject(std::make_unique<CloudSphereUnicolor>(
         points, color, radius, _id_prog._id_program_unicolor_cloud_sphere));
   }
 }
@@ -566,7 +591,7 @@ void CommonVisualizer::addCoordinateSign(const Transform &transform) {
   if (_id_prog._id_program_colored_cloud_point == 0) {
     loadColoredCloudPointShader();
   }
-  _world.addObject(std::make_unique<CoordinateUnits>(
+  _world[_name_world].addObject(std::make_unique<CoordinateUnits>(
       _id_prog._id_program_colored_cloud_point));
 }
 
@@ -586,7 +611,7 @@ void CommonVisualizer::addCylinder(const std::vector<float> &positions,
   if (_id_prog._id_program_oriented_circle == 0) {
     loadOrientedCircleShader();
   }
-  _world.addObject(std::make_unique<Cylinder>(
+  _world[_name_world].addObject(std::make_unique<Cylinder>(
       positions, radius, colors, _id_prog._id_program_cylinder_side,
       _id_prog._id_program_oriented_circle));
 }
@@ -607,7 +632,7 @@ void CommonVisualizer::addCapsule(const std::vector<float> &positions,
   if (_id_prog._id_program_unicolor_cloud_sphere == 0) {
     loadUnicolorCloudSphereShader();
   }
-  _world.addObject(std::make_unique<Capsule>(
+  _world[_name_world].addObject(std::make_unique<Capsule>(
       positions, radius, colors, _id_prog._id_program_cylinder_side,
       _id_prog._id_program_unicolor_cloud_sphere));
 }
@@ -620,7 +645,7 @@ void CommonVisualizer::addLine(const std::vector<float> &positions,
   if (_id_prog._id_program_unicolor_cloud_sphere == 0) {
     loadUnicolorCloudSphereShader();
   }
-  _world.addObject(std::make_unique<Line>(
+  _world[_name_world].addObject(std::make_unique<Line>(
       positions, radius, color, _id_prog._id_program_cylinder_side,
       _id_prog._id_program_unicolor_cloud_sphere));
 }
@@ -641,7 +666,7 @@ void CommonVisualizer::addCone(const std::vector<float> &positions,
   if (_id_prog._id_program_oriented_circle == 0) {
     loadOrientedCircleShader();
   }
-  _world.addObject(std::make_unique<Cone>(
+  _world[_name_world].addObject(std::make_unique<Cone>(
       positions, radius, colors, _id_prog._id_program_cone_side,
       _id_prog._id_program_oriented_circle));
 }
@@ -669,7 +694,7 @@ void CommonVisualizer::addArrow(const std::vector<float> &positions,
   if (_id_prog._id_program_oriented_circle == 0) {
     loadOrientedCircleShader();
   }
-  _world.addObject(std::make_unique<Arrow>(
+  _world[_name_world].addObject(std::make_unique<Arrow>(
       positions, radius_head, radius_body, length_head, colors,
       _id_prog._id_program_cylinder_side, _id_prog._id_program_cone_side,
       _id_prog._id_program_oriented_circle));
@@ -686,8 +711,8 @@ void CommonVisualizer::addBox(const Transform &transform, const Vec &scale,
   if (_id_prog._id_program_unicolor_mesh == 0) {
     loadUnicolorMeshShader();
   }
-  _world.addObject(std::make_unique<Box>(transform, scale, color,
-                                         _id_prog._id_program_unicolor_mesh));
+  _world[_name_world].addObject(std::make_unique<Box>(
+      transform, scale, color, _id_prog._id_program_unicolor_mesh));
 }
 
 /**

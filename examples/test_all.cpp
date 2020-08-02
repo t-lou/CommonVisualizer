@@ -77,6 +77,8 @@ int main() {
         std::vector<float>(1, 0.05),
         std::vector<loco::Vec>(1, loco::color::WHITE));
 
+    visualizer.setActiveWorld("line3d");
+
     std::vector<float> pos_line(3u * 3001u, 0.0f);
     for (std::size_t i{0}; i <= 3000u; ++i) {
       pos_line[3u * i] = std::sin(0.01f * (float)i) * 0.5f;

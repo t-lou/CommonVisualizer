@@ -6,6 +6,7 @@
 #define COMMONVISUALIZER_COMMONVISUALIZER_H_H
 
 #include <list>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -67,7 +68,8 @@ class CommonVisualizer {
   /// @brief registration of gl programs (for different types)
   GlProgram _id_prog;
   /// @brief the objects to view
-  Container _world;
+  std::string _name_world{""};
+  std::map<std::string, Container> _world;
 
   struct {
     /// @brief mouse position when button was pressed for interaction
@@ -167,9 +169,19 @@ class CommonVisualizer {
   virtual ~CommonVisualizer();
 
   /**
+   * set the name of world to change, default is ""
+   */
+  void setActiveWorld(const std::string &name);
+
+  /**
    * clear all objects
    */
   void resetScene();
+
+  /**
+   * remove part of a scene with given name
+   */
+  void resetScene(const std::string &name);
 
   /**
    * set distance from eye to center (zooming)
