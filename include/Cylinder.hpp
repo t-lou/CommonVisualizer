@@ -49,9 +49,10 @@ class Cylinder : public Container {
       radius_.push_back(radius.at(id));
     }
 
-    addObject(new OrientedCircle(positions, normals_, radius_, colors_,
-                                 id_program_end));
-    addObject(new CylinderSide(positions, radius, colors, id_program_side));
+    addObject(std::make_unique<OrientedCircle>(positions, normals_, radius_,
+                                               colors_, id_program_end));
+    addObject(std::make_unique<CylinderSide>(positions, radius, colors,
+                                             id_program_side));
   }
 };
 }  // namespace loco

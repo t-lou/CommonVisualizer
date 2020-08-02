@@ -33,11 +33,11 @@ class Capsule : public Container {
 
     for (size_t id = 0; id < colors.size(); ++id) {
       const size_t id6 = id * 6;
-      addObject(new CloudSphereUnicolor(
+      addObject(std::make_unique<CloudSphereUnicolor>(
           std::vector<float>(positions.begin() + id6,
                              positions.begin() + id6 + 6),
           colors.at(id), radius.at(id), id_program_end));
-      addObject(new CylinderSide(
+      addObject(std::make_unique<CylinderSide>(
           std::vector<float>(positions.begin() + id6,
                              positions.begin() + id6 + 6),
           std::vector<float>(1, radius.at(id)),

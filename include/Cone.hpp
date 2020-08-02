@@ -20,7 +20,8 @@ class Cone : public Container {
     assert(colors.size() == radius.size());
 
     _belongings.reserve(2);
-    addObject(new ConeSide(positions, radius, colors, id_program_side));
+    addObject(
+        std::make_unique<ConeSide>(positions, radius, colors, id_program_side));
 
     // bottoms
     std::vector<float> normals;
@@ -39,8 +40,8 @@ class Cone : public Container {
         pos_bottom.push_back(positions.at(id6 + i));
       }
     }
-    addObject(new OrientedCircle(pos_bottom, normals, radius, colors,
-                                 id_program_bottom));
+    addObject(std::make_unique<OrientedCircle>(pos_bottom, normals, radius,
+                                               colors, id_program_bottom));
   }
 };
 }  // namespace loco

@@ -86,13 +86,14 @@ class Arrow : public Container {
       normals.push_back(-to[2]);
     }
 
-    addObject(new ConeSide(pos_head, radius_head, colors, id_program_cone));
-    addObject(
-        new CylinderSide(pos_body, radius_body, colors, id_program_cylinder));
-    addObject(new OrientedCircle(pos_link, normals, radius_head, colors,
-                                 id_program_circle));
-    addObject(new OrientedCircle(pos_bottom, normals, radius_body, colors,
-                                 id_program_circle));
+    addObject(std::make_unique<ConeSide>(pos_head, radius_head, colors,
+                                         id_program_cone));
+    addObject(std::make_unique<CylinderSide>(pos_body, radius_body, colors,
+                                             id_program_cylinder));
+    addObject(std::make_unique<OrientedCircle>(pos_link, normals, radius_head,
+                                               colors, id_program_circle));
+    addObject(std::make_unique<OrientedCircle>(pos_bottom, normals, radius_body,
+                                               colors, id_program_circle));
   }
 };
 }  // namespace loco

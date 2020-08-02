@@ -22,9 +22,8 @@ class Container : public virtual Object {
 
   void reset() { _belongings.clear(); }
 
-  template <class T>
-  void addObject(const T *object) {
-    _belongings.push_back(std::unique_ptr<Object>((Object *)object));
+  void addObject(std::unique_ptr<Object> object) {
+    _belongings.push_back(std::move(object));
   }
 
   void reserve(const size_t size_space) { _belongings.reserve(size_space); }
