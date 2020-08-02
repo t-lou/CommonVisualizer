@@ -22,6 +22,7 @@
 #include "include/Cone.hpp"
 #include "include/CoordinateUnits.hpp"
 #include "include/Cylinder.hpp"
+#include "include/Line.hpp"
 #include "include/MeshColored.hpp"
 #include "include/MeshUnicolor.hpp"
 
@@ -608,6 +609,19 @@ void CommonVisualizer::addCapsule(const std::vector<float> &positions,
   }
   _world.addObject(std::make_unique<Capsule>(
       positions, radius, colors, _id_prog._id_program_cylinder_side,
+      _id_prog._id_program_unicolor_cloud_sphere));
+}
+
+void CommonVisualizer::addLine(const std::vector<float> &positions,
+                               const float radius, const Vec &color) {
+  if (_id_prog._id_program_cylinder_side == 0) {
+    loadCylinderSideShader();
+  }
+  if (_id_prog._id_program_unicolor_cloud_sphere == 0) {
+    loadUnicolorCloudSphereShader();
+  }
+  _world.addObject(std::make_unique<Line>(
+      positions, radius, color, _id_prog._id_program_cylinder_side,
       _id_prog._id_program_unicolor_cloud_sphere));
 }
 

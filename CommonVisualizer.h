@@ -290,6 +290,15 @@ class CommonVisualizer {
                   const std::vector<Vec> &colors);
 
   /**
+   * add line consists of capsules to visualizer
+   * @param positions vector of positions of length 3*num: x0,y0,z0,x1,y0,z0...
+   * @param radius
+   * @param colors
+   */
+  void addLine(const std::vector<float> &positions, const float radius,
+               const Vec &color);
+
+  /**
    * add cone to visualizer
    * @param positions vector of positions of length 6*num, for each arrow:
    *        from_x, from_y, from_z, to_x, to_y, to_z

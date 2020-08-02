@@ -1,6 +1,7 @@
 #include <unistd.h>
 
 #include <Eigen/Geometry>
+#include <cmath>
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
@@ -11,7 +12,7 @@ int main() {
   loco::CommonVisualizer visualizer(600, 800, "gl viewer", loco::color::BLACK);
   if (visualizer.isInited()) {
     visualizer.setLightSource(loco::Vec{0.0f, 0.0f, 10.0f}, loco::color::WHITE);
-    visualizer.setDistance(3.0f);
+    visualizer.setDistance(5.0f);
     visualizer.setTransformCamera(loco::Transform{
         loco::Vec{0.0f, 0.0f, 0.0f}, loco::Vec{0.0f, 0.0f, 0.0f, 1.0f}});
     //    visualizer.addCoordinateSign(loco::Transform{loco::Vec{0.0f, 0.0f,
@@ -75,6 +76,14 @@ int main() {
         std::vector<float>(1, 0.3), std::vector<float>(1, 0.1),
         std::vector<float>(1, 0.05),
         std::vector<loco::Vec>(1, loco::color::WHITE));
+
+    std::vector<float> pos_line(3u * 3001u, 0.0f);
+    for (std::size_t i{0}; i <= 3000u; ++i) {
+      pos_line[3u * i] = std::sin(0.01f * (float)i) * 0.5f;
+      pos_line[3u * i + 1u] = std::cos(0.01f * (float)i) * 0.5f;
+      pos_line[3u * i + 2u] = 1.0f - 0.0003f * (float)i;
+    }
+    visualizer.addLine(pos_line, 0.03f, loco::color::RED);
 
     int remaining = 0;
     Eigen::Matrix3f orientation{Eigen::Matrix3f::Identity()};
