@@ -14,13 +14,14 @@
 #include <BulletCollision/Gimpact/btGImpactShape.h>
 #include <BulletCollision/NarrowPhaseCollision/btRaycastCallback.h>
 #include <btBulletDynamicsCommon.h>
-#include <unistd.h>
 
+#include <chrono>
 #include <cmath>
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
 #include <memory>
+#include <thread>
 #include <vector>
 
 //#include "CommonVisualizer.hpp"
@@ -90,7 +91,8 @@ void run(const float interval, const int iteration, btDynamicsWorld &world) {
     if (!vis->playOnce()) {
       break;
     }
-    usleep(interval * 1e6f);
+    std::this_thread::sleep_for(
+        std::chrono::milliseconds(static_cast<long>(interval * 1e3f)));
   }
 }
 

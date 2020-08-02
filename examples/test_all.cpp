@@ -1,10 +1,10 @@
-#include <unistd.h>
-
 #include <Eigen/Geometry>
+#include <chrono>
 #include <cmath>
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
+#include <thread>
 
 #include "CommonVisualizer.hpp"
 
@@ -109,7 +109,7 @@ int main() {
       visualizer.setTransform(loco::Transform{
           loco::Vec{0.0f, 0.0f, 0.0f},
           loco::Vec{rot_qua.x(), rot_qua.y(), rot_qua.z(), rot_qua.w()}});
-      usleep(20);
+      std::this_thread::sleep_for(std::chrono::milliseconds(20));
       --remaining;
     }
   }
