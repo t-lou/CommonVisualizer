@@ -173,22 +173,93 @@ void CommonVisualizer::updateViewingMatrix() {
                           glm::vec3{_up_viewer});
 }
 
+void CommonVisualizer::rotateView(const float dx, const float dy) {
+  const static float theta_scaling = (float)(M_PI * 0.25) / (float)_height;
+  const static float phi_scaling = (float)(M_PI * 0.25) / (float)_width;
+  _theta -= dy * theta_scaling;
+  _phi += dx * phi_scaling;
+  _theta = std::min((float)M_PI, std::max(0.0f, _theta));
+
+  updateViewingMatrix();
+}
+
+void CommonVisualizer::translateView(const float dx, const float dy) {
+  const glm::vec3 up_dir{_up_viewer};
+  const glm::vec3 left_dir{glm::cross(
+      up_dir,
+      glm::normalize(glm::vec3{_center_viewer} - glm::vec3{_pos_viewer}))};
+  _transform_camera[3] += glm::vec4(up_dir * dy / 1000.0f, 0.0f);
+  _transform_camera[3] += glm::vec4(left_dir * dx / 1000.0f, 0.0f);
+
+  updateViewingMatrix();
+}
+
+void CommonVisualizer::changeDistance(const float dy) {
+  _distance *= (float)std::pow((dy > 0.0f ? 1.1 : 0.9), std::abs(dy) / 50.0);
+  updateViewingMatrix();
+}
+
 /**
  * rotate and zoom(not implemented) according to mouse input
  */
 void CommonVisualizer::onRotationAndZooming() {
-  if (!_interaction._is_left_pressed &&
-      glfwGetMouseButton(_window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-    glfwGetCursorPos(_window, &_interaction._xpos_prev,
-                     &_interaction._ypos_prev);
-    _interaction._is_left_pressed = true;
-  } else if (_interaction._is_left_pressed &&
+  std::uint32_t num_released{0u};
+  for (const std::uint32_t key : std::vector<std::uint32_t>{
+           GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_N,
+           GLFW_KEY_F, GLFW_KEY_RIGHT, GLFW_KEY_LEFT, GLFW_KEY_DOWN,
+           GLFW_KEY_UP}) {
+    const std::int32_t state = glfwGetKey(_window, key);
+    if (state != 0 && !_interaction.is_key_pressed[key]) {
+      switch (key) {
+        case GLFW_KEY_W:
+          rotateView(0.0f, 100.0f);
+          break;
+        case GLFW_KEY_S:
+          rotateView(0.0f, -100.0f);
+          break;
+        case GLFW_KEY_A:
+          rotateView(100.0f, 0.0f);
+          break;
+        case GLFW_KEY_D:
+          rotateView(-100.0f, 0.0f);
+          break;
+        case GLFW_KEY_N:
+          changeDistance(-50.0f);
+          break;
+        case GLFW_KEY_F:
+          changeDistance(50.0f);
+          break;
+        case GLFW_KEY_DOWN:
+          translateView(0.0f, 100.0f);
+          break;
+        case GLFW_KEY_UP:
+          translateView(0.0f, -100.0f);
+          break;
+        case GLFW_KEY_RIGHT:
+          translateView(100.0f, 0.0f);
+          break;
+        case GLFW_KEY_LEFT:
+          translateView(-100.0f, 0.0f);
+          break;
+      }
+      ++num_released;
+    }
+
+    _interaction.is_key_pressed[key] = (bool)state;
+  }
+  if (num_released > 0u) {
+  } else if (!_interaction.is_key_pressed[GLFW_MOUSE_BUTTON_LEFT] &&
+             glfwGetMouseButton(_window, GLFW_MOUSE_BUTTON_LEFT) ==
+                 GLFW_PRESS) {
+    glfwGetCursorPos(_window, &_interaction.xpos_prev, &_interaction.ypos_prev);
+    _interaction.is_key_pressed[GLFW_MOUSE_BUTTON_LEFT] = true;
+  } else if (_interaction.is_key_pressed[GLFW_MOUSE_BUTTON_LEFT] &&
              glfwGetMouseButton(_window, GLFW_MOUSE_BUTTON_LEFT) ==
                  GLFW_RELEASE) {
     double xpos = 0.0, ypos = 0.0;
     glfwGetCursorPos(_window, &xpos, &ypos);
-    float dx = (float)(xpos - _interaction._xpos_prev);
-    float dy = (float)(ypos - _interaction._ypos_prev);
+    float dx = (float)(xpos - _interaction.xpos_prev);
+    float dy = (float)(ypos - _interaction.ypos_prev);
 
     // if the mouse in one direction is dominant, ignore the change in the other
     // direction
@@ -197,52 +268,39 @@ void CommonVisualizer::onRotationAndZooming() {
     } else if (std::abs(dx) * 3.0f < std::abs(dy)) {
       dx = 0.0f;
     }
-    const static float theta_scaling = (float)(M_PI * 0.25) / (float)_height;
-    const static float phi_scaling = (float)(M_PI * 0.25) / (float)_width;
-    _theta -= dy * theta_scaling;
-    _phi += dx * phi_scaling;
-    _theta = std::min((float)M_PI, std::max(0.0f, _theta));
-
-    updateViewingMatrix();
-    _interaction._is_left_pressed = false;
-  } else if (!_interaction._is_middle_pressed &&
+    rotateView(dx, dy);
+    _interaction.is_key_pressed[GLFW_MOUSE_BUTTON_LEFT] = false;
+  } else if (!_interaction.is_key_pressed[GLFW_MOUSE_BUTTON_MIDDLE] &&
              glfwGetMouseButton(_window, GLFW_MOUSE_BUTTON_MIDDLE) ==
                  GLFW_PRESS) {
-    glfwGetCursorPos(_window, &_interaction._xpos_prev,
-                     &_interaction._ypos_prev);
-    _interaction._is_middle_pressed = true;
-  } else if (_interaction._is_middle_pressed &&
+    glfwGetCursorPos(_window, &_interaction.xpos_prev, &_interaction.ypos_prev);
+    _interaction.is_key_pressed[GLFW_MOUSE_BUTTON_MIDDLE] = true;
+  } else if (_interaction.is_key_pressed[GLFW_MOUSE_BUTTON_MIDDLE] &&
              glfwGetMouseButton(_window, GLFW_MOUSE_BUTTON_MIDDLE) ==
                  GLFW_RELEASE) {
     double xpos = 0.0, ypos = 0.0;
     glfwGetCursorPos(_window, &xpos, &ypos);
-    const double dy = ypos - _interaction._ypos_prev;
-    _distance *= (float)pow(1.1, dy / 50.0);
-    updateViewingMatrix();
-    _interaction._is_middle_pressed = false;
-  } else if (!_interaction._is_right_pressed &&
+    const double dy = ypos - _interaction.ypos_prev;
+    changeDistance(dy);
+    _interaction.is_key_pressed[GLFW_MOUSE_BUTTON_MIDDLE] = false;
+  } else if (!_interaction.is_key_pressed[GLFW_MOUSE_BUTTON_RIGHT] &&
              glfwGetMouseButton(_window, GLFW_MOUSE_BUTTON_RIGHT) ==
                  GLFW_PRESS) {
-    glfwGetCursorPos(_window, &_interaction._xpos_prev,
-                     &_interaction._ypos_prev);
-    _interaction._is_right_pressed = true;
-  } else if (_interaction._is_right_pressed &&
+    glfwGetCursorPos(_window, &_interaction.xpos_prev, &_interaction.ypos_prev);
+    _interaction.is_key_pressed[GLFW_MOUSE_BUTTON_RIGHT] = true;
+  } else if (_interaction.is_key_pressed[GLFW_MOUSE_BUTTON_RIGHT] &&
              glfwGetMouseButton(_window, GLFW_MOUSE_BUTTON_RIGHT) ==
                  GLFW_RELEASE) {
     double xpos = 0.0, ypos = 0.0;
     glfwGetCursorPos(_window, &xpos, &ypos);
-    float dx = (float)(xpos - _interaction._xpos_prev);
-    float dy = (float)(ypos - _interaction._ypos_prev);
-
-    const glm::vec3 up_dir{_up_viewer};
-    const glm::vec3 left_dir{glm::cross(
-        up_dir,
-        glm::normalize(glm::vec3{_center_viewer} - glm::vec3{_pos_viewer}))};
-    _transform_camera[3] += glm::vec4(up_dir * dy / 1000.0f, 0.0f);
-    _transform_camera[3] += glm::vec4(left_dir * dx / 1000.0f, 0.0f);
-
-    updateViewingMatrix();
-    _interaction._is_right_pressed = false;
+    float dx = (float)(xpos - _interaction.xpos_prev);
+    float dy = (float)(ypos - _interaction.ypos_prev);
+    translateView(dx, dy);
+    _interaction.is_key_pressed[GLFW_MOUSE_BUTTON_RIGHT] = false;
+  }
+  if (_interaction.is_key_pressed.size() != 13u) {
+    // should be w,s,a,d,up,down,right,left,n,f and three mouse buttons
+    std::cout << "number of key detection is wrong" << std::endl;
   }
 }
 

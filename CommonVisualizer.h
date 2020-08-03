@@ -8,6 +8,7 @@
 #include <list>
 #include <map>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "include/Container.hpp"
@@ -73,14 +74,23 @@ class CommonVisualizer {
 
   struct {
     /// @brief mouse position when button was pressed for interaction
-    double _xpos_prev = 0.0;
-    double _ypos_prev = 0.0;
-    /// @brief whether the left button is pressed (rotation)
-    bool _is_left_pressed = false;
-    /// @brief whether the middle button is pressed (zooming)
-    bool _is_middle_pressed = false;
-    /// @brief whether the right button is pressed (translation)
-    bool _is_right_pressed = false;
+    double xpos_prev = 0.0;
+    double ypos_prev = 0.0;
+    /// @brief whether one key or button is pressed (rotation)
+    std::unordered_map<std::uint32_t, bool> is_key_pressed{
+        {GLFW_KEY_W, false},
+        {GLFW_KEY_S, false},
+        {GLFW_KEY_A, false},
+        {GLFW_KEY_D, false},
+        {GLFW_KEY_N, false},
+        {GLFW_KEY_F, false},
+        {GLFW_KEY_RIGHT, false},
+        {GLFW_KEY_LEFT, false},
+        {GLFW_KEY_DOWN, false},
+        {GLFW_KEY_UP, false},
+        {GLFW_MOUSE_BUTTON_LEFT, false},
+        {GLFW_MOUSE_BUTTON_RIGHT, false},
+        {GLFW_MOUSE_BUTTON_MIDDLE, false}};
   } _interaction;
 
   /**
@@ -160,6 +170,21 @@ class CommonVisualizer {
    * update phong parameter in all created programs
    */
   void updatePhongParameter();
+
+  /**
+   * rotate the polar coordinates for viewing
+   */
+  void rotateView(const float dx, const float dy);
+
+  /**
+   * move the viewing position in up and right direction
+   */
+  void translateView(const float dx, const float dy);
+
+  /**
+   * shrink or enlarge the viewing distance with factor
+   */
+  void changeDistance(const float dy);
 
  public:
   CommonVisualizer(const int height = 600, const int width = 800,

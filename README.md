@@ -21,6 +21,9 @@ This project aims at providing a header-only library for data visualization with
 
 # Interactions
 
+- **w-s-a-d** rotate
+- **n-f** zoom
+- **up-down-left-right** translate
 - **left-mouse-button** click-drag-release to rotate
 - **middle-mouse-button** click-drag-release to zoom (only up and down)
 - **right-mouse-button** click-drag-release to translate
