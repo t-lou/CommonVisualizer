@@ -45,49 +45,29 @@ class Box : public MeshUnicolor {
     }
 
     // triangulate mesh
-    std::vector<float>::iterator begin = corners.begin();
+    const std::vector<float>::const_iterator begin = corners.begin();
+    auto append_corners{[&vertex, begin](const std::size_t id) -> void {
+      vertex.insert(vertex.end(), begin + id * 3u, begin + id * 3u + 3u);
+    }};
 
-    vertex.insert(vertex.end(), begin, begin + 3);
-    vertex.insert(vertex.end(), begin + 3, begin + 6);
-    vertex.insert(vertex.end(), begin + 6, begin + 9);
-    vertex.insert(vertex.end(), begin + 6, begin + 9);
-    vertex.insert(vertex.end(), begin + 3, begin + 6);
-    vertex.insert(vertex.end(), begin + 9, begin + 12);
-
-    vertex.insert(vertex.end(), begin + 12, begin + 15);
-    vertex.insert(vertex.end(), begin + 18, begin + 21);
-    vertex.insert(vertex.end(), begin + 15, begin + 18);
-    vertex.insert(vertex.end(), begin + 15, begin + 18);
-    vertex.insert(vertex.end(), begin + 18, begin + 21);
-    vertex.insert(vertex.end(), begin + 21, begin + 24);
-
-    vertex.insert(vertex.end(), begin, begin + 3);
-    vertex.insert(vertex.end(), begin + 15, begin + 18);
-    vertex.insert(vertex.end(), begin + 3, begin + 6);
-    vertex.insert(vertex.end(), begin + 12, begin + 15);
-    vertex.insert(vertex.end(), begin + 15, begin + 18);
-    vertex.insert(vertex.end(), begin, begin + 3);
-
-    vertex.insert(vertex.end(), begin + 6, begin + 9);
-    vertex.insert(vertex.end(), begin + 9, begin + 12);
-    vertex.insert(vertex.end(), begin + 18, begin + 21);
-    vertex.insert(vertex.end(), begin + 21, begin + 24);
-    vertex.insert(vertex.end(), begin + 18, begin + 21);
-    vertex.insert(vertex.end(), begin + 9, begin + 12);
-
-    vertex.insert(vertex.end(), begin, begin + 3);
-    vertex.insert(vertex.end(), begin + 6, begin + 9);
-    vertex.insert(vertex.end(), begin + 18, begin + 21);
-    vertex.insert(vertex.end(), begin + 18, begin + 21);
-    vertex.insert(vertex.end(), begin + 12, begin + 15);
-    vertex.insert(vertex.end(), begin, begin + 3);
-
-    vertex.insert(vertex.end(), begin + 9, begin + 12);
-    vertex.insert(vertex.end(), begin + 3, begin + 6);
-    vertex.insert(vertex.end(), begin + 21, begin + 24);
-    vertex.insert(vertex.end(), begin + 21, begin + 24);
-    vertex.insert(vertex.end(), begin + 3, begin + 6);
-    vertex.insert(vertex.end(), begin + 15, begin + 18);
+    for (const std::size_t id : {0u, 1u, 2u, 2u, 1u, 3u}) {
+      append_corners(id);
+    }
+    for (const std::size_t id : {4u, 6u, 5u, 5u, 6u, 7u}) {
+      append_corners(id);
+    }
+    for (const std::size_t id : {0u, 5u, 1u, 4u, 5u, 0u}) {
+      append_corners(id);
+    }
+    for (const std::size_t id : {2u, 3u, 6u, 7u, 6u, 3u}) {
+      append_corners(id);
+    }
+    for (const std::size_t id : {0u, 2u, 6u, 6u, 4u, 0u}) {
+      append_corners(id);
+    }
+    for (const std::size_t id : {3u, 1u, 7u, 7u, 1u, 5u}) {
+      append_corners(id);
+    }
 
     return vertex;
   }
