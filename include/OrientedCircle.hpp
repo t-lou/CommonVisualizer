@@ -50,7 +50,8 @@ class OrientedCircle : public Object {
   void display(const glm::mat4 &proj) {
     GLuint id_transform = glGetUniformLocation(_id_program, "transform");
     GLuint id_proj = glGetUniformLocation(_id_program, "proj");
-    GLuint id_color = glGetUniformLocation(_id_program, "color");
+    // GLuint id_color = glGetUniformLocation(_id_program, "color"); // TODO
+    // check
     glUseProgram(_id_program);
 
     glUniformMatrix4fv(id_proj, 1, GL_FALSE, &proj[0][0]);

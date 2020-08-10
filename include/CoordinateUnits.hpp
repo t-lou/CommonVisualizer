@@ -13,9 +13,7 @@ class CoordinateUnits : public Object {
   GLuint _buffer_color;
 
  public:
-  CoordinateUnits(const GLuint id_program,
-                  const Transform &transform =
-                      Transform{Vec{}, Vec{0.0f, 0.0f, 0.0f, 1.0f}},
+  CoordinateUnits(const GLuint id_program, const Transform &,
                   const float scale = 1.0f)
       : Object(id_program) {
     std::vector<float> points;

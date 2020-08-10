@@ -11,9 +11,15 @@
  * special classes for bullet and pcl may be created
  */
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wall"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wextra"
 #include <BulletCollision/Gimpact/btGImpactShape.h>
 #include <BulletCollision/NarrowPhaseCollision/btRaycastCallback.h>
 #include <btBulletDynamicsCommon.h>
+#pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
 
 #include <chrono>
 #include <cmath>
@@ -29,7 +35,7 @@
 
 // how to compile (assuming bullet and all gl libraries installed)
 // root directory of CommonVisualizer is /home/tlou/workspace/CommonVisualizer/
-// on my laptop clang++ test_bullet_crate.cpp -o test_bullet_crate
+// on my laptop GCC++ test_bullet_crate.cpp -o test_bullet_crate
 // -I/usr/include/bullet/ -I/home/tlou/workspace/CommonVisualizer/
 // -lBulletDynamics -lBulletCollision -lLinearMath -lGL -lGLEW -lGLU -lglut
 // -lglfw --std=c++11
@@ -225,13 +231,13 @@ void add_boxes(btDiscreteDynamicsWorld &world, const int num = 6) {
   }
 }
 
-int main(int argc, char **argv) {
+int main() {
   //    btAlignedObjectArray<btCollisionShape*> shape_list;
   //  vis.reset(new loco::CommonVisualizer(600, 800, "crate",
   //  loco::color::BLACK));
   vis.reset(new loco::BulletVisualizer(600, 800, "crate", loco::color::BLACK));
   vis->setDistance(1.0f);
-  vis->setLightSource(loco::Vec{0.0f, 0.0f, 1.0f}, loco::color::WHITE);
+  vis->setLightSource(loco::Vec{{0.0f, 0.0f, 1.0f}}, loco::color::WHITE);
   vis->setTheta(M_PI / 18.0);
   if (vis->isInited()) {
     btDiscreteDynamicsWorld world = init_world();

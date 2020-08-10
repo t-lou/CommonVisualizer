@@ -58,7 +58,7 @@ class Arrow : public Container {
                                    positions.at(id6 + 5)) -
                          glm::vec3(positions.at(id6), positions.at(id6 + 1),
                                    positions.at(id6 + 2)));
-      float len = glm::length(to);
+
       glm::vec3 link = glm::vec3(positions.at(id6 + 3), positions.at(id6 + 4),
                                  positions.at(id6 + 5)) -
                        to * length_head.at(id);

@@ -18,18 +18,20 @@
 namespace loco {
 /// @brief constants for some useful colors
 namespace color {
-const Vec BLACK{0.0f, 0.0f, 0.0f, 1.0f};
-const Vec GREY{0.5f, 0.5f, 0.5f, 1.0f};
-const Vec WHITE{1.0f, 1.0f, 1.0f, 1.0f};
-const Vec RED{1.0f, 0.0f, 0.0f, 1.0f};
-const Vec GREEN{0.0f, 1.0f, 0.0f, 1.0f};
-const Vec BLUE{0.0f, 0.0f, 1.0f, 1.0f};
-const Vec YELLOW{1.0f, 1.0f, 0.0f, 1.0f};
-const Vec MAGENTA{1.0f, 0.0f, 1.0f, 1.0f};
-const Vec CYAN{0.0f, 1.0f, 1.0f, 1.0f};
+const Vec BLACK{{0.0f, 0.0f, 0.0f, 1.0f}};
+const Vec GREY{{0.5f, 0.5f, 0.5f, 1.0f}};
+const Vec WHITE{{1.0f, 1.0f, 1.0f, 1.0f}};
+const Vec RED{{1.0f, 0.0f, 0.0f, 1.0f}};
+const Vec GREEN{{0.0f, 1.0f, 0.0f, 1.0f}};
+const Vec BLUE{{0.0f, 0.0f, 1.0f, 1.0f}};
+const Vec YELLOW{{1.0f, 1.0f, 0.0f, 1.0f}};
+const Vec MAGENTA{{1.0f, 0.0f, 1.0f, 1.0f}};
+const Vec CYAN{{0.0f, 1.0f, 1.0f, 1.0f}};
 }  // namespace color
 
 /// @brief registeration of opengl programs for different types
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-anonymous-struct"
 union GlProgram {
   GLuint _ids[20];
   struct {
@@ -44,6 +46,7 @@ union GlProgram {
     GLuint _id_program_cone_side;
   };
 };
+#pragma GCC diagnostic pop
 
 class CommonVisualizer {
  private:

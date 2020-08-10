@@ -363,16 +363,16 @@ CommonVisualizer::CommonVisualizer(const int height, const int width,
                                    const char *name, const Vec &background)
     : _height(height),
       _width(width),
+      _window(nullptr),
       _re_init(0),
-      _window(NULL),
       _distance(3.0f),
       _theta(glm::radians(90.0f)),
       _phi(0.0f),
+      _param_phong(Vec{{0.3f, 0.3f, 0.4f, 2.0f}}),
       _mat_proj(glm::perspective(
           glm::radians(45.0f), (float)_width / (float)_height, 0.1f, 5000.0f)),
       _transform_camera(Object::transformToMat4(
-          Transform{Vec{0.0f, 0.0f, 0.0f}, Vec{0.0f, 0.0f, 0.0f, 1.0f}})),
-      _param_phong(Vec{0.3f, 0.3f, 0.4f, 2.0f}) {
+          Transform{Vec{{0.0f, 0.0f, 0.0f}}, Vec{{0.0f, 0.0f, 0.0f, 1.0f}}})) {
   // glfw init
   _re_init = (glfwInit() == GLFW_TRUE);
   if (!_re_init) {
@@ -650,7 +650,7 @@ void CommonVisualizer::addCoordinateSign(const Transform &transform) {
     loadColoredCloudPointShader();
   }
   _world[_name_world].addObject(std::make_unique<CoordinateUnits>(
-      _id_prog._id_program_colored_cloud_point));
+      _id_prog._id_program_colored_cloud_point, transform, 1.0f));
 }
 
 /**

@@ -25,7 +25,7 @@ class BulletVisualizer : public CommonVisualizer {
   void addDiscreteDynamicsWorld(const btDynamicsWorld &world,
                                 const std::vector<Vec> &colors) {
     const int length = world.getNumCollisionObjects();
-    const Transform tf_zero = Transform{Vec{}, Vec{0.0f, 0.0f, 0.0f, 1.0f}};
+    const Transform tf_zero = Transform{Vec{}, Vec{{0.0f, 0.0f, 0.0f, 1.0f}}};
     assert(length == colors.size());
     for (int ido = 0; ido < length; ++ido) {
       const btRigidBody *body =
@@ -34,9 +34,10 @@ class BulletVisualizer : public CommonVisualizer {
       if (strcmp(body->getCollisionShape()->getName(), "Box") == 0) {
         btVector3 size = ((btBoxShape *)body->getCollisionShape())
                              ->getHalfExtentsWithMargin();
-        addBox(tf_zero,
-               Vec{float(size.getX()), float(size.getY()), float(size.getZ())},
-               color);
+        addBox(
+            tf_zero,
+            Vec{{float(size.getX()), float(size.getY()), float(size.getZ())}},
+            color);
       } else if (strcmp(body->getCollisionShape()->getName(), "Sphere") == 0) {
         float radius =
             float(((btSphereShape *)body->getCollisionShape())->getRadius());
@@ -89,10 +90,10 @@ class BulletVisualizer : public CommonVisualizer {
       btQuaternion rotation = tf.getRotation();
       setTransform(
           ido,
-          Transform{Vec{float(translation.getX()), float(translation.getY()),
-                        float(translation.getZ())},
-                    Vec{float(rotation.getX()), float(rotation.getY()),
-                        float(rotation.getZ()), float(rotation.getW())}});
+          Transform{Vec{{float(translation.getX()), float(translation.getY()),
+                         float(translation.getZ())}},
+                    Vec{{float(rotation.getX()), float(rotation.getY()),
+                         float(rotation.getZ()), float(rotation.getW())}}});
     }
   }
 };

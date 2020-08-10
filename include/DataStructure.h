@@ -11,13 +11,17 @@ namespace loco {
 /**
  * length 4 vector (can be used as vec3)
  */
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-anonymous-struct"
+// your code for which the warning gets suppressed
 union Vec {
   float data[4];
   struct {
-    float x;
-    float y;
-    float z;
-    float w;
+    float x{0.0f};
+    float y{0.0f};
+    float z{0.0f};
+    float w{1.0f};
   };
   struct {
     float r;
@@ -39,6 +43,7 @@ union Vec8 {
     std::uint8_t a;
   };
 };
+#pragma GCC diagnostic pop
 
 struct Transform {
   Vec translation;
@@ -46,8 +51,8 @@ struct Transform {
 };
 
 struct LightSource {
-  Vec pos;
-  Vec color;
+  Vec pos{{0.0f, 0.0f, 0.0f, 1.0f}};
+  Vec color{{1.0f, 1.0f, 1.0f, 1.0f}};
 };
 }  // namespace loco
 #endif  // COMMONVISUALIZER_DATA_STRUCTURE_H

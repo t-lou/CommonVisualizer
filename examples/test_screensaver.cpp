@@ -26,7 +26,7 @@ int main() {
   if (vis.isInited()) {
     constexpr float range{static_cast<float>(RAND_MAX)};
     // get (R-m)*r, where R is evenly distributed in [0, 1]
-    auto gen_rand = [range](const float m, const float r) -> float {
+    auto gen_rand = [](const float m, const float r) -> float {
       return (static_cast<float>(rand()) / range - m) * r;
     };
 
@@ -39,7 +39,7 @@ int main() {
                   std::bind(gen_rand, 0.0f, 1.0f));
 
     vis.setDistance(1500.0f);
-    vis.setLightSource(loco::Vec{0.0f, 0.0f, 1000.0f}, loco::color::WHITE);
+    vis.setLightSource(loco::Vec{{0.0f, 0.0f, 1000.0f}}, loco::color::WHITE);
 
     for (int count = 0; count < 20; ++count) {
       // random move the balls in 3D

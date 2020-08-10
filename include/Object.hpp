@@ -20,8 +20,8 @@
 namespace loco {
 class Object {
  protected:
-  glm::mat4 _transform;
   GLuint _id_program;
+  glm::mat4 _transform;
   GLuint _id_array;
   GLuint _buffer_position;
   int _size;
