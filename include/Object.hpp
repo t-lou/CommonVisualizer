@@ -107,12 +107,13 @@ class Object {
    * @return
    */
   static glm::mat4 transformToMat4(const Transform &transform) {
-    glm::vec4 quat(transform.rotation.x, transform.rotation.y,
-                   transform.rotation.z, transform.rotation.w);
+    glm::vec4 quat(transform.rotation.xyzw.x, transform.rotation.xyzw.y,
+                   transform.rotation.xyzw.z, transform.rotation.xyzw.w);
     quat /= glm::length(quat);
     glm::mat4 tf = glm::mat4_cast(glm::quat(quat.w, quat.x, quat.y, quat.z));
-    tf[3] = glm::vec4(transform.translation.x, transform.translation.y,
-                      transform.translation.z, 1.0f);
+    tf[3] =
+        glm::vec4(transform.translation.xyzw.x, transform.translation.xyzw.y,
+                  transform.translation.xyzw.z, 1.0f);
     return tf;
   }
 

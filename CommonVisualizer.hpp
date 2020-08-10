@@ -400,7 +400,8 @@ CommonVisualizer::CommonVisualizer(const int height, const int width,
 
   glfwSetInputMode(_window, GLFW_STICKY_MOUSE_BUTTONS, GL_TRUE);
 
-  glClearColor(background.r, background.g, background.b, background.a);
+  glClearColor(background.rgba.r, background.rgba.g, background.rgba.b,
+               background.rgba.a);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
   glEnable(GL_CULL_FACE);  // backface culling
