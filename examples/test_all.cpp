@@ -30,11 +30,16 @@ int main() {
         1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f,
     };
 
+    visualizer.addCoordinateSign(
+        loco::Transform{loco::Vec{{1.0f, -1.0f, 0.0f}},
+                        loco::Vec{{0.0f, 1.0f, 0.0f, 0.0f}}},
+        0.3f);
+    visualizer.addCoordinateSign(
+        loco::Transform{loco::Vec{{1.0f, 1.0f, 0.0f}},
+                        loco::Vec{{0.0f, 0.0f, 0.0f, 1.0f}}},
+        0.3f);
     visualizer.addMesh(std::vector<float>(mesh, mesh + 18),
                        std::vector<float>(color, color + 24));
-    visualizer.addBox(loco::Transform{loco::Vec{{0.0f, 0.0f, 0.0f}},
-                                      loco::Vec{{0.0f, 0.0f, 0.0f, 1.0f}}},
-                      loco::Vec{{0.1f, 0.1f, 0.1f}}, loco::color::WHITE);
     visualizer.addBox(loco::Transform{loco::Vec{{0.0f, 0.0f, 0.3f}},
                                       loco::Vec{{0.0f, 0.0f, 0.0f, 1.0f}}},
                       loco::Vec{{0.1f, 0.1f, 0.1f}}, loco::color::WHITE);

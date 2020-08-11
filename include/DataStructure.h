@@ -6,6 +6,7 @@
 #define COMMONVISUALIZER_DATA_STRUCTURE_H
 
 #include <cstdint>
+#include <glm/glm.hpp>
 
 namespace loco {
 /**
@@ -25,6 +26,12 @@ union Vec {
     float b;
     float a;
   } rgba;
+
+  glm::vec4 to_glm_vec4() const {
+    return glm::vec4(data[0], data[1], data[2], data[3]);
+  }
+
+  glm::vec3 to_glm_vec3() const { return glm::vec3(data[0], data[1], data[2]); }
 };
 
 union Vec8 {

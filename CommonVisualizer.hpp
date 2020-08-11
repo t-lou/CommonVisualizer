@@ -646,12 +646,13 @@ void CommonVisualizer::addPointCloud(const std::vector<float> &points,
  * add the notation for coordinate system after transform
  * @param transform
  */
-void CommonVisualizer::addCoordinateSign(const Transform &transform) {
+void CommonVisualizer::addCoordinateSign(const Transform &transform,
+                                         const float scale) {
   if (_id_prog._id_program_colored_cloud_point == 0) {
     loadColoredCloudPointShader();
   }
   _world[_name_world].addObject(std::make_unique<CoordinateUnits>(
-      _id_prog._id_program_colored_cloud_point, transform, 1.0f));
+      _id_prog._id_program_colored_cloud_point, transform, scale));
 }
 
 /**

@@ -305,7 +305,7 @@ class CommonVisualizer {
    * add the notation for coordinate system after transform
    * @param transform
    */
-  void addCoordinateSign(const Transform &transform);
+  void addCoordinateSign(const Transform &transform, const float scale = 1.0f);
 
   /**
    * add cylinder to visualizer
