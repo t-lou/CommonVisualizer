@@ -21,6 +21,7 @@
 #include "include/CloudSphereUnicolor.hpp"
 #include "include/Cone.hpp"
 #include "include/CoordinateUnits.hpp"
+#include "include/CoordinateUnits3D.hpp"
 #include "include/Cylinder.hpp"
 #include "include/Line.hpp"
 #include "include/MeshColored.hpp"
@@ -647,12 +648,28 @@ void CommonVisualizer::addPointCloud(const std::vector<float> &points,
  * @param transform
  */
 void CommonVisualizer::addCoordinateSign(const Transform &transform,
-                                         const float scale) {
-  if (_id_prog._id_program_colored_cloud_point == 0) {
-    loadColoredCloudPointShader();
+                                         const float scale,
+                                         const bool is_line) {
+  if (is_line) {
+    if (_id_prog._id_program_colored_cloud_point == 0) {
+      loadColoredCloudPointShader();
+    }
+    _world[_name_world].addObject(std::make_unique<CoordinateUnits>(
+        _id_prog._id_program_colored_cloud_point, transform, scale));
+  } else {
+    if (_id_prog._id_program_cylinder_side == 0) {
+      loadCylinderSideShader();
+    }
+    if (_id_prog._id_program_cone_side == 0) {
+      loadConeSideShader();
+    }
+    if (_id_prog._id_program_oriented_circle == 0) {
+      loadOrientedCircleShader();
+    }
+    _world[_name_world].addObject(std::make_unique<CoordinateUnits3D>(
+        transform, scale, _id_prog._id_program_cylinder_side,
+        _id_prog._id_program_cone_side, _id_prog._id_program_oriented_circle));
   }
-  _world[_name_world].addObject(std::make_unique<CoordinateUnits>(
-      _id_prog._id_program_colored_cloud_point, transform, scale));
 }
 
 /**

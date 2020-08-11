@@ -33,11 +33,11 @@ int main() {
     visualizer.addCoordinateSign(
         loco::Transform{loco::Vec{{1.0f, -1.0f, 0.0f}},
                         loco::Vec{{0.0f, 1.0f, 0.0f, 0.0f}}},
-        0.3f);
+        0.3f, false);
     visualizer.addCoordinateSign(
         loco::Transform{loco::Vec{{1.0f, 1.0f, 0.0f}},
                         loco::Vec{{0.0f, 0.0f, 0.0f, 1.0f}}},
-        0.3f);
+        0.3f, true);
     visualizer.addMesh(std::vector<float>(mesh, mesh + 18),
                        std::vector<float>(color, color + 24));
     visualizer.addBox(loco::Transform{loco::Vec{{0.0f, 0.0f, 0.3f}},
@@ -72,8 +72,8 @@ int main() {
     float ends_another_back[] = {0.0f, -1.0f, -0.5f, 0.0f, -1.0f, 0.5f};
     visualizer.addArrow(
         std::vector<float>(ends_another_back, ends_another_back + 6),
-        std::vector<float>(1, 0.3), std::vector<float>(1, 0.1),
-        std::vector<float>(1, 0.05),
+        std::vector<float>(1, 0.3f), std::vector<float>(1, 0.1f),
+        std::vector<float>(1, 0.05f),
         std::vector<loco::Vec>(1, loco::color::WHITE));
 
     visualizer.setActiveWorld("line3d");

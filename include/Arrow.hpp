@@ -32,58 +32,52 @@ class Arrow : public Container {
         const std::vector<float> &length_head, const std::vector<Vec> &colors,
         const GLuint id_program_cylinder, const GLuint id_program_cone,
         const GLuint id_program_circle) {
-    assert(positions.size() == radius_body.size() * 6);
+    assert(positions.size() == radius_body.size() * 6u);
     assert(radius_body.size() == radius_head.size());
     assert(radius_body.size() == length_head.size());
     assert(radius_body.size() == colors.size());
 
     _belongings.reserve(4);
 
+    auto append_glm_vec3{
+        [](const glm::vec3 &in, std::vector<float> &out) -> void {
+          for (int i : {0, 1, 2}) {
+            out.push_back(in[i]);
+          }
+        }};
+
     // convert the positions of arrow to cone and cylinder, and compute the
     // direction
+    const std::size_t num{length_head.size()};
     std::vector<float> pos_head;
     std::vector<float> pos_body;
     std::vector<float> pos_bottom;
     std::vector<float> normals;
     std::vector<float> pos_link;
-    pos_head.reserve(positions.size());
-    pos_body.reserve(positions.size());
-    normals.reserve(positions.size() / 2);
-    pos_link.reserve(positions.size() / 2);
-    pos_bottom.reserve(positions.size() / 2);
-    for (size_t id = 0; id < radius_body.size(); ++id) {
-      const size_t id6 = id * 6;
-      glm::vec3 to =
-          glm::normalize(glm::vec3(positions.at(id6 + 3), positions.at(id6 + 4),
-                                   positions.at(id6 + 5)) -
-                         glm::vec3(positions.at(id6), positions.at(id6 + 1),
-                                   positions.at(id6 + 2)));
+    pos_head.reserve(num * 6u);
+    pos_body.reserve(num * 6u);
+    normals.reserve(num / 3u);
+    pos_link.reserve(num / 3u);
+    pos_bottom.reserve(num / 3u);
+    for (std::size_t id = 0; id < num; ++id) {
+      const std::size_t id6{id * 6u};
+      const glm::vec3 root{positions.at(id6), positions.at(id6 + 1),
+                           positions.at(id6 + 2)};
+      const glm::vec3 point{positions.at(id6 + 3), positions.at(id6 + 4),
+                            positions.at(id6 + 5)};
+      const glm::vec3 to{glm::normalize(point - root)};
+      const glm::vec3 link{point - to * length_head.at(id)};
+      append_glm_vec3(link, pos_head);
+      append_glm_vec3(point, pos_head);
 
-      glm::vec3 link = glm::vec3(positions.at(id6 + 3), positions.at(id6 + 4),
-                                 positions.at(id6 + 5)) -
-                       to * length_head.at(id);
-      pos_head.push_back(link[0]);
-      pos_head.push_back(link[1]);
-      pos_head.push_back(link[2]);
-      pos_head.insert(pos_head.end(), positions.begin() + id6 + 3,
-                      positions.begin() + id6 + 6);
+      append_glm_vec3(link, pos_body);
+      append_glm_vec3(root, pos_body);
 
-      pos_body.push_back(link[0]);
-      pos_body.push_back(link[1]);
-      pos_body.push_back(link[2]);
-      pos_body.insert(pos_body.end(), positions.begin() + id6,
-                      positions.begin() + id6 + 3);
+      append_glm_vec3(root, pos_bottom);
 
-      pos_bottom.insert(pos_bottom.end(), positions.begin() + id6,
-                        positions.begin() + id6 + 3);
+      append_glm_vec3(link, pos_link);
 
-      pos_link.push_back(link[0]);
-      pos_link.push_back(link[1]);
-      pos_link.push_back(link[2]);
-
-      normals.push_back(-to[0]);
-      normals.push_back(-to[1]);
-      normals.push_back(-to[2]);
+      append_glm_vec3(-to, normals);
     }
 
     addObject(std::make_unique<ConeSide>(pos_head, radius_head, colors,
