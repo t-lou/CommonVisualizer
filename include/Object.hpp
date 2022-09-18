@@ -24,7 +24,7 @@ class Object {
   glm::mat4 _transform;
   GLuint _id_array;
   GLuint _buffer_position;
-  int _size;
+  std::size_t _size;
 
   /**
    * generate buffer for vector of float
@@ -46,24 +46,24 @@ class Object {
    * @return
    */
   static std::vector<float> genFakeNormal(const std::vector<float> &vertices) {
-    assert(vertices.size() % 3 == 0);
+    assert(vertices.size() % 3u == 0u);
     std::vector<float> normals;
     normals.resize(vertices.size());
-    for (size_t id = 0; id < vertices.size(); id += 9) {
+    for (std::size_t id = 0u; id < vertices.size(); id += 9u) {
       // use the cross product of two edges for normal
       // vec0 <- vector from second to first
-      glm::vec3 vec0(vertices.at(id + 3) - vertices.at(id + 0),
-                     vertices.at(id + 4) - vertices.at(id + 1),
-                     vertices.at(id + 5) - vertices.at(id + 2));
+      glm::vec3 vec0(vertices.at(id + 3u) - vertices.at(id + 0u),
+                     vertices.at(id + 4u) - vertices.at(id + 1u),
+                     vertices.at(id + 5u) - vertices.at(id + 2u));
       // vec1 <- vector from second to third
-      glm::vec3 vec1(vertices.at(id + 3) - vertices.at(id + 6),
-                     vertices.at(id + 4) - vertices.at(id + 7),
-                     vertices.at(id + 5) - vertices.at(id + 8));
+      glm::vec3 vec1(vertices.at(id + 3u) - vertices.at(id + 6u),
+                     vertices.at(id + 4u) - vertices.at(id + 7u),
+                     vertices.at(id + 5u) - vertices.at(id + 8u));
       glm::vec3 nor = glm::normalize(-glm::cross(vec0, vec1));
-      for (int i = 0; i < 3; ++i) {
-        normals.at(id + i * 3 + 0) = nor[0];
-        normals.at(id + i * 3 + 1) = nor[1];
-        normals.at(id + i * 3 + 2) = nor[2];
+      for (std::size_t i = 0u; i < 3u; ++i) {
+        normals.at(id + i * 3u     ) = nor[0u];
+        normals.at(id + i * 3u + 1u) = nor[1u];
+        normals.at(id + i * 3u + 2u) = nor[2u];
       }
     }
     return normals;
@@ -80,13 +80,13 @@ class Object {
    * @return
    */
   static std::vector<float> unfoldList(const std::vector<float> &data,
-                                       const std::vector<int> &index,
-                                       const int length_vector) {
+                                       const std::vector<std::uint32_t> &index,
+                                       const std::size_t length_vector) {
     std::vector<float> unfolded;
     unfolded.reserve(index.size() * length_vector);
 
-    for (int id : index) {
-      assert(length_vector * (id + 1) <= data.size());
+    for (std::uint32_t id : index) {
+      assert(length_vector * (id + 1u) <= data.size());
       unfolded.insert(unfolded.end(), data.begin() + length_vector * id,
                       data.begin() + length_vector * (id + 1));
     }
@@ -94,7 +94,7 @@ class Object {
   }
 
  public:
-  Object() : Object(0) {}
+  Object() : Object(0u) {}
 
   Object(const GLuint id_program)
       : _id_program(id_program), _transform(glm::mat4(1.0f)) {}

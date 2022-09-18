@@ -34,13 +34,13 @@ class Container : public virtual Object {
     }
   }
 
-  void setTransform(const int id, const Transform &transform) {
-    assert(id >= 0 && id < _belongings.size());
+  void setTransform(const std::uint32_t id, const Transform &transform) {
+    assert(id < _belongings.size());
     _belongings.at(id)->setTransform(transform);
   }
 
-  void applyTransform(const int id, const Transform &transform) {
-    assert(id >= 0 && id < _belongings.size());
+  void applyTransform(const std::uint32_t id, const Transform &transform) {
+    assert(id < _belongings.size());
     _belongings.at(id)->applyTransform(transform);
   }
 

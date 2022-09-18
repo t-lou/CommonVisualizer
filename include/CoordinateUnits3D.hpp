@@ -12,10 +12,10 @@ class CoordinateUnits3D : public Container {
                     const GLuint id_program_cone,
                     const GLuint id_program_circle) {
     const glm::mat4 tf_mat{Object::transformToMat4(transform)};
-    auto apply_transform{[tf_mat](std::vector<float> &pos) -> void {
-      glm::vec4 pos_vec{pos[0], pos[1], pos[2], 1.0f};
+    auto apply_transform{[&tf_mat](std::vector<float> &pos) -> void {
+      glm::vec4 pos_vec{pos[0u], pos[1u], pos[2u], 1.0f};
       pos_vec = tf_mat * pos_vec;
-      for (int i = 0; i < 3; ++i) {
+      for (std::int32_t i = 0; i < 3; ++i) {
         pos[i] = pos_vec[i];
       }
     }};
@@ -27,12 +27,12 @@ class CoordinateUnits3D : public Container {
                                   Vec{{0.0f, 1.0f, 0.0f, 1.0f}},
                                   Vec{{0.0f, 0.0f, 1.0f, 1.0f}}};
     std::vector<float> positions;
-    positions.reserve(6 * 3);
+    positions.reserve(6u * 3u);
     // add ends
-    for (int id_dim = 0; id_dim < 3; ++id_dim) {
+    for (std::size_t id_dim = 0u; id_dim < 3u; ++id_dim) {
       std::vector<float> color{0.0f, 0.0f, 0.0f, 1.0f};
-      std::vector<float> start(3, 0.0f);
-      std::vector<float> end(3, 0.0f);
+      std::vector<float> start(3u, 0.0f);
+      std::vector<float> end(3u, 0.0f);
       end[id_dim] = scale;
       color[id_dim] = 1.0f;
 
@@ -44,7 +44,7 @@ class CoordinateUnits3D : public Container {
 
     addObject(std::make_unique<Arrow>(
         positions, std::vector<float>(3, radius_head),
-        std::vector<float>(3, radius_body), std::vector<float>(3, length_head),
+        std::vector<float>(3u, radius_body), std::vector<float>(3u, length_head),
         colors, id_program_cylinder, id_program_cone, id_program_circle));
   }
 };

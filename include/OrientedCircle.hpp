@@ -27,7 +27,7 @@ class OrientedCircle : public Object {
     std::vector<float> colors_;
     colors_.reserve(radius.size() * 4u);
     for (const Vec &color : colors) {
-      colors_.insert(colors_.end(), color.data, color.data + 4);
+      colors_.insert(colors_.end(), color.data, color.data + 4u);
     }
 
     glGenVertexArrays(1, &_id_array);

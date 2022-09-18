@@ -16,26 +16,26 @@ class Cone : public Container {
        const std::vector<Vec> &colors, const GLuint id_program_side,
        const GLuint id_program_bottom)
       : Container() {
-    assert(positions.size() == radius.size() * 6);
+    assert(positions.size() == radius.size() * 6u);
     assert(colors.size() == radius.size());
 
-    _belongings.reserve(2);
+    _belongings.reserve(2u);
     addObject(
         std::make_unique<ConeSide>(positions, radius, colors, id_program_side));
 
     // bottoms
     std::vector<float> normals;
     std::vector<float> pos_bottom;
-    normals.reserve(radius.size() * 3);
-    pos_bottom.reserve(radius.size() * 3);
-    for (size_t id = 0; id < radius.size(); ++id) {
-      const size_t id6 = id * 6;
+    normals.reserve(radius.size() * 3u);
+    pos_bottom.reserve(radius.size() * 3u);
+    for (std::size_t id = 0u; id < radius.size(); ++id) {
+      const std::size_t id6 = id * 6u;
       glm::vec3 to =
-          glm::normalize(glm::vec3(positions.at(id6 + 3), positions.at(id6 + 4),
-                                   positions.at(id6 + 5)) -
-                         glm::vec3(positions.at(id6), positions.at(id6 + 1),
-                                   positions.at(id6 + 2)));
-      for (int i = 0; i < 3; ++i) {
+          glm::normalize(glm::vec3(positions.at(id6 + 3u), positions.at(id6 + 4u),
+                                   positions.at(id6 + 5u)) -
+                         glm::vec3(positions.at(id6), positions.at(id6 + 1u),
+                                   positions.at(id6 + 2u)));
+      for (std::size_t i = 0u; i < 3u; ++i) {
         normals.push_back(-to[i]);
         pos_bottom.push_back(positions.at(id6 + i));
       }

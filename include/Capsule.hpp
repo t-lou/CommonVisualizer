@@ -25,23 +25,23 @@ class Capsule : public Container {
           const std::vector<Vec> &colors, const GLuint id_program_side,
           const GLuint id_program_end)
       : Container() {
-    assert(positions.size() % 6 == 0);
-    assert(positions.size() / 6 == radius.size());
+    assert(positions.size() % 6u == 0u);
+    assert(positions.size() / 6u == radius.size());
     assert(radius.size() == colors.size());
 
-    _belongings.reserve(2 * colors.size());
+    _belongings.reserve(2u * colors.size());
 
-    for (size_t id = 0; id < colors.size(); ++id) {
-      const size_t id6 = id * 6;
+    for (std::size_t id = 0u; id < colors.size(); ++id) {
+      const std::size_t id6 = id * 6u;
       addObject(std::make_unique<CloudSphereUnicolor>(
           std::vector<float>(positions.begin() + id6,
-                             positions.begin() + id6 + 6),
+                             positions.begin() + id6 + 6u),
           colors.at(id), radius.at(id), id_program_end));
       addObject(std::make_unique<CylinderSide>(
           std::vector<float>(positions.begin() + id6,
-                             positions.begin() + id6 + 6),
-          std::vector<float>(1, radius.at(id)),
-          std::vector<Vec>(1, colors.at(id)), id_program_side));
+                             positions.begin() + id6 + 6u),
+          std::vector<float>(1u, radius.at(id)),
+          std::vector<Vec>(1u, colors.at(id)), id_program_side));
     }
   }
 };

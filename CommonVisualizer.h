@@ -5,6 +5,7 @@
 #ifndef COMMONVISUALIZER_COMMONVISUALIZER_H_H
 #define COMMONVISUALIZER_COMMONVISUALIZER_H_H
 
+#include <cstdint>
 #include <list>
 #include <map>
 #include <string>
@@ -48,7 +49,7 @@ union GlProgram {
 class CommonVisualizer {
  private:
   /// @brief size of window
-  const int _height, _width;
+  const std::uint32_t _height, _width;
   /// @brief handler for the window
   GLFWwindow *_window;
   /// @brief whether initilization is successful
@@ -98,7 +99,7 @@ class CommonVisualizer {
    * @param length
    * @param id
    */
-  static void dispErrorCompilation(const int length, const GLuint id,
+  static void dispErrorCompilation(const GLint length, const GLuint id,
                                    const GLenum &type);
 
   /**
@@ -187,7 +188,8 @@ class CommonVisualizer {
   void changeDistance(const float dy);
 
  public:
-  CommonVisualizer(const int height = 600, const int width = 800,
+  CommonVisualizer(const std::uint32_t height = 600u,
+                   const std::uint32_t width = 800u,
                    const char *name = "default",
                    const Vec &background = color::BLACK);
 
@@ -259,7 +261,7 @@ class CommonVisualizer {
 
   void setTransform(const Transform &transform);
 
-  void setTransform(const int id, const Transform &transform);
+  void setTransform(const std::uint32_t id, const Transform &transform);
 
   /**
    * add mesh with uniform color
@@ -275,7 +277,7 @@ class CommonVisualizer {
    * @param color
    */
   void addMesh(const std::vector<float> &vertices,
-               const std::vector<int> &index, const Vec &color);
+               const std::vector<std::uint32_t> &index, const Vec &color);
 
   /**
    * add mesh with color

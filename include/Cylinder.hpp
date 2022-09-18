@@ -30,17 +30,17 @@ class Cylinder : public Container {
     radius_.reserve(radius.size() * 2);
     normals_.reserve(positions.size());
 
-    for (size_t id = 0; id < colors.size(); ++id) {
-      const size_t id6 = id * 6;
+    for (size_t id = 0u; id < colors.size(); ++id) {
+      const size_t id6 = id * 6u;
       glm::vec3 to =
           glm::normalize(glm::vec3(positions.at(id6 + 3), positions.at(id6 + 4),
                                    positions.at(id6 + 5)) -
                          glm::vec3(positions.at(id6), positions.at(id6 + 1),
                                    positions.at(id6 + 2)));
-      for (int i = 0; i < 3; ++i) {
+      for (std::size_t i = 0u; i < 3u; ++i) {
         normals_.push_back(-to[i]);
       }
-      for (int i = 0; i < 3; ++i) {
+      for (std::size_t i = 0u; i < 3u; ++i) {
         normals_.push_back(to[i]);
       }
       colors_.push_back(colors.at(id));

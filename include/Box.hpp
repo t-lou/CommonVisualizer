@@ -21,11 +21,11 @@ class Box : public MeshUnicolor {
     glm::mat4 tf_mat = Object::transformToMat4(transform);
     std::vector<float> corners;
     std::vector<float> vertex;
-    corners.reserve(24);
-    vertex.reserve(108);
+    corners.reserve(24u);
+    vertex.reserve(108u);
 
     // get transformed corners
-    for (int id = 0; id < 8; ++id) {
+    for (std::int32_t id = 0; id < 8; ++id) {
       glm::vec4 corner(scale.xyzw.x, scale.xyzw.y, scale.xyzw.z, 1.0f);
       if (id >= 4) {
         corner.z = -corner.z;
@@ -39,7 +39,7 @@ class Box : public MeshUnicolor {
 
       corner = tf_mat * corner;
 
-      for (int i = 0; i < 3; ++i) {
+      for (std::size_t i = 0u; i < 3u; ++i) {
         corners.push_back(corner[i]);
       }
     }

@@ -17,7 +17,7 @@ class CoordinateUnits : public Object {
                   const float scale = 1.0f)
       : Object(id_program) {
     const glm::mat4 tf_mat{Object::transformToMat4(transform)};
-    auto apply_transform{[tf_mat](std::vector<float> &pos) -> void {
+    auto apply_transform{[&tf_mat](std::vector<float> &pos) -> void {
       glm::vec4 pos_vec{pos[0], pos[1], pos[2], 1.0f};
       pos_vec = tf_mat * pos_vec;
       for (int i = 0; i < 3; ++i) {
@@ -27,13 +27,13 @@ class CoordinateUnits : public Object {
 
     std::vector<float> points;
     std::vector<float> colors;
-    points.reserve(6 * 3);
-    colors.reserve(6 * 4);
+    points.reserve(6u * 3u);
+    colors.reserve(6u * 4u);
     // add points
     for (int id_dim = 0; id_dim < 3; ++id_dim) {
       std::vector<float> color{0.0f, 0.0f, 0.0f, 1.0f};
-      std::vector<float> start(3, 0.0f);
-      std::vector<float> end(3, 0.0f);
+      std::vector<float> start(3u, 0.0f);
+      std::vector<float> end(3u, 0.0f);
       end[id_dim] = scale;
       color[id_dim] = 1.0f;
 
@@ -50,7 +50,7 @@ class CoordinateUnits : public Object {
     genBufferVectorFloat(points, _buffer_position);
     genBufferVectorFloat(colors, _buffer_color);
 
-    _size = 6;
+    _size = 6u;
   }
 
   ~CoordinateUnits() {

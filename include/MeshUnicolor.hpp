@@ -18,7 +18,7 @@ class MeshUnicolor : public Object {
                const std::vector<float> &normals, const Vec &color,
                const GLuint id_program)
       : Object(id_program), _color(color) {
-    assert(vertices.size() % 9 == 0);
+    assert(vertices.size() % 9u == 0u);
     assert(normals.size() == vertices.size());
     // vertex array
     glGenVertexArrays(1, &_id_array);
@@ -26,7 +26,7 @@ class MeshUnicolor : public Object {
     genBufferVectorFloat(vertices, _buffer_position);
     // normal buffer
     genBufferVectorFloat(normals, _buffer_normal);
-    _size = vertices.size() / 3;
+    _size = vertices.size() / 3u;
   }
 
   MeshUnicolor(const std::vector<float> &vertices, const Vec &color,
@@ -34,13 +34,13 @@ class MeshUnicolor : public Object {
       : MeshUnicolor(vertices, genFakeNormal(vertices), color, id_program) {}
 
   MeshUnicolor(const std::vector<float> &vertices,
-               const std::vector<float> &normals, const std::vector<int> &index,
+               const std::vector<float> &normals, const std::vector<std::uint32_t> &index,
                const Vec &color, const GLuint id_program)
       : MeshUnicolor(unfoldList(vertices, index, 3),
                      unfoldList(normals, index, 3), color, id_program) {}
 
   MeshUnicolor(const std::vector<float> &vertices,
-               const std::vector<int> &index, const Vec &color,
+               const std::vector<std::uint32_t> &index, const Vec &color,
                const GLuint id_program)
       : MeshUnicolor(unfoldList(vertices, index, 3), color, id_program) {}
 

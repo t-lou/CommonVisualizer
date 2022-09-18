@@ -18,7 +18,7 @@ class MeshColored : public Object {
               const std::vector<float> &normals,
               const std::vector<float> &colors, const GLuint id_program)
       : Object(id_program) {
-    assert(vertices.size() * 12 == colors.size() * 9);
+    assert(vertices.size() * 12u == colors.size() * 9u);
     assert(vertices.size() == normals.size());
     // vertex array
     glGenVertexArrays(1, &_id_array);
@@ -36,18 +36,18 @@ class MeshColored : public Object {
       : MeshColored(vertices, genFakeNormal(vertices), colors, id_program) {}
 
   MeshColored(const std::vector<float> &vertices,
-              const std::vector<float> &colors, const std::vector<int> &index,
+              const std::vector<float> &colors, const std::vector<std::uint32_t> &index,
               const GLuint id_program)
-      : MeshColored(unfoldList(vertices, index, 3),
-                    genFakeNormal(unfoldList(vertices, index, 3)),
-                    unfoldList(colors, index, 4), id_program) {}
+      : MeshColored(unfoldList(vertices, index, 3u),
+                    genFakeNormal(unfoldList(vertices, index, 3u)),
+                    unfoldList(colors, index, 4u), id_program) {}
 
   MeshColored(const std::vector<float> &vertices,
               const std::vector<float> &normals,
-              const std::vector<float> &colors, const std::vector<int> &index,
+              const std::vector<float> &colors, const std::vector<std::uint32_t> &index,
               const GLuint id_program)
-      : MeshColored(unfoldList(vertices, index, 3),
-                    unfoldList(normals, index, 3), unfoldList(colors, index, 4),
+      : MeshColored(unfoldList(vertices, index, 3u),
+                    unfoldList(normals, index, 3u), unfoldList(colors, index, 4u),
                     id_program) {}
 
   ~MeshColored() {

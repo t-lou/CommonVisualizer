@@ -37,11 +37,11 @@ class Arrow : public Container {
     assert(radius_body.size() == length_head.size());
     assert(radius_body.size() == colors.size());
 
-    _belongings.reserve(4);
+    _belongings.reserve(4u);
 
     auto append_glm_vec3{
         [](const glm::vec3 &in, std::vector<float> &out) -> void {
-          for (int i : {0, 1, 2}) {
+          for (std::size_t i : {0u, 1u, 2u}) {
             out.push_back(in[i]);
           }
         }};
@@ -59,12 +59,12 @@ class Arrow : public Container {
     normals.reserve(num / 3u);
     pos_link.reserve(num / 3u);
     pos_bottom.reserve(num / 3u);
-    for (std::size_t id = 0; id < num; ++id) {
+    for (std::size_t id = 0u; id < num; ++id) {
       const std::size_t id6{id * 6u};
-      const glm::vec3 root{positions.at(id6), positions.at(id6 + 1),
-                           positions.at(id6 + 2)};
-      const glm::vec3 point{positions.at(id6 + 3), positions.at(id6 + 4),
-                            positions.at(id6 + 5)};
+      const glm::vec3 root{positions.at(id6), positions.at(id6 + 1u),
+                           positions.at(id6 + 2u)};
+      const glm::vec3 point{positions.at(id6 + 3u), positions.at(id6 + 4u),
+                            positions.at(id6 + 5u)};
       const glm::vec3 to{glm::normalize(point - root)};
       const glm::vec3 link{point - to * length_head.at(id)};
       append_glm_vec3(link, pos_head);
