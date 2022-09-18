@@ -30,11 +30,9 @@ const Vec CYAN{{0.0f, 1.0f, 1.0f, 1.0f}};
 }  // namespace color
 
 /// @brief registeration of opengl programs for different types
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-anonymous-struct"
 union GlProgram {
   GLuint _ids[20];
-  struct {
+  struct Named {
     GLuint _id_program_colored_mesh;
     GLuint _id_program_unicolor_mesh;
     GLuint _id_program_colored_cloud_point;
@@ -44,9 +42,8 @@ union GlProgram {
     GLuint _id_program_cylinder_side;
     GLuint _id_program_oriented_circle;
     GLuint _id_program_cone_side;
-  };
+  } _named;
 };
-#pragma GCC diagnostic pop
 
 class CommonVisualizer {
  private:
