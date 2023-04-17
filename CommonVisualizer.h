@@ -217,6 +217,12 @@ class CommonVisualizer {
   void setDistance(const float distance);
 
   /**
+   * get distance from eye to center (zooming)
+   * @return distance
+   */
+  float getDistance() const;
+
+  /**
    * set theta of viewer, which is the angle of viewing direction to -Z
    * @param theta
    */

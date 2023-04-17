@@ -200,6 +200,10 @@ void CommonVisualizer::changeDistance(const float dy) {
   updateViewingMatrix();
 }
 
+float CommonVisualizer::getDistance() const {
+  return _distance;
+}
+
 /**
  * rotate and zoom(not implemented) according to mouse input
  */
