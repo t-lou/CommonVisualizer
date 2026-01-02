@@ -20,11 +20,11 @@ target_link_libraries(test_all
   ${EIGEN3_LIBRARIES}
 )
 
-add_executable(test_bullet_crate test_bullet_crate.cpp)
-target_link_libraries(test_bullet_crate
-  GL GLEW GLU glut glfw
-  BulletDynamics BulletCollision LinearMath
-)
+# add_executable(test_bullet_crate test_bullet_crate.cpp)
+# target_link_libraries(test_bullet_crate
+#   GL GLEW GLU glut glfw
+#   BulletDynamics BulletCollision LinearMath
+# )
 
 add_executable(test_spheres test_spheres.cpp)
 target_link_libraries(test_spheres
