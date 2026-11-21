@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM ubuntu:26.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
@@ -25,3 +25,5 @@ CMD ["bash"]
 
 # Command build:
 # docker compose -f .devcontainer/docker-compose.yml up --build -d
+# xhost +local:docker
+# docker run -it -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix -v $(pwd):/workspace devenv-gl-dev
