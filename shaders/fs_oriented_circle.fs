@@ -27,7 +27,9 @@ uniform vec4 color_light;
 
 void main()
 {
-  if(length(fs_in_centered_pixel.pos - fs_in_centered_pixel.center) < fs_in_centered_pixel.radius)
+  vec3 offset = fs_in_centered_pixel.pos - fs_in_centered_pixel.center;
+  if(fs_in_centered_pixel.radius > 0.0f
+      && dot(offset, offset) < fs_in_centered_pixel.radius * fs_in_centered_pixel.radius)
   {
     if(color_light[3] > 0.0f)
     {

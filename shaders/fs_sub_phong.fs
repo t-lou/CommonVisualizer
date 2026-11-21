@@ -22,7 +22,8 @@ vec4 light_phong(PixelNormal pixel)
 {
   vec3 l = normalize(pos_light - pixel.pos);
   vec3 h = normalize(normalize(pos_eye - pixel.pos) + l);
-  vec4 c = (phong.y * saturate(dot(l, pixel.nor)) + phong.z * pow(saturate(dot(h, pixel.nor)), phong.w))
+  float specular = saturate(dot(h, pixel.nor));
+  vec4 c = (phong.y * saturate(dot(l, pixel.nor)) + phong.z * specular * specular)
     * color_light + phong.x * pixel.color;
   return vec4(c.rgb, pixel.color.a);
 }

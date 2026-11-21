@@ -38,7 +38,7 @@ void main()
   // => r^2 = <(eye + t * view) - (origin + (<dir, eye - origin> + t * <dir, view>) * dir)>
   // => r^2 = <(eye - origin - <dir, eye - origin> * dir)
   //           + t * (view - <dir, view> * dir)>
-  vec3 dir_view = normalize(fs_in_centered_end.pos - pos_eye);
+  vec3 dir_view = fs_in_centered_end.pos - pos_eye;
   vec3 origin_to_eye = pos_eye - fs_in_centered_end.origin;
   vec3 vec_part = origin_to_eye - fs_in_centered_end.dir * dot(origin_to_eye, fs_in_centered_end.dir);
   vec3 scalar_part = dir_view - fs_in_centered_end.dir * dot(fs_in_centered_end.dir, dir_view);
@@ -50,7 +50,7 @@ void main()
   if(under_sqrt >= 0.0f)
   {
     float t = (-b - sqrt(under_sqrt)) / (2.0f * a);
-    float t0 = dot(fs_in_centered_end.dir, pos_eye - fs_in_centered_end.origin + t * dir_view);
+    float t0 = dot(fs_in_centered_end.dir, origin_to_eye + t * dir_view);
     if(t0 > 0.0f && t0 < fs_in_centered_end.length)
     {
       PixelNormal to_light;

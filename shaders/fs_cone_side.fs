@@ -43,7 +43,7 @@ void main()
   //    = <(eye - origin - x0 * dir) + t * (view - x1 * dir)>
   // <= al*t^2 + bl*t + cl = ar*t^2 + br*t + cr
 
-  vec3 dir_view = normalize(fs_in_centered_end.pos - pos_eye);
+  vec3 dir_view = fs_in_centered_end.pos - pos_eye;
   vec3 origin_to_eye = pos_eye - fs_in_centered_end.origin;
   float x0 = dot(fs_in_centered_end.dir, origin_to_eye);
   float x1 = dot(fs_in_centered_end.dir, dir_view);
@@ -68,7 +68,7 @@ void main()
   if(under_sqrt >= 0.0f)
   {
     float t = a > 0.0f ? (-b - sqrt(under_sqrt)) / (2.0f * a) : (-b + sqrt(under_sqrt)) / (2.0f * a);
-    float t0 = dot(fs_in_centered_end.dir, pos_eye - fs_in_centered_end.origin + t * dir_view);
+    float t0 = dot(fs_in_centered_end.dir, origin_to_eye + t * dir_view);
     float distance = ar * t*t + br * t + cr;
     float radius_local = (1.0f - t0 / fs_in_centered_end.length) * fs_in_centered_end.radius;
     if(t0 > 0.0f && t0 < fs_in_centered_end.length && distance < radius_local)

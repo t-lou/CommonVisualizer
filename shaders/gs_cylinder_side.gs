@@ -25,12 +25,13 @@ void main()
 {
   float radius_ = vs_out_centered_end[0].radius;
   vec3 dir_along = vs_out_centered_end[1].pos - vs_out_centered_end[0].pos;
+  vec3 dir_axis = normalize(dir_along);
   vec3 dir0_look = normalize(vs_out_centered_end[0].pos - pos_eye);
   vec3 dir1_look = normalize(vs_out_centered_end[1].pos - pos_eye);
-  vec3 dir0_up = normalize(cross(dir_along, dir0_look));
-  vec3 dir1_up = normalize(cross(dir_along, dir1_look));
-  vec3 dir0_out = normalize(cross(dir_along, dir0_up));
-  vec3 dir1_out = normalize(cross(dir_along, dir1_up));
+  vec3 dir0_up = normalize(cross(dir_axis, dir0_look));
+  vec3 dir1_up = normalize(cross(dir_axis, dir1_look));
+  vec3 dir0_out = normalize(cross(dir_axis, dir0_up));
+  vec3 dir1_out = normalize(cross(dir_axis, dir1_up));
 
   vec3 pos0 = vs_out_centered_end[0].pos + (dir0_out + dir0_up) * radius_;
   vec3 pos1 = vs_out_centered_end[0].pos + (dir0_out - dir0_up) * radius_;
@@ -41,8 +42,8 @@ void main()
   vec3 edge1_to = normalize(pos3 - pos1);
 
   // extend by radius_
-  float s0 = abs(dot(normalize(dir_along), dir0_look));
-  float s1 = abs(dot(normalize(dir_along), dir1_look));
+  float s0 = abs(dot(dir_axis, dir0_look));
+  float s1 = abs(dot(dir_axis, dir1_look));
   s0 = sqrt(1.0f - s0 * s0);
   s1 = sqrt(1.0f - s1 * s1);
   pos0 -= edge0_to * radius_ / s0;
@@ -52,7 +53,7 @@ void main()
 
   // common
   fs_in_centered_end.length = length(dir_along);
-  fs_in_centered_end.dir = normalize(dir_along);
+  fs_in_centered_end.dir = dir_axis;
   fs_in_centered_end.color = vs_out_centered_end[0].color;
   fs_in_centered_end.origin = vs_out_centered_end[0].pos;
   fs_in_centered_end.radius = radius_;

@@ -27,15 +27,17 @@ uniform vec4 color_light;
 void main()
 {
   vec3 eye_to_center = pos_eye - fs_in_centered_pixel.center;
-  vec3 dir = normalize(fs_in_centered_pixel.pos.xyz - pos_eye);
+  vec3 ray = fs_in_centered_pixel.pos.xyz - pos_eye;
 
-  // radius == length(pos_eye + dir * d - center). this leads to a second order equation
-  float b = dot(eye_to_center, dir) * 2.0f;
+  // Solve the ray/sphere intersection without normalizing the ray.
+  float a = dot(ray, ray);
+  float b = dot(eye_to_center, ray) * 2.0f;
   float c = dot(eye_to_center, eye_to_center) - radius * radius;
-  float under_sqrt = b * b - 4.0f * c;
+  float under_sqrt = b * b - 4.0f * a * c;
   if(under_sqrt > 0.0f)
   {
-    vec4 pos_coll = vec4(dir * 0.5f * (-b - sqrt(under_sqrt)) + pos_eye, 1.0);
+    float t = (-b - sqrt(under_sqrt)) / (2.0f * a);
+    vec4 pos_coll = vec4(ray * t + pos_eye, 1.0);
     if(color_light[3] > 0.0f)
     {
       PixelNormal real_pos;
