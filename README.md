@@ -1,40 +1,145 @@
 # CommonVisualizer
 
-Sometimes when we want to do simulation or computation in C++, it is not easy to visualize the data, especially transforms.
+CommonVisualizer is a C++/OpenGL library for interactive 3D visualization of simulation and computation data. It supports meshes, point clouds, spheres, cylinders, capsules, cones, arrows, boxes, lines, and coordinate signs.
 
-This project aims at providing a header-only library for data visualization with OpenGL, such as mesh, point cloud and simple shapes. The hpp header can also be easily built as library (examples/test_sep_*).
+The library is primarily header-based: include `CommonVisualizer.hpp` in your application.
 
-# Dependencies
+## Features
 
-- freeglut
-- glm
-- glew
-- glfw3
+- Colored and unicolor meshes
+- Static and updateable point clouds
+- 3D primitives and coordinate signs
+- Mouse and keyboard camera controls
+- Multiple named scenes
+- PNG color and depth screenshots
+- C++ application examples
+
+## Requirements
+
+- C++14-compatible compiler
+- CMake 3.6 or newer
+- FreeGLUT
+- GLEW
+- GLFW 3
+- GLM
+- OpenGL and GLU
 - libpng++
-- eigen3 (for one example code only)
+- Eigen 3 (required by the full example set)
 
-# Steps
+For a Debian/Ubuntu-based development environment, the dependencies can be installed with:
 
-- download
-- include CommonVisualizer.hpp
-- build with gl-libs
+```bash
+sudo apt-get install build-essential cmake pkg-config \
+  libx11-dev libgl1-mesa-dev libglu1-mesa-dev libglm-dev \
+  libglew-dev libglfw3-dev libpng++-dev freeglut3-dev libeigen3-dev
+```
 
-# Interactions
+## Build the Examples
 
-- **w-s-a-d** rotate
-- **n-f** zoom
-- **up-down-left-right** translate
-- **left-mouse-button** click-drag-release to rotate
-- **middle-mouse-button** click-drag-release to zoom (only up and down)
-- **right-mouse-button** click-drag-release to translate
+```bash
+cmake -S examples -B build
+cmake --build build -j
+```
 
-# Screenshots
+Run an example from the repository root:
 
-- supported primitives
-![primitives](https://github.com/t-lou/CommonVisualizer/blob/master/examples/screenshots/test_all.png)
-- visualization of boxes fall into crate
-![primitives](https://github.com/t-lou/CommonVisualizer/blob/master/examples/screenshots/test_bullet_crate.png)
-- visualization of spheres
-![primitives](https://github.com/t-lou/CommonVisualizer/blob/master/examples/screenshots/test_spheres.png)
-- screenshot generation
-![primitives](https://github.com/t-lou/CommonVisualizer/blob/master/examples/screenshots/test_screensaver.png)
+```bash
+./build/test_spheres
+```
+
+The examples include:
+
+| Executable | Description |
+| --- | --- |
+| `test_all` | Meshes, point clouds, and primitive objects |
+| `test_spheres` | Animated colored sphere point cloud |
+| `test_screensaver` | Capture frames as PNG images |
+| `test_depth_map_saver` | Capture depth maps as PNG images |
+| `test_sep` | Visualization of separable systems |
+
+An X11 display is required to open the OpenGL windows.
+
+## Quick Start
+
+```cpp
+#include "CommonVisualizer.hpp"
+
+int main() {
+  loco::CommonVisualizer visualizer(
+      600, 800, "mesh viewer", loco::color::BLACK);
+
+  if (!visualizer.isInited()) {
+    return 1;
+  }
+
+  visualizer.setDistance(5.0f);
+  visualizer.setLightSource(loco::Vec{{0.0f, 0.0f, 10.0f}},
+                            loco::color::WHITE);
+
+  const std::vector<float> vertices{
+      -0.5f, -0.5f, 0.0f,
+       0.5f, -0.5f, 0.0f,
+       0.0f,  0.5f, 0.0f,
+  };
+  visualizer.addMesh(vertices, loco::color::GREEN);
+
+  while (visualizer.playOnce()) {
+  }
+}
+```
+
+Compile an application from the repository root:
+
+```bash
+g++ -std=c++14 my_app.cpp -I. \
+  -lGL -lGLEW -lGLU -lglut -lglfw -o my_app
+```
+
+## Camera Controls
+
+| Input | Action |
+| --- | --- |
+| `W` / `S` | Rotate vertically |
+| `A` / `D` | Rotate horizontally |
+| `N` / `F` | Zoom out / zoom in |
+| Arrow keys | Translate the camera |
+| Left mouse drag | Rotate |
+| Middle mouse drag | Zoom |
+| Right mouse drag | Translate |
+
+## Common API
+
+```cpp
+visualizer.setActiveWorld("objects");
+visualizer.resetScene();
+visualizer.resetScene("objects");
+
+visualizer.addMesh(vertices, loco::color::RED);
+visualizer.addBox(transform, scale, loco::color::BLUE);
+visualizer.addLine(positions, radius, loco::color::WHITE);
+
+const std::uint32_t cloud_id =
+    visualizer.addPointCloud(points, colors, radius);
+visualizer.updatePointCloud(cloud_id, updated_points);
+
+visualizer.setTransform(transform);
+visualizer.setTransformCamera(camera_transform);
+```
+
+Scenes can be divided with `setActiveWorld()`. Use `resetScene()` to clear the active scene or the entire visualizer.
+
+See [examples/test_all.cpp](examples/test_all.cpp) and [examples/test_spheres.cpp](examples/test_spheres.cpp) for complete examples.
+
+## Screenshots
+
+### Supported primitives
+
+![Supported primitives](examples/screenshots/test_all.png)
+
+### Animated spheres
+
+![Animated spheres](examples/screenshots/test_spheres.png)
+
+### PNG screenshot generation
+
+![PNG screenshot generation](examples/screenshots/test_screensaver.png)
