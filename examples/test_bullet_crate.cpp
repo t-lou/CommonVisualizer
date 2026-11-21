@@ -30,7 +30,7 @@
 #include <thread>
 #include <vector>
 
-//#include "CommonVisualizer.hpp"
+// #include "CommonVisualizer.hpp"
 #include "BulletVisualizer.hpp"
 
 // how to compile (assuming bullet and all gl libraries installed)
@@ -85,8 +85,8 @@ void add_box(const btVector3 &scaling, const btVector3 &center,
 void add_scene(const btDynamicsWorld &world) {
   std::vector<loco::Vec> colors;
   colors.reserve(world.getNumCollisionObjects());
-  colors.resize(61, loco::color::BLUE);                               // crate
-  colors.resize(world.getNumCollisionObjects(), loco::color::WHITE);  // boxes
+  colors.resize(61, loco::color::BLUE);                              // crate
+  colors.resize(world.getNumCollisionObjects(), loco::color::WHITE); // boxes
   vis->addDiscreteDynamicsWorld(world, colors);
 }
 

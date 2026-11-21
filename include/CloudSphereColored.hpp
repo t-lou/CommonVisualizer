@@ -12,6 +12,9 @@ class CloudSphereColored : public Object {
  protected:
   const float _radius;
   GLuint _buffer_color;
+  GLint _id_transform = -1;
+  GLint _id_proj = -1;
+  GLint _id_size = -1;
 
  public:
   CloudSphereColored(const std::vector<float> &positions,
@@ -24,6 +27,19 @@ class CloudSphereColored : public Object {
     genBufferVectorFloat(positions, _buffer_position);
     genBufferVectorFloat(colors, _buffer_color);
     _size = positions.size() / 3u;
+
+    _id_transform = glGetUniformLocation(_id_program, "transform");
+    _id_proj = glGetUniformLocation(_id_program, "proj");
+    _id_size = glGetUniformLocation(_id_program, "radius");
+
+    glBindVertexArray(_id_array);
+    glBindBuffer(GL_ARRAY_BUFFER, _buffer_position);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+    glBindBuffer(GL_ARRAY_BUFFER, _buffer_color);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, NULL);
+    glBindVertexArray(0);
   }
 
   ~CloudSphereColored() {
@@ -33,29 +49,19 @@ class CloudSphereColored : public Object {
   }
 
   void display(const glm::mat4 &proj) {
-    GLuint id_transform = glGetUniformLocation(_id_program, "transform");
-    GLuint id_proj = glGetUniformLocation(_id_program, "proj");
-    GLuint id_size = glGetUniformLocation(_id_program, "radius");
     glUseProgram(_id_program);
 
-    glUniformMatrix4fv(id_proj, 1, GL_FALSE, &proj[0][0]);
-    glUniformMatrix4fv(id_transform, 1, GL_FALSE, &_transform[0][0]);
+    glUniformMatrix4fv(_id_proj, 1, GL_FALSE, &proj[0][0]);
+    glUniformMatrix4fv(_id_transform, 1, GL_FALSE, &_transform[0][0]);
 
-    glUniform1f(id_size, _radius);
+    glUniform1f(_id_size, _radius);
     glBindVertexArray(_id_array);
 
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, _buffer_position);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-
-    glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, _buffer_color);
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, NULL);
-
     glDrawArrays(GL_POINTS, 0, _size);
+  }
 
-    glDisableVertexAttribArray(1);
-    glDisableVertexAttribArray(0);
+  void updatePointPositions(const std::vector<float> &positions) override {
+    updatePositionBuffer(positions);
   }
 };
 }  // namespace loco

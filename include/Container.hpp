@@ -5,6 +5,8 @@
 #ifndef COMMONVISUALIZER_CONTAINER_HPP
 #define COMMONVISUALIZER_CONTAINER_HPP
 
+#include <cstdint>
+
 #include "Object.hpp"
 
 namespace loco {
@@ -22,8 +24,10 @@ class Container : public virtual Object {
 
   void reset() { _belongings.clear(); }
 
-  void addObject(std::unique_ptr<Object> object) {
+  std::uint32_t addObject(std::unique_ptr<Object> object) {
+    const std::uint32_t id = static_cast<std::uint32_t>(_belongings.size());
     _belongings.push_back(std::move(object));
+    return id;
   }
 
   void reserve(const size_t size_space) { _belongings.reserve(size_space); }
@@ -42,6 +46,11 @@ class Container : public virtual Object {
   void applyTransform(const std::uint32_t id, const Transform &transform) {
     assert(id < _belongings.size());
     _belongings.at(id)->applyTransform(transform);
+  }
+
+  void updatePositions(const std::uint32_t id,
+                       const std::vector<float> &positions) {
+    _belongings.at(id)->updatePointPositions(positions);
   }
 
   void setTransform(const Transform &transform) override {

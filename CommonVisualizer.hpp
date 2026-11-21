@@ -5,6 +5,7 @@
 #ifndef COMMONVISUALIZER_COMMONVISUALIZER_HPP
 #define COMMONVISUALIZER_COMMONVISUALIZER_HPP
 
+#include <array>
 #include <cmath>
 #include <fstream>
 #include <iostream>
@@ -38,12 +39,12 @@ void CommonVisualizer::dispErrorCompilation(const GLint length, const GLuint id,
   std::string error;
   error.resize(length + 1);
   switch (type) {
-    case GL_PROGRAM:
-      glGetProgramInfoLog(id, length, NULL, &error.front());
-      break;
-    case GL_SHADER:
-      glGetShaderInfoLog(id, length, NULL, &error.front());
-      break;
+  case GL_PROGRAM:
+    glGetProgramInfoLog(id, length, NULL, &error.front());
+    break;
+  case GL_SHADER:
+    glGetShaderInfoLog(id, length, NULL, &error.front());
+    break;
   }
   std::cout << error << std::endl;
 }
@@ -97,9 +98,9 @@ GLuint CommonVisualizer::createShader(const GLenum &shader_type,
  * @param shader_texts
  * @return
  */
-GLuint CommonVisualizer::createProgram(
-    const std::vector<GLenum> &shader_types,
-    const std::vector<const char *> &shader_texts) {
+GLuint
+CommonVisualizer::createProgram(const std::vector<GLenum> &shader_types,
+                                const std::vector<const char *> &shader_texts) {
   assert(shader_types.size() == shader_texts.size());
   GLuint id_program;
   GLint re = GL_FALSE;
@@ -200,52 +201,50 @@ void CommonVisualizer::changeDistance(const float dy) {
   updateViewingMatrix();
 }
 
-float CommonVisualizer::getDistance() const {
-  return _distance;
-}
+float CommonVisualizer::getDistance() const { return _distance; }
 
 /**
  * rotate and zoom(not implemented) according to mouse input
  */
 void CommonVisualizer::onRotationAndZooming() {
   std::uint32_t num_released{0u};
-  for (const std::uint32_t key : std::vector<std::uint32_t>{
-           GLFW_KEY_W, GLFW_KEY_S, GLFW_KEY_A, GLFW_KEY_D, GLFW_KEY_N,
-           GLFW_KEY_F, GLFW_KEY_RIGHT, GLFW_KEY_LEFT, GLFW_KEY_DOWN,
-           GLFW_KEY_UP}) {
+  constexpr std::array<std::uint32_t, 10> keys{
+      GLFW_KEY_W, GLFW_KEY_S,     GLFW_KEY_A,    GLFW_KEY_D,    GLFW_KEY_N,
+      GLFW_KEY_F, GLFW_KEY_RIGHT, GLFW_KEY_LEFT, GLFW_KEY_DOWN, GLFW_KEY_UP};
+  for (const std::uint32_t key : keys) {
     const std::int32_t state = glfwGetKey(_window, key);
     if (state != 0 && !_interaction.is_key_pressed[key]) {
       switch (key) {
-        case GLFW_KEY_W:
-          rotateView(0.0f, 100.0f);
-          break;
-        case GLFW_KEY_S:
-          rotateView(0.0f, -100.0f);
-          break;
-        case GLFW_KEY_A:
-          rotateView(100.0f, 0.0f);
-          break;
-        case GLFW_KEY_D:
-          rotateView(-100.0f, 0.0f);
-          break;
-        case GLFW_KEY_N:
-          changeDistance(-50.0f);
-          break;
-        case GLFW_KEY_F:
-          changeDistance(50.0f);
-          break;
-        case GLFW_KEY_DOWN:
-          translateView(0.0f, 100.0f);
-          break;
-        case GLFW_KEY_UP:
-          translateView(0.0f, -100.0f);
-          break;
-        case GLFW_KEY_RIGHT:
-          translateView(100.0f, 0.0f);
-          break;
-        case GLFW_KEY_LEFT:
-          translateView(-100.0f, 0.0f);
-          break;
+      case GLFW_KEY_W:
+        rotateView(0.0f, 100.0f);
+        break;
+      case GLFW_KEY_S:
+        rotateView(0.0f, -100.0f);
+        break;
+      case GLFW_KEY_A:
+        rotateView(100.0f, 0.0f);
+        break;
+      case GLFW_KEY_D:
+        rotateView(-100.0f, 0.0f);
+        break;
+      case GLFW_KEY_N:
+        changeDistance(-50.0f);
+        break;
+      case GLFW_KEY_F:
+        changeDistance(50.0f);
+        break;
+      case GLFW_KEY_DOWN:
+        translateView(0.0f, 100.0f);
+        break;
+      case GLFW_KEY_UP:
+        translateView(0.0f, -100.0f);
+        break;
+      case GLFW_KEY_RIGHT:
+        translateView(100.0f, 0.0f);
+        break;
+      case GLFW_KEY_LEFT:
+        translateView(-100.0f, 0.0f);
+        break;
       }
       ++num_released;
     }
@@ -367,13 +366,8 @@ void CommonVisualizer::updatePhongParameter() {
 CommonVisualizer::CommonVisualizer(const std::uint32_t height,
                                    const std::uint32_t width, const char *name,
                                    const Vec &background)
-    : _height(height),
-      _width(width),
-      _window(nullptr),
-      _re_init(0),
-      _distance(3.0f),
-      _theta(glm::radians(90.0f)),
-      _phi(0.0f),
+    : _height(height), _width(width), _window(nullptr), _re_init(0),
+      _distance(3.0f), _theta(glm::radians(90.0f)), _phi(0.0f),
       _param_phong(Vec{{0.3f, 0.3f, 0.4f, 2.0f}}),
       _mat_proj(glm::perspective(
           glm::radians(45.0f), (float)_width / (float)_height, 0.1f, 5000.0f)),
@@ -399,7 +393,7 @@ CommonVisualizer::CommonVisualizer(const std::uint32_t height,
 
   // glew init
   glewExperimental = GL_TRUE;
-  _re_init = (glewInit() == GLEW_OK);  // before is true, same as and
+  _re_init = (glewInit() == GLEW_OK); // before is true, same as and
   if (!_re_init) {
     return;
   }
@@ -410,7 +404,7 @@ CommonVisualizer::CommonVisualizer(const std::uint32_t height,
                background.rgba.a);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
-  glEnable(GL_CULL_FACE);  // backface culling
+  glEnable(GL_CULL_FACE); // backface culling
   glEnable(GL_PROGRAM_POINT_SIZE);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -423,6 +417,7 @@ CommonVisualizer::CommonVisualizer(const std::uint32_t height,
 }
 
 CommonVisualizer::~CommonVisualizer() {
+  _world.clear();
   for (GLuint &id_prog : _id_prog._ids) {
     if (id_prog) {
       glDeleteProgram(id_prog);
@@ -492,7 +487,7 @@ bool CommonVisualizer::playOnce() {
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   onRotationAndZooming();
-  glm::mat4 proj = _mat_proj * _mat_view;  // without its own tf
+  glm::mat4 proj = _mat_proj * _mat_view; // without its own tf
 
   updatePhongParameter();
   for (auto &world : _world) {
@@ -614,43 +609,49 @@ void CommonVisualizer::addMesh(const std::vector<float> &vertices,
  * @param colors
  * @param radius
  */
-void CommonVisualizer::addPointCloud(const std::vector<float> &points,
-                                     const std::vector<float> &colors,
-                                     const float radius) {
+std::uint32_t CommonVisualizer::addPointCloud(const std::vector<float> &points,
+                                              const std::vector<float> &colors,
+                                              const float radius) {
   if (radius <= 0.0f) {
     if (_id_prog._named._id_program_colored_cloud_point == 0u) {
       loadColoredCloudPointShader();
     }
-    _world[_name_world].addObject(std::make_unique<CloudPointColored>(
+    return _world[_name_world].addObject(std::make_unique<CloudPointColored>(
         points, colors, -radius,
         _id_prog._named._id_program_colored_cloud_point));
   } else {
     if (_id_prog._named._id_program_colored_cloud_sphere == 0u) {
       loadColoredCloudSphereShader();
     }
-    _world[_name_world].addObject(std::make_unique<CloudSphereColored>(
+    return _world[_name_world].addObject(std::make_unique<CloudSphereColored>(
         points, colors, radius,
         _id_prog._named._id_program_colored_cloud_sphere));
   }
 }
 
-void CommonVisualizer::addPointCloud(const std::vector<float> &points,
-                                     const Vec &color, const float radius) {
+std::uint32_t CommonVisualizer::addPointCloud(const std::vector<float> &points,
+                                              const Vec &color,
+                                              const float radius) {
   if (radius <= 0.0f) {
     if (_id_prog._named._id_program_unicolor_cloud_point == 0u) {
       loadUnicolorCloudPointShader();
     }
-    _world[_name_world].addObject(std::make_unique<CloudPointUnicolor>(
+    return _world[_name_world].addObject(std::make_unique<CloudPointUnicolor>(
         points, color, -radius,
         _id_prog._named._id_program_unicolor_cloud_point));
   } else {
     if (_id_prog._named._id_program_unicolor_cloud_sphere == 0u) {
       loadUnicolorCloudSphereShader();
     }
-    _world[_name_world].addObject(std::make_unique<CloudSphereUnicolor>(
+    return _world[_name_world].addObject(std::make_unique<CloudSphereUnicolor>(
         points, color, radius,
         _id_prog._named._id_program_unicolor_cloud_sphere));
   }
+}
+
+void CommonVisualizer::updatePointCloud(const std::uint32_t id,
+                                        const std::vector<float> &points) {
+  _world.at(_name_world).updatePositions(id, points);
 }
 
 /**
@@ -1001,6 +1002,6 @@ void CommonVisualizer::loadConeSideShader() {
       std::vector<GLenum>(types, types + 4),
       std::vector<const char *>(texts, texts + 4));
 }
-}  // namespace loco
+} // namespace loco
 
-#endif  // COMMONVISUALIZER_COMMONVISUALIZER_HPP
+#endif // COMMONVISUALIZER_COMMONVISUALIZER_HPP

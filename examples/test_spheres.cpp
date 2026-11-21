@@ -38,6 +38,8 @@ int main() {
     vis.setDistance(1500.0f);
     vis.setLightSource(loco::Vec{{0.0f, 0.0f, 1000.0f}}, loco::color::WHITE);
 
+    const std::uint32_t cloud_id = vis.addPointCloud(positions, colors, 10.0f);
+
     while (true) {
       // random move the balls in 3D
       std::generate(
@@ -46,13 +48,11 @@ int main() {
             return *(position++) + gen_rand(0.5f, 10.0f);
           });
 
-      vis.addPointCloud(positions, colors, 10.0f);
+      vis.updatePointCloud(cloud_id, positions);
 
       if (!vis.playOnce()) {
         break;
       }
-
-      vis.resetScene();
     }
   } else {
     return 1;

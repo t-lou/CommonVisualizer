@@ -294,17 +294,27 @@ class CommonVisualizer {
                const std::vector<float> &colors);
 
   /**
+   * Add a point cloud and return its ID in the active world. The ID can be
+   * passed to updatePointCloud to update the positions without recreating it.
    *
    * @param points
    * @param colors
    * @param radius
+   * @return point cloud ID
    */
-  void addPointCloud(const std::vector<float> &points,
-                     const std::vector<float> &colors,
-                     const float radius = -1.0f);
+  std::uint32_t addPointCloud(const std::vector<float> &points,
+                              const std::vector<float> &colors,
+                              const float radius = -1.0f);
 
-  void addPointCloud(const std::vector<float> &points, const Vec &color,
-                     const float radius = -1.0f);
+  /**
+   * Update positions for a point cloud in the active world. The point count
+   * must match the count used when the cloud was added.
+   */
+  void updatePointCloud(const std::uint32_t id,
+                        const std::vector<float> &points);
+
+  std::uint32_t addPointCloud(const std::vector<float> &points,
+                              const Vec &color, const float radius = -1.0f);
 
   /**
    * add the notation for coordinate system after transform

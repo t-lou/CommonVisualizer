@@ -13,6 +13,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <memory>
+#include <stdexcept>
 #include <vector>
 
 #include "DataStructure.h"
@@ -35,8 +36,18 @@ class Object {
                                    GLuint &id_buffer) {
     glGenBuffers(1, &id_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, id_buffer);
-    glBufferData(GL_ARRAY_BUFFER, 4 * data.size(), &data.front(),
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * data.size(), data.data(),
                  GL_STATIC_DRAW);
+  }
+
+  void updatePositionBuffer(const std::vector<float> &positions) {
+    if (positions.size() != _size * 3u) {
+      throw std::invalid_argument(
+          "Updated point cloud must have the original number of positions");
+    }
+    glBindBuffer(GL_ARRAY_BUFFER, _buffer_position);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * positions.size(),
+                 positions.data(), GL_STREAM_DRAW);
   }
 
   /**
@@ -135,6 +146,10 @@ class Object {
    * @param proj
    */
   virtual void display(const glm::mat4 &proj) = 0;
+
+  virtual void updatePointPositions(const std::vector<float> &) {
+    throw std::logic_error("This object does not support position updates");
+  }
 };
 }  // namespace loco
 
